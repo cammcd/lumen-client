@@ -192,7 +192,8 @@ public final class ClickGuiScreen extends Screen {
 		int w = PANEL_W;
 
 		float expand = Anim.approach(new Key(p, "collapse"), p.collapsed ? 0f : 1f);
-		int maxContent = Math.max(48, height - y - HEADER_H - 14);
+		// Leave room for the hint bar along the bottom of the screen.
+		int maxContent = Math.max(48, height - y - HEADER_H - 38);
 		int visible = Math.round(Math.min(p.contentHeight, maxContent) * expand);
 		int bottom = y + HEADER_H + visible + (visible > 0 ? 5 : 0);
 
@@ -602,7 +603,12 @@ public final class ClickGuiScreen extends Screen {
 		int kx = x1 + 1 + Math.round((sw - 8) * rb);
 		ui.roundRect(kx, ry + 2, kx + 6, ry + 8, 3, 0xFFFFFFFF);
 		ui.text("Rainbow", x1 + sw + 5, ry + 1, DIM_TEXT);
-		ui.textRight(ColorUtil.toHex(c.get()), x2, ry + 1, 0x90FFFFFF);
+		// Opaque colours show as #RRGGBB. The readout is dropped if it would touch the label.
+		String hex = ColorUtil.alpha(c.get()) == 255
+				? String.format("#%06X", c.get() & 0xFFFFFF)
+				: ColorUtil.toHex(c.get());
+		int labelEnd = x1 + sw + 5 + ui.width("Rainbow");
+		if (x2 - ui.width(hex) >= labelEnd + 6) ui.textRight(hex, x2, ry + 1, 0x90FFFFFF);
 		ui.hit(x1, ry, x1 + sw + 5 + ui.width("Rainbow"), ry + 10, (button, px, py) -> {
 			if (button == LEFT) c.setRainbow(!c.isRainbow());
 		});

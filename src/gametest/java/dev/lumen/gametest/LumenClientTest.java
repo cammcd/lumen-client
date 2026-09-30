@@ -11,6 +11,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
+import net.minecraft.world.level.gamerules.GameRules;
 
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.TestInput;
@@ -53,7 +54,11 @@ public final class LumenClientTest implements FabricClientGameTest {
 		MixinEnvironment.getCurrentEnvironment().audit();
 
 		try (TestSingleplayerContext sp = context.worldBuilder()
-				.adjustSettings(creator -> creator.setGameMode(WorldCreationUiState.SelectedGameMode.CREATIVE))
+				.adjustSettings(creator -> {
+					creator.setGameMode(WorldCreationUiState.SelectedGameMode.CREATIVE);
+					// Keeps setblock feedback out of chat so screenshots stay clean.
+					creator.getGameRules().set(GameRules.SEND_COMMAND_FEEDBACK, false, null);
+				})
 				.create()) {
 			testInWorld(context, sp);
 		}
