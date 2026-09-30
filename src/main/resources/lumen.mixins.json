@@ -6,6 +6,7 @@
 		"CameraMixin",
 		"FirstPersonHandsAndItemsRendererMixin",
 		"KeyboardHandlerMixin",
+		"LevelRendererMixin",
 		"LocalPlayerMixin",
 		"MinecraftAccessor",
 		"MouseHandlerMixin"

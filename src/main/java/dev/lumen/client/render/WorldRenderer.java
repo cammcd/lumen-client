@@ -3,26 +3,22 @@ package dev.lumen.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.world.phys.Vec3;
-
-import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 
 import dev.lumen.client.Lumen;
 import dev.lumen.client.module.Module;
 
-/** Entry point for all in-world overlays, called once per frame while submits are collected. */
+/** Entry point for all in-world overlays, called once per frame after the level has rendered. */
 public final class WorldRenderer {
 	private WorldRenderer() {
 	}
 
-	public static void render(LevelRenderContext context) {
+	public static void render(CameraRenderState cameraState) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.level == null || mc.player == null || Lumen.modules() == null) return;
 
-		PoseStack poseStack = context.poseStack();
-		if (poseStack == null) return;
-
-		Vec3 cam = context.levelState().cameraRenderState.pos;
+		Vec3 cam = cameraState.pos;
 		EspBatch batch = new EspBatch(cam.x, cam.y, cam.z);
 
 		for (Module module : Lumen.modules().all()) {
@@ -33,8 +29,10 @@ public final class WorldRenderer {
 
 		if (batch.isEmpty()) return;
 
-		poseStack.pushPose();
-		batch.submit(context.submitNodeCollector(), poseStack);
-		poseStack.popPose();
+		// Geometry is camera-relative; the camera's rotation is applied here because this
+		// runs outside the level renderer's own transforms.
+		PoseStack poseStack = new PoseStack();
+		poseStack.mulPose(cameraState.viewRotationMatrix);
+		batch.drawNow(poseStack);
 	}
 }

@@ -2,16 +2,23 @@ package dev.lumen.client.render;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.renderpearl.api.commands.RenderPass;
 
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.StagedVertexBuffer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.world.phys.AABB;
 
 /**
- * Collects ESP geometry for one frame in camera-relative coordinates, then hands it
- * to the game's submit queue in at most four draws.
+ * Collects ESP geometry for one frame in camera-relative coordinates, then draws it
+ * in at most four draws.
  */
 public final class EspBatch {
 	private record Box(float x1, float y1, float z1, float x2, float y2, float z2, int color) {
@@ -79,31 +86,64 @@ public final class EspBatch {
 		return fillsThrough.isEmpty() && fillsDepth.isEmpty() && linesThrough.isEmpty() && linesDepth.isEmpty();
 	}
 
-	public void submit(SubmitNodeCollector collector, PoseStack poseStack) {
-		submitFills(collector, poseStack, fillsDepth, false);
-		submitFills(collector, poseStack, fillsThrough, true);
-		submitLines(collector, poseStack, linesDepth, false);
-		submitLines(collector, poseStack, linesThrough, true);
+	/**
+	 * Draws everything collected this frame in its own render pass. This runs after the
+	 * level has finished rendering, so blocks, block entities and mobs drawn earlier
+	 * cannot cover highlights that are meant to show through them.
+	 */
+	public void drawNow(PoseStack poseStack) {
+		if (isEmpty()) return;
+
+		StagedVertexBuffer staged = new StagedVertexBuffer(() -> "Lumen ESP", RenderType.BIG_BUFFER_SIZE);
+		List<RenderType> types = new ArrayList<>();
+		List<StagedVertexBuffer.Draw> draws = new ArrayList<>();
+		try {
+			PoseStack.Pose pose = poseStack.last();
+			appendBoxes(staged, types, draws, pose, fillsDepth, LumenRenderTypes.quads(false));
+			appendBoxes(staged, types, draws, pose, fillsThrough, LumenRenderTypes.quads(true));
+			appendLines(staged, types, draws, pose, linesDepth, LumenRenderTypes.lines(false));
+			appendLines(staged, types, draws, pose, linesThrough, LumenRenderTypes.lines(true));
+			if (draws.isEmpty()) return;
+
+			staged.upload();
+			RenderTarget target = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+			try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Lumen ESP",
+					target.getColorTextureView(), Optional.empty(), target.getDepthTextureView(), OptionalDouble.empty())) {
+				RenderSystem.bindDefaultUniforms(pass);
+				for (int i = 0; i < draws.size(); i++) {
+					StagedVertexBuffer.ExecuteInfo info = staged.getExecuteInfo(draws.get(i));
+					if (info != null) types.get(i).prepare().drawFromBuffer(info, pass);
+				}
+			}
+			staged.endDraw();
+		} finally {
+			staged.close();
+		}
 	}
 
-	private static void submitFills(SubmitNodeCollector collector, PoseStack poseStack, List<Box> boxes, boolean throughWalls) {
+	private static StagedVertexBuffer.Draw begin(StagedVertexBuffer staged, RenderType type) {
+		return staged.appendDraw(type.format(), type.primitiveTopology(),
+				type.sortOnUpload() ? RenderSystem.getProjectionType().vertexSorting() : null);
+	}
+
+	private static void appendBoxes(StagedVertexBuffer staged, List<RenderType> types, List<StagedVertexBuffer.Draw> draws,
+			PoseStack.Pose pose, List<Box> boxes, RenderType type) {
 		if (boxes.isEmpty()) return;
-		List<Box> snapshot = List.copyOf(boxes);
-		collector.submitCustomGeometry(poseStack, LumenRenderTypes.quads(throughWalls), (pose, buffer) -> {
-			for (Box b : snapshot) {
-				drawBox(pose, buffer, b);
-			}
-		});
+		StagedVertexBuffer.Draw draw = begin(staged, type);
+		VertexConsumer buffer = staged.getVertexBuilder(draw);
+		for (Box b : boxes) drawBox(pose, buffer, b);
+		types.add(type);
+		draws.add(draw);
 	}
 
-	private static void submitLines(SubmitNodeCollector collector, PoseStack poseStack, List<Line> lines, boolean throughWalls) {
+	private static void appendLines(StagedVertexBuffer staged, List<RenderType> types, List<StagedVertexBuffer.Draw> draws,
+			PoseStack.Pose pose, List<Line> lines, RenderType type) {
 		if (lines.isEmpty()) return;
-		List<Line> snapshot = List.copyOf(lines);
-		collector.submitCustomGeometry(poseStack, LumenRenderTypes.lines(throughWalls), (pose, buffer) -> {
-			for (Line l : snapshot) {
-				drawLine(pose, buffer, l);
-			}
-		});
+		StagedVertexBuffer.Draw draw = begin(staged, type);
+		VertexConsumer buffer = staged.getVertexBuilder(draw);
+		for (Line l : lines) drawLine(pose, buffer, l);
+		types.add(type);
+		draws.add(draw);
 	}
 
 	// Faces are wound counter-clockwise seen from outside, so back faces are culled
