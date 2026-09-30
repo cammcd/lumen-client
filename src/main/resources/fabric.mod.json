@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "lumen",
+	"version": "${version}",
+	"name": "Lumen",
+	"description": "A clean, customizable utility client. Storage ESP, Spawner ESP, a themeable click GUI and HUD.",
+	"authors": [
+		"cammcd"
+	],
+	"contact": {
+		"sources": "https://github.com/cammcd/lumen-client"
+	},
+	"license": "MIT",
+	"icon": "assets/lumen/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"dev.lumen.client.Lumen"
+		]
+	},
+	"mixins": [
+		"lumen.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

@@ -1,0 +1,708 @@
+package dev.lumen.client.gui;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.blaze3d.platform.InputConstants;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+
+import dev.lumen.client.Lumen;
+import dev.lumen.client.module.Category;
+import dev.lumen.client.module.Module;
+import dev.lumen.client.modules.ClickGuiModule;
+import dev.lumen.client.setting.BoolSetting;
+import dev.lumen.client.setting.ColorSetting;
+import dev.lumen.client.setting.EnumSetting;
+import dev.lumen.client.setting.NumberSetting;
+import dev.lumen.client.setting.Setting;
+import dev.lumen.client.util.ColorUtil;
+import dev.lumen.client.util.KeyNames;
+
+public final class ClickGuiScreen extends Screen {
+	private static final int PANEL_W = 136;
+	private static final int HEADER_H = 20;
+	private static final int ROW_H = 16;
+	private static final int DIM_TEXT = 0xFF9EA3B8;
+	private static final String HINT = "Left click: toggle   Right click: settings   Middle click: bind   Drag headers to move";
+
+	private record Key(Object owner, String part) {
+	}
+
+	private interface DragHandler {
+		void drag(double mouseX, double mouseY);
+	}
+
+	private static final class Panel {
+		final Category category;
+		int x;
+		int y;
+		boolean collapsed;
+		float scroll;
+		int contentHeight;
+		int x1, y1, x2, y2;
+
+		Panel(Category category, int x, int y) {
+			this.category = category;
+			this.x = x;
+			this.y = y;
+		}
+	}
+
+	private static final Object OPEN_KEY = new Object();
+
+	// Remembered across openings so the GUI comes back the way it was left.
+	private static final Set<String> EXPANDED = new HashSet<>();
+	private static final Set<ColorSetting> OPEN_PICKERS = new HashSet<>();
+
+	private final Ui ui = new Ui();
+	private final List<Panel> panels = new ArrayList<>();
+	private final Map<Object, Integer> measured = new HashMap<>();
+	private final Map<ColorSetting, float[]> hsbCache = new HashMap<>();
+
+	private Panel dragging;
+	private double dragOffsetX;
+	private double dragOffsetY;
+	private DragHandler activeDrag;
+	private boolean mouseDown;
+	private Module listening;
+
+	public ClickGuiScreen() {
+		super(Component.literal("Lumen"));
+		Anim.set(OPEN_KEY, 0f);
+		loadState();
+	}
+
+	private static ClickGuiModule theme() {
+		return Lumen.modules().clickGui;
+	}
+
+	// ---- persistence ----
+
+	private void loadState() {
+		JsonObject state = Lumen.config().guiState();
+		JsonObject saved = state.has("panels") && state.get("panels").isJsonObject() ? state.getAsJsonObject("panels") : new JsonObject();
+
+		int x = 16;
+		for (Category category : Category.values()) {
+			Panel panel = new Panel(category, x, 16);
+			JsonElement e = saved.get(category.name());
+			if (e != null && e.isJsonObject()) {
+				JsonObject o = e.getAsJsonObject();
+				if (o.has("x")) panel.x = o.get("x").getAsInt();
+				if (o.has("y")) panel.y = o.get("y").getAsInt();
+				if (o.has("collapsed")) panel.collapsed = o.get("collapsed").getAsBoolean();
+			}
+			panels.add(panel);
+			x += PANEL_W + 12;
+		}
+
+		if (EXPANDED.isEmpty() && state.has("expanded") && state.get("expanded").isJsonArray()) {
+			for (JsonElement e : state.getAsJsonArray("expanded")) EXPANDED.add(e.getAsString());
+		}
+	}
+
+	private void saveState() {
+		JsonObject state = Lumen.config().guiState();
+		JsonObject saved = new JsonObject();
+		for (Panel panel : panels) {
+			JsonObject o = new JsonObject();
+			o.addProperty("x", panel.x);
+			o.addProperty("y", panel.y);
+			o.addProperty("collapsed", panel.collapsed);
+			saved.add(panel.category.name(), o);
+		}
+		state.add("panels", saved);
+
+		JsonArray expanded = new JsonArray();
+		for (String name : EXPANDED) expanded.add(name);
+		state.add("expanded", expanded);
+	}
+
+	// ---- screen lifecycle ----
+
+	@Override
+	public boolean isPauseScreen() {
+		return false;
+	}
+
+	@Override
+	public void onClose() {
+		saveState();
+		Lumen.config().save();
+		super.onClose();
+	}
+
+	@Override
+	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+		if (theme().blur.isOn()) {
+			super.extractBackground(graphics, mouseX, mouseY, partialTicks);
+		}
+	}
+
+	@Override
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+		ClickGuiModule t = theme();
+		float open = Anim.approach(OPEN_KEY, 1f, 0f);
+
+		ui.begin(graphics, mouseX, mouseY);
+		ui.alpha = open;
+		ui.textShadow = t.textShadow.isOn();
+
+		if (dragging != null) {
+			dragging.x = clamp((int) Math.round(mouseX - dragOffsetX), -PANEL_W + 30, width - 30);
+			dragging.y = clamp((int) Math.round(mouseY - dragOffsetY), 0, height - HEADER_H);
+		}
+		if (activeDrag != null && mouseDown) {
+			activeDrag.drag(mouseX, mouseY);
+		}
+
+		int dim = (int) Math.round(t.dim.get() / 100.0 * 255);
+		ui.gradientV(0, 0, width, height, ColorUtil.argb(dim * 3 / 4, 6, 6, 12), ColorUtil.argb(dim, 6, 6, 12));
+
+		for (Panel panel : panels) {
+			drawPanel(panel, open);
+		}
+
+		drawFooter();
+	}
+
+	// ---- panels ----
+
+	private void drawPanel(Panel p, float open) {
+		ClickGuiModule t = theme();
+		int r = t.cornerRadius.getInt();
+		int x = p.x;
+		int y = p.y + Math.round((1f - open) * 12f);
+		int w = PANEL_W;
+
+		float expand = Anim.approach(new Key(p, "collapse"), p.collapsed ? 0f : 1f);
+		int maxContent = Math.max(48, height - y - HEADER_H - 14);
+		int visible = Math.round(Math.min(p.contentHeight, maxContent) * expand);
+		int bottom = y + HEADER_H + visible + (visible > 0 ? 5 : 0);
+
+		p.x1 = x;
+		p.y1 = y;
+		p.x2 = x + w;
+		p.y2 = bottom;
+
+		if (t.shadows.isOn()) ui.shadow(x, y, x + w, bottom, r, 110);
+		ui.roundRect(x, y, x + w, bottom, r, t.panelColor.color());
+
+		// Header: accent gradient with a faint gloss on the upper half.
+		ui.roundGradientH(x, y, x + w, y + HEADER_H, r, t.accentAt(0f), t.accentAt(1f), true, visible <= 0);
+		ui.rect(x + r, y + 1, x + w - r, y + HEADER_H / 2, 0x16FFFFFF);
+		ui.text(p.category.displayName(), x + 8, y + (HEADER_H - 8) / 2, 0xFFFFFFFF);
+
+		List<Module> modules = Lumen.modules().byCategory(p.category);
+		int enabled = 0;
+		int toggleable = 0;
+		for (Module m : modules) {
+			if (m.isToggleable()) {
+				toggleable++;
+				if (m.isEnabled()) enabled++;
+			}
+		}
+		String count = toggleable > 0 ? enabled + "/" + toggleable : p.collapsed ? "+" : "-";
+		ui.textRight(count, x + w - 8, y + (HEADER_H - 8) / 2, 0xC0FFFFFF);
+
+		ui.hit(x, y, x + w, y + HEADER_H, (button, mx, my) -> {
+			bringToFront(p);
+			if (button == 0) {
+				dragging = p;
+				dragOffsetX = mx - p.x;
+				dragOffsetY = my - p.y;
+			} else if (button == 1) {
+				p.collapsed = !p.collapsed;
+			}
+		});
+
+		int contentTop = y + HEADER_H + 2;
+		p.scroll = Math.max(0, Math.min(p.scroll, Math.max(0, p.contentHeight - maxContent)));
+		float scroll = Anim.approach(new Key(p, "scroll"), p.scroll);
+
+		ui.pushClip(x, contentTop, x + w, contentTop + visible);
+		int cy = contentTop - Math.round(scroll);
+		int start = cy;
+		for (Module m : modules) {
+			cy += drawModule(m, x, cy, w);
+		}
+		p.contentHeight = cy - start + 1;
+		ui.popClip();
+
+		// Scrollbar when content overflows.
+		if (visible > 0 && p.contentHeight > maxContent) {
+			int trackH = visible;
+			int barH = Math.max(12, trackH * maxContent / p.contentHeight);
+			int barY = contentTop + Math.round((trackH - barH) * (scroll / Math.max(1f, p.contentHeight - maxContent)));
+			ui.roundRect(x + w - 3, barY, x + w - 1, barY + barH, 1, ColorUtil.fade(t.accentAt(0.5f), 0.7f));
+		}
+	}
+
+	private void bringToFront(Panel p) {
+		panels.remove(p);
+		panels.add(p);
+	}
+
+	// ---- modules ----
+
+	private int drawModule(Module m, int x, int y, int w) {
+		ClickGuiModule t = theme();
+		int h = ROW_H;
+		int x1 = x + 4;
+		int x2 = x + w - 4;
+
+		boolean hover = ui.hovered(x1, y, x2, y + h);
+		float hov = Anim.approach(new Key(m, "hover"), hover ? 1f : 0f);
+		float on = Anim.approach(new Key(m, "on"), m.isEnabled() ? 1f : 0f);
+
+		if (hov > 0.01f) ui.roundRect(x1, y + 1, x2, y + h - 1, 3, ColorUtil.argb(Math.round(hov * 20), 255, 255, 255));
+		if (on > 0.01f) {
+			ui.roundGradientH(x1, y + 1, x2, y + h - 1, 3,
+					ColorUtil.fade(t.accentAt(0f), 0.38f * on), ColorUtil.fade(t.accentAt(1f), 0.08f * on), true, true);
+			int barH = Math.round((h - 6) * on);
+			int by = y + (h - barH) / 2;
+			ui.rect(x1, by, x1 + 2, by + barH, t.accentAt(0f));
+		}
+
+		int textColor = ColorUtil.lerp(DIM_TEXT, t.textColor.color(), Math.max(on, hov * 0.6f));
+		if (!m.isToggleable()) textColor = ColorUtil.lerp(0xFFC4C8D8, t.textColor.color(), hov);
+		ui.text(m.name(), x1 + 7 + Math.round(on * 2f), y + (h - 8) / 2, textColor);
+
+		boolean isExpanded = EXPANDED.contains(m.name());
+		int right = x2 - 5;
+		ui.textRight(isExpanded ? "-" : "+", right, y + (h - 8) / 2, ColorUtil.argb(Math.round(110 + 110 * hov), 255, 255, 255));
+		right -= 10;
+		if (listening == m) {
+			ui.textRight("...", right, y + (h - 8) / 2, t.accentAt(0.5f));
+		} else if (!m.key().isEmpty()) {
+			ui.textRight(KeyNames.pretty(m.key()), right, y + (h - 8) / 2, 0x80FFFFFF);
+		}
+
+		if (hover) ui.tooltip = m.description();
+
+		ui.hit(x1, y, x2, y + h, (button, mx, my) -> {
+			if (button == 0) {
+				if (m.isToggleable()) {
+					m.toggle();
+				} else {
+					toggleExpanded(m);
+				}
+			} else if (button == 1) {
+				toggleExpanded(m);
+			} else if (button == 2 && m.isToggleable()) {
+				listening = m;
+			}
+		});
+
+		int total = h;
+		float ex = Anim.approach(new Key(m, "expand"), isExpanded ? 1f : 0f);
+		if (ex > 0.001f) {
+			int full = measured.getOrDefault(m, 0);
+			int visible = Math.round(full * ex);
+			ui.pushClip(x, y + h, x + w, y + h + visible);
+			measured.put(m, drawSettings(m, x, y + h, w));
+			ui.popClip();
+			total += visible;
+		}
+		return total;
+	}
+
+	private void toggleExpanded(Module m) {
+		if (!EXPANDED.remove(m.name())) EXPANDED.add(m.name());
+	}
+
+	// ---- settings ----
+
+	private int drawSettings(Module m, int x, int y, int w) {
+		ClickGuiModule t = theme();
+		int x1 = x + 13;
+		int x2 = x + w - 9;
+		int cy = y + 2;
+
+		if (m.isToggleable()) cy += drawBind(m, x1, cy, x2);
+
+		String section = null;
+		for (Setting<?> s : m.settings()) {
+			if (!s.isVisible()) continue;
+			if (s.section() != null && !s.section().equals(section)) {
+				section = s.section();
+				cy += drawSection(section, x1, cy, x2);
+			}
+			cy += switch (s) {
+				case BoolSetting b -> drawBool(b, x1, cy, x2);
+				case NumberSetting n -> drawNumber(n, x1, cy, x2);
+				case EnumSetting<?> e -> drawEnum(e, x1, cy, x2);
+				case ColorSetting c -> drawColor(c, x1, cy, x2);
+				default -> 0;
+			};
+		}
+		cy += 3;
+
+		ui.rect(x + 8, y + 3, x + 9, cy - 3, ColorUtil.fade(t.accentAt(0.3f), 0.45f));
+		return cy - y;
+	}
+
+	private int drawSection(String title, int x1, int y, int x2) {
+		String label = title.toUpperCase(java.util.Locale.ROOT);
+		int color = ColorUtil.fade(theme().accentAt(0.2f), 0.85f);
+		ui.text(label, x1, y + 4, color);
+		int lx = x1 + ui.width(label) + 4;
+		ui.rect(lx, y + 8, x2, y + 9, 0x26FFFFFF);
+		return 14;
+	}
+
+	private int drawBind(Module m, int x1, int y, int x2) {
+		int h = 14;
+		boolean hover = ui.hovered(x1 - 3, y, x2, y + h);
+		ui.text("Keybind", x1, y + 3, hover ? theme().textColor.color() : DIM_TEXT);
+		String value = listening == m ? "Press a key..." : KeyNames.pretty(m.key());
+		ui.textRight(value, x2, y + 3, listening == m ? theme().accentAt(0.5f) : 0xB0FFFFFF);
+		if (hover) ui.tooltip = "Click, then press a key. Backspace clears. Right click to unbind.";
+		ui.hit(x1 - 3, y, x2, y + h, (button, mx, my) -> {
+			if (button == 0) listening = m;
+			else if (button == 1) m.setKey("");
+		});
+		return h;
+	}
+
+	private int drawBool(BoolSetting b, int x1, int y, int x2) {
+		ClickGuiModule t = theme();
+		int h = 14;
+		boolean hover = ui.hovered(x1 - 3, y, x2, y + h);
+		ui.text(b.name(), x1, y + 3, hover ? t.textColor.color() : DIM_TEXT);
+
+		float on = Anim.approach(new Key(b, "on"), b.isOn() ? 1f : 0f);
+		int sw = 16;
+		int sh = 8;
+		int sx = x2 - sw;
+		int sy = y + (h - sh) / 2;
+		ui.roundRect(sx, sy, sx + sw, sy + sh, 4, ColorUtil.lerp(0xFF343747, t.accentAt(0.2f), on));
+		int kx = sx + 1 + Math.round((sw - 8) * on);
+		ui.roundRect(kx, sy + 1, kx + 6, sy + 7, 3, 0xFFFFFFFF);
+
+		if (hover) ui.tooltip = b.description();
+		ui.hit(x1 - 3, y, x2, y + h, (button, mx, my) -> {
+			if (button == 0) b.toggle();
+			else if (button == 1) b.reset();
+		});
+		return h;
+	}
+
+	private int drawNumber(NumberSetting n, int x1, int y, int x2) {
+		ClickGuiModule t = theme();
+		int h = 22;
+		boolean hover = ui.hovered(x1 - 3, y, x2, y + h);
+		ui.text(n.name(), x1, y + 2, hover ? t.textColor.color() : DIM_TEXT);
+		ui.textRight(n.display(), x2, y + 2, t.accentAt(0.4f));
+
+		float frac = Anim.approach(new Key(n, "frac"), (float) n.fraction());
+		int ty = y + 14;
+		int tw = x2 - x1;
+		ui.roundRect(x1, ty, x2, ty + 3, 1, 0xFF2B2E3B);
+		int fill = Math.round(tw * frac);
+		if (fill > 0) ui.roundGradientH(x1, ty, x1 + fill, ty + 3, 1, t.accentAt(0f), t.accentAt(frac), true, true);
+		int kx = x1 + fill;
+		ui.roundRect(kx - 3, ty - 2, kx + 3, ty + 5, 3, 0xFFFFFFFF);
+
+		if (hover) ui.tooltip = n.description() + "  (right click resets)";
+		ui.hit(x1 - 3, y, x2 + 3, y + h, (button, mx, my) -> {
+			if (button == 0) {
+				activeDrag = (dx, dy) -> n.setFraction((dx - x1) / (double) tw);
+				activeDrag.drag(mx, my);
+			} else if (button == 1) {
+				n.reset();
+			}
+		});
+		return h;
+	}
+
+	private int drawEnum(EnumSetting<?> e, int x1, int y, int x2) {
+		ClickGuiModule t = theme();
+		int h = 14;
+		boolean hover = ui.hovered(x1 - 3, y, x2, y + h);
+		ui.text(e.name(), x1, y + 3, hover ? t.textColor.color() : DIM_TEXT);
+		String value = e.get().toString();
+		int vx = x2 - ui.width(value) - 8;
+		ui.text(value, vx, y + 3, t.accentAt(0.4f));
+		ui.text("<", vx - 8, y + 3, ColorUtil.argb(hover ? 200 : 90, 255, 255, 255));
+		ui.textRight(">", x2, y + 3, ColorUtil.argb(hover ? 200 : 90, 255, 255, 255));
+
+		if (hover) ui.tooltip = e.description();
+		ui.hit(x1 - 3, y, x2, y + h, (button, mx, my) -> {
+			if (button == 0) e.cycle(true);
+			else if (button == 1) e.cycle(false);
+		});
+		return h;
+	}
+
+	private int drawColor(ColorSetting c, int x1, int y, int x2) {
+		ClickGuiModule t = theme();
+		int h = 14;
+		boolean hover = ui.hovered(x1 - 3, y, x2, y + h);
+		int textX = x1;
+
+		if (c.isToggleable()) {
+			float on = Anim.approach(new Key(c, "on"), c.isEnabled() ? 1f : 0f);
+			ui.roundRect(x1, y + 3, x1 + 8, y + 11, 2, 0xFF2C2F3C);
+			if (on > 0.01f) {
+				int inset = Math.round((1f - on) * 3f);
+				ui.roundRect(x1 + 1 + inset, y + 4 + inset, x1 + 7 - inset, y + 10 - inset, 2, ColorUtil.withAlpha(c.color(), Math.round(255 * on)));
+			}
+			textX += 12;
+		}
+
+		int labelColor;
+		if (c.isToggleable() && !c.isEnabled()) labelColor = ColorUtil.darken(DIM_TEXT, 0.25f);
+		else labelColor = hover ? t.textColor.color() : DIM_TEXT;
+		ui.text(c.name(), textX, y + 3, labelColor);
+
+		// Swatch, with a checkerboard showing through translucent colours.
+		int sx1 = x2 - 18;
+		int sy1 = y + 3;
+		ui.rect(sx1, sy1, sx1 + 9, sy1 + 4, 0xFF9A9A9A);
+		ui.rect(sx1 + 9, sy1, sx1 + 18, sy1 + 4, 0xFF5E5E5E);
+		ui.rect(sx1, sy1 + 4, sx1 + 9, sy1 + 8, 0xFF5E5E5E);
+		ui.rect(sx1 + 9, sy1 + 4, sx1 + 18, sy1 + 8, 0xFF9A9A9A);
+		ui.rect(sx1, sy1, sx1 + 18, sy1 + 8, c.color());
+		ui.outlineRect(sx1 - 1, sy1 - 1, sx1 + 19, sy1 + 9, OPEN_PICKERS.contains(c) ? t.accentAt(0.5f) : 0x40FFFFFF);
+
+		if (hover) {
+			ui.tooltip = c.description() + (c.isToggleable() ? "  (click to toggle, click the swatch to edit)" : "  (click to edit, right click resets)");
+		}
+
+		ui.hit(x1 - 3, y, x2, y + h, (button, mx, my) -> {
+			if (button == 0) {
+				if (c.isToggleable()) c.setEnabled(!c.isEnabled());
+				else togglePicker(c);
+			} else if (button == 1) {
+				if (c.isToggleable()) togglePicker(c);
+				else resetColor(c);
+			}
+		});
+		ui.hit(sx1 - 2, y, x2 + 1, y + h, (button, mx, my) -> {
+			if (button == 0) togglePicker(c);
+			else if (button == 1) resetColor(c);
+		});
+
+		int total = h;
+		float pa = Anim.approach(new Key(c, "picker"), OPEN_PICKERS.contains(c) ? 1f : 0f);
+		if (pa > 0.001f) {
+			int full = measured.getOrDefault(c, 0);
+			int visible = Math.round(full * pa);
+			ui.pushClip(x1 - 3, y + h, x2 + 3, y + h + visible);
+			measured.put(c, drawPicker(c, x1, y + h, x2));
+			ui.popClip();
+			total += visible;
+		}
+		return total;
+	}
+
+	private void togglePicker(ColorSetting c) {
+		if (!OPEN_PICKERS.remove(c)) {
+			OPEN_PICKERS.add(c);
+			hsbCache.put(c, ColorUtil.toHsb(c.get()));
+		}
+	}
+
+	private void resetColor(ColorSetting c) {
+		c.reset();
+		hsbCache.put(c, ColorUtil.toHsb(c.get()));
+	}
+
+	private int drawPicker(ColorSetting c, int x1, int y, int x2) {
+		ClickGuiModule t = theme();
+		float[] hsb = hsbCache.computeIfAbsent(c, k -> ColorUtil.toHsb(k.get()));
+		// Re-sync if the colour changed elsewhere (reset, config load).
+		if ((ColorUtil.hsb(hsb[0], hsb[1], hsb[2]) & 0xFFFFFF) != (c.get() & 0xFFFFFF)) {
+			float[] fresh = ColorUtil.toHsb(c.get());
+			if (fresh[1] > 0 && fresh[2] > 0) hsb[0] = fresh[0];
+			hsb[1] = fresh[1];
+			hsb[2] = fresh[2];
+		}
+
+		int w = x2 - x1;
+		int top = y + 3;
+
+		// Saturation (x) and brightness (y) square.
+		int sbH = 44;
+		for (int i = 0; i < w; i++) {
+			float s = w == 1 ? 0 : i / (float) (w - 1);
+			ui.gradientV(x1 + i, top, x1 + i + 1, top + sbH, ColorUtil.hsb(hsb[0], s, 1f), 0xFF000000);
+		}
+		int mx = x1 + Math.round(hsb[1] * (w - 1));
+		int my = top + Math.round((1f - hsb[2]) * (sbH - 1));
+		ui.outlineRect(mx - 2, my - 2, mx + 3, my + 3, 0xFFFFFFFF);
+		ui.outlineRect(mx - 3, my - 3, mx + 4, my + 4, 0x80000000);
+		ui.hit(x1, top, x2, top + sbH, (button, px, py) -> {
+			if (button != 0) return;
+			activeDrag = (dx, dy) -> {
+				hsb[1] = clamp01((float) ((dx - x1) / Math.max(1, w - 1)));
+				hsb[2] = 1f - clamp01((float) ((dy - top) / Math.max(1, sbH - 1)));
+				applyHsb(c, hsb);
+			};
+			activeDrag.drag(px, py);
+		});
+
+		// Hue bar.
+		int hy = top + sbH + 4;
+		for (int i = 0; i < w; i++) {
+			ui.rect(x1 + i, hy, x1 + i + 1, hy + 5, ColorUtil.hsb(i / (float) Math.max(1, w - 1), 1f, 1f));
+		}
+		int hx = x1 + Math.round(hsb[0] * (w - 1));
+		ui.rect(hx - 1, hy - 1, hx + 2, hy + 6, 0xFFFFFFFF);
+		ui.hit(x1, hy - 1, x2, hy + 6, (button, px, py) -> {
+			if (button != 0) return;
+			activeDrag = (dx, dy) -> {
+				hsb[0] = clamp01((float) ((dx - x1) / Math.max(1, w - 1)));
+				applyHsb(c, hsb);
+			};
+			activeDrag.drag(px, py);
+		});
+
+		// Alpha bar over a checkerboard.
+		int ay = hy + 9;
+		for (int i = 0; i < w; i += 3) {
+			ui.rect(x1 + i, ay, Math.min(x2, x1 + i + 3), ay + 3, (i / 3) % 2 == 0 ? 0xFF9A9A9A : 0xFF5E5E5E);
+			ui.rect(x1 + i, ay + 3, Math.min(x2, x1 + i + 3), ay + 5, (i / 3) % 2 == 0 ? 0xFF5E5E5E : 0xFF9A9A9A);
+		}
+		int rgb = c.get() & 0xFFFFFF;
+		ui.gradientH(x1, ay, x2, ay + 5, rgb, 0xFF000000 | rgb);
+		int ax = x1 + Math.round(ColorUtil.alpha(c.get()) / 255f * (w - 1));
+		ui.rect(ax - 1, ay - 1, ax + 2, ay + 6, 0xFFFFFFFF);
+		ui.hit(x1, ay - 1, x2, ay + 6, (button, px, py) -> {
+			if (button != 0) return;
+			activeDrag = (dx, dy) -> {
+				int alpha = Math.round(clamp01((float) ((dx - x1) / Math.max(1, w - 1))) * 255);
+				c.set(ColorUtil.withAlpha(c.get(), alpha));
+			};
+			activeDrag.drag(px, py);
+		});
+
+		// Rainbow toggle and hex readout.
+		int ry = ay + 9;
+		float rb = Anim.approach(new Key(c, "rainbow"), c.isRainbow() ? 1f : 0f);
+		int sw = 16;
+		ui.roundRect(x1, ry + 1, x1 + sw, ry + 9, 4, ColorUtil.lerp(0xFF343747, ColorUtil.rainbow(1f, 0f, 255), rb));
+		int kx = x1 + 1 + Math.round((sw - 8) * rb);
+		ui.roundRect(kx, ry + 2, kx + 6, ry + 8, 3, 0xFFFFFFFF);
+		ui.text("Rainbow", x1 + sw + 5, ry + 1, DIM_TEXT);
+		ui.textRight(ColorUtil.toHex(c.get()), x2, ry + 1, 0x90FFFFFF);
+		ui.hit(x1, ry, x1 + sw + 5 + ui.width("Rainbow"), ry + 10, (button, px, py) -> {
+			if (button == 0) c.setRainbow(!c.isRainbow());
+		});
+		if (ui.hovered(x1, ry, x2, ry + 10)) ui.tooltip = "Cycle through every hue over time.";
+
+		return ry + 12 - y;
+	}
+
+	private static void applyHsb(ColorSetting c, float[] hsb) {
+		int rgb = ColorUtil.hsb(hsb[0], hsb[1], hsb[2]);
+		c.set(ColorUtil.withAlpha(rgb, ColorUtil.alpha(c.get())));
+	}
+
+	// ---- footer ----
+
+	private void drawFooter() {
+		ClickGuiModule t = theme();
+		String text;
+		if (listening != null) {
+			text = "Press a key to bind " + listening.name() + ". Esc cancels, Backspace clears.";
+		} else if (ui.tooltip != null && t.descriptions.isOn()) {
+			text = ui.tooltip;
+		} else {
+			text = HINT;
+		}
+
+		int tw = ui.width(text);
+		int pw = tw + 20;
+		int x1 = (width - pw) / 2;
+		int y1 = height - 24;
+		int r = t.cornerRadius.getInt();
+		if (t.shadows.isOn()) ui.shadow(x1, y1, x1 + pw, y1 + 16, r, 70);
+		ui.roundRect(x1, y1, x1 + pw, y1 + 16, r, t.panelColor.color());
+		ui.roundGradientH(x1 + r, y1, x1 + pw - r, y1 + 1, 0, t.accentAt(0f), t.accentAt(1f), false, false);
+		ui.text(text, x1 + 10, y1 + 4, ColorUtil.lerp(DIM_TEXT, t.textColor.color(), 0.6f));
+
+		String brand = Lumen.NAME + " " + Lumen.version();
+		ui.gradientText(brand, 8, height - 16, t.accentAt(0f), t.accentAt(1f));
+	}
+
+	// ---- input ----
+
+	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		mouseDown = true;
+		if (listening != null && event.button() != 2) {
+			listening = null;
+		}
+		ui.click(event.x(), event.y(), event.button());
+		return true;
+	}
+
+	@Override
+	public boolean mouseReleased(MouseButtonEvent event) {
+		mouseDown = false;
+		dragging = null;
+		activeDrag = null;
+		return true;
+	}
+
+	@Override
+	public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
+		// Dragging is applied every frame from the cursor position in extractRenderState.
+		return true;
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		for (int i = panels.size() - 1; i >= 0; i--) {
+			Panel p = panels.get(i);
+			if (mouseX >= p.x1 && mouseX < p.x2 && mouseY >= p.y1 && mouseY < p.y2) {
+				p.scroll -= (float) (verticalAmount * 16);
+				return true;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean keyPressed(KeyEvent event) {
+		if (listening != null) {
+			int key = event.key();
+			if (key == InputConstants.KEY_ESCAPE) {
+				listening = null;
+				return true;
+			}
+			if (key == InputConstants.KEY_BACKSPACE || key == InputConstants.KEY_DELETE) {
+				listening.setKey("");
+			} else {
+				listening.setKey(InputConstants.getKey(event).getName());
+			}
+			listening = null;
+			return true;
+		}
+		return super.keyPressed(event);
+	}
+
+	// ---- helpers ----
+
+	private static int clamp(int v, int min, int max) {
+		return Math.max(min, Math.min(max, v));
+	}
+
+	private static float clamp01(float v) {
+		return Math.max(0f, Math.min(1f, v));
+	}
+}
