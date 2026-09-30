@@ -51,7 +51,7 @@ public final class ProfilesScreen extends Screen {
 	}
 
 	private int panelHeight() {
-		return HEADER_H + 8 + 18 + 10 + MAX_ROWS * ROW_H + 26;
+		return HEADER_H + 8 + 18 + 10 + MAX_ROWS * ROW_H + 36;
 	}
 
 	@Override
@@ -152,8 +152,9 @@ public final class ProfilesScreen extends Screen {
 		// Status line and hint.
 		int sy = ly + MAX_ROWS * ROW_H + 8;
 		ui.rect(x1 + 8, sy - 4, x2 - 8, sy - 3, 0x1AFFFFFF);
-		if (!status.isEmpty()) ui.text(status, x1 + 10, sy + 2, statusColor);
-		ui.textRight("Enter saves   Esc goes back", x2 - 10, sy + 2, ColorUtil.darken(DIM_TEXT, 0.25f));
+		// Status on its own line; the key hint sits underneath so the two never overlap.
+		if (!status.isEmpty()) ui.text(status, x1 + 10, sy + 1, statusColor);
+		ui.textCentered("Enter saves    Esc goes back", width / 2, sy + 14, ColorUtil.darken(DIM_TEXT, 0.25f));
 	}
 
 	private void button(int bx1, int by1, int bx2, int by2, String label, int color, Runnable action) {

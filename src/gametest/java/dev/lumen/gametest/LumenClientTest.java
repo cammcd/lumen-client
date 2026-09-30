@@ -144,7 +144,18 @@ public final class LumenClientTest implements FabricClientGameTest {
 		if (entities != EXPECTED_ENTITIES) {
 			throw new AssertionError("Entity ESP found " + entities + " targets, expected " + EXPECTED_ENTITIES);
 		}
+		// Block highlights sit in front of the mobs, so hide them for this shot.
+		context.runOnClient(mc -> {
+			Lumen.modules().storageEsp.setEnabled(false);
+			Lumen.modules().spawnerEsp.setEnabled(false);
+		});
+		context.waitTicks(3);
 		context.takeScreenshot("lumen_05_entity_esp");
+		context.runOnClient(mc -> {
+			Lumen.modules().storageEsp.setEnabled(true);
+			Lumen.modules().spawnerEsp.setEnabled(true);
+		});
+		context.waitTicks(8);
 
 		LOG.info("Opening the click GUI with its key");
 		input.pressKey(Lumen.clickGuiKey());
