@@ -3,7 +3,6 @@ package dev.lumen.client.modules;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -17,7 +16,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import dev.lumen.client.module.Category;
 import dev.lumen.client.module.Module;
+import dev.lumen.client.render.CameraUtil;
 import dev.lumen.client.render.EspBatch;
+import dev.lumen.client.render.WorldRenderable;
 import dev.lumen.client.setting.BoolSetting;
 import dev.lumen.client.setting.ColorSetting;
 import dev.lumen.client.setting.EnumSetting;
@@ -28,7 +29,7 @@ import dev.lumen.client.util.ColorUtil;
  * Shared behaviour for block entity highlighters: scanning loaded chunks on a timer,
  * and drawing boxes, outlines and tracers with a common set of style settings.
  */
-public abstract class EspModule extends Module {
+public abstract class EspModule extends Module implements WorldRenderable {
 	public enum Mode {
 		BOTH("Fill + Outline"),
 		OUTLINE("Outline"),
@@ -171,7 +172,8 @@ public abstract class EspModule extends Module {
 		return shape.bounds().move(pos);
 	}
 
-	public void render(EspBatch batch, Vec3 cam) {
+	@Override
+	public void renderWorld(EspBatch batch, Vec3 cam) {
 		List<Target> current = targets;
 		if (current.isEmpty()) return;
 
@@ -191,7 +193,7 @@ public abstract class EspModule extends Module {
 			pulseFactor = (float) (0.55 + 0.45 * Math.sin(t));
 		}
 
-		float[] tracerStart = tracers.isOn() ? tracerOrigin() : null;
+		float[] tracerStart = tracers.isOn() ? CameraUtil.tracerOrigin() : null;
 
 		for (Target target : current) {
 			AABB box = pad > 0 ? target.box().inflate(pad) : target.box();
@@ -227,17 +229,5 @@ public abstract class EspModule extends Module {
 						ColorUtil.withAlpha(base, Math.round(255 * tracerAlpha * colorAlpha * fade)), tracerWidth.getFloat());
 			}
 		}
-	}
-
-	/** A point just in front of the camera along its view direction, camera-relative. */
-	private static float[] tracerOrigin() {
-		Camera camera = MC.gameRenderer.mainCamera();
-		if (camera == null) return new float[] {0, 0, 0};
-		double yaw = Math.toRadians(camera.yRot());
-		double pitch = Math.toRadians(camera.xRot());
-		float x = (float) (-Math.sin(yaw) * Math.cos(pitch));
-		float y = (float) (-Math.sin(pitch));
-		float z = (float) (Math.cos(yaw) * Math.cos(pitch));
-		return new float[] {x, y, z};
 	}
 }

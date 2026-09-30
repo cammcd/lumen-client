@@ -8,7 +8,6 @@ import net.minecraft.world.phys.Vec3;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 
 import dev.lumen.client.Lumen;
-import dev.lumen.client.modules.EspModule;
 import dev.lumen.client.module.Module;
 
 /** Entry point for all in-world overlays, called once per frame while submits are collected. */
@@ -27,8 +26,8 @@ public final class WorldRenderer {
 		EspBatch batch = new EspBatch(cam.x, cam.y, cam.z);
 
 		for (Module module : Lumen.modules().all()) {
-			if (module.isEnabled() && module instanceof EspModule esp) {
-				esp.render(batch, cam);
+			if (module.isEnabled() && module instanceof WorldRenderable renderable) {
+				renderable.renderWorld(batch, cam);
 			}
 		}
 

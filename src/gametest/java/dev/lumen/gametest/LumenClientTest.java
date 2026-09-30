@@ -12,6 +12,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.TestInput;
@@ -168,6 +169,48 @@ public final class LumenClientTest implements FabricClientGameTest {
 		boolean after = context.computeOnClient(mc -> Lumen.modules().spawnerEsp.isEnabled());
 		if (before == after) throw new AssertionError("Pressing the bound key did not toggle Spawner ESP");
 		context.takeScreenshot("lumen_08_keybind_notification");
+
+		testFreecam(context);
+	}
+
+	private void testFreecam(ClientGameTestContext context) {
+		TestInput input = context.getInput();
+		LOG.info("Testing Freecam");
+
+		Vec3 bodyBefore = context.computeOnClient(mc -> mc.player.position());
+		context.runOnClient(mc -> Lumen.modules().freecam.setEnabled(true));
+		context.waitTicks(2);
+
+		// Fly backwards and up, then let the camera glide to a stop.
+		input.holdKeyFor(options -> options.keyDown, 25);
+		input.holdKeyFor(options -> options.keyJump, 12);
+		context.waitTicks(15);
+
+		Vec3 bodyAfter = context.computeOnClient(mc -> mc.player.position());
+		Vec3 camera = context.computeOnClient(mc -> mc.gameRenderer.mainCamera().position());
+		double bodyMoved = bodyAfter.distanceTo(bodyBefore);
+		double cameraDistance = camera.distanceTo(bodyAfter);
+		LOG.info("Freecam: body moved {} blocks, camera is {} blocks from the body", bodyMoved, cameraDistance);
+		if (bodyMoved > 0.05) throw new AssertionError("The body moved " + bodyMoved + " blocks while Freecam was flying");
+		if (cameraDistance < 5) throw new AssertionError("The camera is only " + cameraDistance + " blocks from the body");
+		context.takeScreenshot("lumen_09_freecam");
+
+		LOG.info("Scrolling to change Freecam speed");
+		double speedBefore = context.computeOnClient(mc -> Lumen.modules().freecam.speed.get());
+		int slotBefore = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
+		input.scroll(1.0);
+		context.waitTicks(2);
+		double speedAfter = context.computeOnClient(mc -> Lumen.modules().freecam.speed.get());
+		int slotAfter = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
+		LOG.info("Freecam speed {} -> {}, hotbar slot {} -> {}", speedBefore, speedAfter, slotBefore, slotAfter);
+		if (speedAfter <= speedBefore) throw new AssertionError("Scrolling did not raise Freecam speed");
+		if (slotAfter != slotBefore) throw new AssertionError("Scrolling in Freecam also changed the hotbar slot");
+
+		context.runOnClient(mc -> Lumen.modules().freecam.setEnabled(false));
+		context.waitTicks(3);
+		double offset = context.computeOnClient(mc -> mc.gameRenderer.mainCamera().position().distanceTo(mc.player.getEyePosition()));
+		LOG.info("After Freecam: camera is {} blocks from the eyes", offset);
+		if (offset > 0.5) throw new AssertionError("The camera did not return to the body after Freecam was turned off");
 	}
 
 	private static void buildScene(TestServerContext server) {

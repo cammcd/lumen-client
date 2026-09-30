@@ -3,8 +3,12 @@
 	"package": "dev.lumen.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
+		"CameraMixin",
+		"FirstPersonHandsAndItemsRendererMixin",
 		"KeyboardHandlerMixin",
-		"MinecraftAccessor"
+		"LocalPlayerMixin",
+		"MinecraftAccessor",
+		"MouseHandlerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
