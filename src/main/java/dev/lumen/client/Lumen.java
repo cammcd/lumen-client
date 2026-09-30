@@ -75,6 +75,10 @@ public final class Lumen implements ClientModInitializer {
 		return config;
 	}
 
+	public static KeyMapping clickGuiKey() {
+		return clickGuiKey;
+	}
+
 	public static Identifier id(String path) {
 		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}

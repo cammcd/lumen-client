@@ -12,6 +12,16 @@ base {
 repositories {
 }
 
+// A client game test launches the real game with the mod, builds a scene and
+// takes screenshots. CI runs it on every push.
+fabricApi.configureTests {
+	createSourceSet = true
+	enableGameTests = false
+	enableClientGameTests = true
+	modId = "lumen_test"
+	username = "Lumen-Bot"
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"

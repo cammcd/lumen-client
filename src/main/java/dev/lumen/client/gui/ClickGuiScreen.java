@@ -35,6 +35,10 @@ public final class ClickGuiScreen extends Screen {
 	private static final int HEADER_H = 20;
 	private static final int ROW_H = 16;
 	private static final int DIM_TEXT = 0xFF9EA3B8;
+	// Button numbers come from the game's constants: under SDL they are not 0, 1, 2.
+	private static final int LEFT = InputConstants.MOUSE_BUTTON_LEFT;
+	private static final int RIGHT = InputConstants.MOUSE_BUTTON_RIGHT;
+	private static final int MIDDLE = InputConstants.MOUSE_BUTTON_MIDDLE;
 	private static final String HINT = "Left click: toggle   Right click: settings   Middle click: bind   Drag headers to move";
 
 	private record Key(Object owner, String part) {
@@ -219,11 +223,11 @@ public final class ClickGuiScreen extends Screen {
 
 		ui.hit(x, y, x + w, y + HEADER_H, (button, mx, my) -> {
 			bringToFront(p);
-			if (button == 0) {
+			if (button == LEFT) {
 				dragging = p;
 				dragOffsetX = mx - p.x;
 				dragOffsetY = my - p.y;
-			} else if (button == 1) {
+			} else if (button == RIGHT) {
 				p.collapsed = !p.collapsed;
 			}
 		});
@@ -293,15 +297,15 @@ public final class ClickGuiScreen extends Screen {
 		if (hover) ui.tooltip = m.description();
 
 		ui.hit(x1, y, x2, y + h, (button, mx, my) -> {
-			if (button == 0) {
+			if (button == LEFT) {
 				if (m.isToggleable()) {
 					m.toggle();
 				} else {
 					toggleExpanded(m);
 				}
-			} else if (button == 1) {
+			} else if (button == RIGHT) {
 				toggleExpanded(m);
-			} else if (button == 2 && m.isToggleable()) {
+			} else if (button == MIDDLE && m.isToggleable()) {
 				listening = m;
 			}
 		});
@@ -371,8 +375,8 @@ public final class ClickGuiScreen extends Screen {
 		ui.textRight(value, x2, y + 3, listening == m ? theme().accentAt(0.5f) : 0xB0FFFFFF);
 		if (hover) ui.tooltip = "Click, then press a key. Backspace clears. Right click to unbind.";
 		ui.hit(x1 - 3, y, x2, y + h, (button, mx, my) -> {
-			if (button == 0) listening = m;
-			else if (button == 1) m.setKey("");
+			if (button == LEFT) listening = m;
+			else if (button == RIGHT) m.setKey("");
 		});
 		return h;
 	}
@@ -394,8 +398,8 @@ public final class ClickGuiScreen extends Screen {
 
 		if (hover) ui.tooltip = b.description();
 		ui.hit(x1 - 3, y, x2, y + h, (button, mx, my) -> {
-			if (button == 0) b.toggle();
-			else if (button == 1) b.reset();
+			if (button == LEFT) b.toggle();
+			else if (button == RIGHT) b.reset();
 		});
 		return h;
 	}
@@ -418,10 +422,10 @@ public final class ClickGuiScreen extends Screen {
 
 		if (hover) ui.tooltip = n.description() + "  (right click resets)";
 		ui.hit(x1 - 3, y, x2 + 3, y + h, (button, mx, my) -> {
-			if (button == 0) {
+			if (button == LEFT) {
 				activeDrag = (dx, dy) -> n.setFraction((dx - x1) / (double) tw);
 				activeDrag.drag(mx, my);
-			} else if (button == 1) {
+			} else if (button == RIGHT) {
 				n.reset();
 			}
 		});
@@ -441,8 +445,8 @@ public final class ClickGuiScreen extends Screen {
 
 		if (hover) ui.tooltip = e.description();
 		ui.hit(x1 - 3, y, x2, y + h, (button, mx, my) -> {
-			if (button == 0) e.cycle(true);
-			else if (button == 1) e.cycle(false);
+			if (button == LEFT) e.cycle(true);
+			else if (button == RIGHT) e.cycle(false);
 		});
 		return h;
 	}
@@ -483,17 +487,17 @@ public final class ClickGuiScreen extends Screen {
 		}
 
 		ui.hit(x1 - 3, y, x2, y + h, (button, mx, my) -> {
-			if (button == 0) {
+			if (button == LEFT) {
 				if (c.isToggleable()) c.setEnabled(!c.isEnabled());
 				else togglePicker(c);
-			} else if (button == 1) {
+			} else if (button == RIGHT) {
 				if (c.isToggleable()) togglePicker(c);
 				else resetColor(c);
 			}
 		});
 		ui.hit(sx1 - 2, y, x2 + 1, y + h, (button, mx, my) -> {
-			if (button == 0) togglePicker(c);
-			else if (button == 1) resetColor(c);
+			if (button == LEFT) togglePicker(c);
+			else if (button == RIGHT) resetColor(c);
 		});
 
 		int total = h;
@@ -546,7 +550,7 @@ public final class ClickGuiScreen extends Screen {
 		ui.outlineRect(mx - 2, my - 2, mx + 3, my + 3, 0xFFFFFFFF);
 		ui.outlineRect(mx - 3, my - 3, mx + 4, my + 4, 0x80000000);
 		ui.hit(x1, top, x2, top + sbH, (button, px, py) -> {
-			if (button != 0) return;
+			if (button != LEFT) return;
 			activeDrag = (dx, dy) -> {
 				hsb[1] = clamp01((float) ((dx - x1) / Math.max(1, w - 1)));
 				hsb[2] = 1f - clamp01((float) ((dy - top) / Math.max(1, sbH - 1)));
@@ -563,7 +567,7 @@ public final class ClickGuiScreen extends Screen {
 		int hx = x1 + Math.round(hsb[0] * (w - 1));
 		ui.rect(hx - 1, hy - 1, hx + 2, hy + 6, 0xFFFFFFFF);
 		ui.hit(x1, hy - 1, x2, hy + 6, (button, px, py) -> {
-			if (button != 0) return;
+			if (button != LEFT) return;
 			activeDrag = (dx, dy) -> {
 				hsb[0] = clamp01((float) ((dx - x1) / Math.max(1, w - 1)));
 				applyHsb(c, hsb);
@@ -582,7 +586,7 @@ public final class ClickGuiScreen extends Screen {
 		int ax = x1 + Math.round(ColorUtil.alpha(c.get()) / 255f * (w - 1));
 		ui.rect(ax - 1, ay - 1, ax + 2, ay + 6, 0xFFFFFFFF);
 		ui.hit(x1, ay - 1, x2, ay + 6, (button, px, py) -> {
-			if (button != 0) return;
+			if (button != LEFT) return;
 			activeDrag = (dx, dy) -> {
 				int alpha = Math.round(clamp01((float) ((dx - x1) / Math.max(1, w - 1))) * 255);
 				c.set(ColorUtil.withAlpha(c.get(), alpha));
@@ -600,7 +604,7 @@ public final class ClickGuiScreen extends Screen {
 		ui.text("Rainbow", x1 + sw + 5, ry + 1, DIM_TEXT);
 		ui.textRight(ColorUtil.toHex(c.get()), x2, ry + 1, 0x90FFFFFF);
 		ui.hit(x1, ry, x1 + sw + 5 + ui.width("Rainbow"), ry + 10, (button, px, py) -> {
-			if (button == 0) c.setRainbow(!c.isRainbow());
+			if (button == LEFT) c.setRainbow(!c.isRainbow());
 		});
 		if (ui.hovered(x1, ry, x2, ry + 10)) ui.tooltip = "Cycle through every hue over time.";
 
@@ -644,7 +648,7 @@ public final class ClickGuiScreen extends Screen {
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		mouseDown = true;
-		if (listening != null && event.button() != 2) {
+		if (listening != null && event.button() != MIDDLE) {
 			listening = null;
 		}
 		ui.click(event.x(), event.y(), event.button());
