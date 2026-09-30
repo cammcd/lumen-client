@@ -2,6 +2,7 @@ package dev.lumen.gametest;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +24,11 @@ import net.fabricmc.loader.api.FabricLoader;
 
 import dev.lumen.client.Lumen;
 import dev.lumen.client.gui.ClickGuiScreen;
+import dev.lumen.client.gui.ProfilesScreen;
 import dev.lumen.client.module.Module;
 import dev.lumen.client.setting.BoolSetting;
 import dev.lumen.client.setting.EnumSetting;
+import dev.lumen.client.setting.NumberSetting;
 import dev.lumen.client.setting.Setting;
 
 /**
@@ -40,6 +43,17 @@ public final class LumenClientTest implements FabricClientGameTest {
 	// counts once; the dispenser and hopper are off by default.
 	private static final int EXPECTED_STORAGE = 9;
 	private static final int EXPECTED_SPAWNERS = 2;
+	// Creeper (hostile), pig (passive) and a dropped diamond (item). The villager is
+	// in the Other group, which is off by default, and the test player is skipped.
+	private static final int EXPECTED_ENTITIES = 3;
+
+	// Default click GUI layout: panels start below the search bar at y 34, the header
+	// is 20 high and module rows are 16 high.
+	private static final int PANEL_CENTER_X = 16 + 68;
+	private static final int STORAGE_ROW_Y = 34 + 20 + 2 + 8;
+	private static final int SPAWNER_ROW_Y = STORAGE_ROW_Y + 16;
+	// Settings start 2 below the module row: Keybind row (14), BLOCKS heading (14), Chests.
+	private static final int CHESTS_ROW_Y = STORAGE_ROW_Y + 8 + 2 + 14 + 14 + 7;
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
@@ -122,19 +136,26 @@ public final class LumenClientTest implements FabricClientGameTest {
 			setting(esp, "Tracers").reset();
 		});
 
+		LOG.info("Enabling Entity ESP");
+		context.runOnClient(mc -> Lumen.modules().entityEsp.setEnabled(true));
+		context.waitTicks(6);
+		int entities = context.computeOnClient(mc -> Lumen.modules().entityEsp.count());
+		LOG.info("Entity ESP targets: {}", entities);
+		if (entities != EXPECTED_ENTITIES) {
+			throw new AssertionError("Entity ESP found " + entities + " targets, expected " + EXPECTED_ENTITIES);
+		}
+		context.takeScreenshot("lumen_05_entity_esp");
+
 		LOG.info("Opening the click GUI with its key");
 		input.pressKey(Lumen.clickGuiKey());
 		context.waitForScreen(ClickGuiScreen.class);
 		context.waitTicks(20);
-		context.takeScreenshot("lumen_05_clickgui");
+		context.takeScreenshot("lumen_06_clickgui");
 
 		int scale = context.computeOnClient(mc -> mc.getWindow().getGuiScale());
-		// Default layout: the Render panel sits at (16, 16), its header is 20 high and
-		// each module row is 16 high, so Storage ESP is centred at y 46 and Spawner ESP at y 62.
-		int panelCenterX = 16 + 68;
 
 		LOG.info("Binding Spawner ESP to G through the GUI");
-		input.setCursorPos(panelCenterX * scale, 62 * scale);
+		input.setCursorPos(PANEL_CENTER_X * scale, SPAWNER_ROW_Y * scale);
 		input.pressMouse(InputConstants.MOUSE_BUTTON_MIDDLE);
 		context.waitTicks(2);
 		input.pressKey(InputConstants.KEY_G);
@@ -142,19 +163,54 @@ public final class LumenClientTest implements FabricClientGameTest {
 		String key = context.computeOnClient(mc -> Lumen.modules().spawnerEsp.key());
 		LOG.info("Spawner ESP key is now '{}'", key);
 		if (key.isEmpty()) throw new AssertionError("Binding through the GUI did not set a key");
+		String queryAfterBind = context.computeOnClient(mc -> ((ClickGuiScreen) mc.gui.screen()).query());
+		if (!queryAfterBind.isEmpty()) {
+			throw new AssertionError("The bound key was also typed into the search box: '" + queryAfterBind + "'");
+		}
 
 		LOG.info("Expanding Storage ESP settings");
-		input.setCursorPos(panelCenterX * scale, 46 * scale);
+		input.setCursorPos(PANEL_CENTER_X * scale, STORAGE_ROW_Y * scale);
 		input.pressMouse(InputConstants.MOUSE_BUTTON_RIGHT);
 		context.waitTicks(20);
-		context.takeScreenshot("lumen_06_settings");
+		context.takeScreenshot("lumen_07_settings");
 
 		LOG.info("Opening the Chests colour picker");
-		// Settings start at y 56: Keybind row (14), BLOCKS heading (14), then Chests.
-		input.setCursorPos(panelCenterX * scale, 91 * scale);
+		input.setCursorPos(PANEL_CENTER_X * scale, CHESTS_ROW_Y * scale);
 		input.pressMouse(InputConstants.MOUSE_BUTTON_RIGHT);
 		context.waitTicks(20);
-		context.takeScreenshot("lumen_07_color_picker");
+		context.takeScreenshot("lumen_08_color_picker");
+
+		LOG.info("Searching for 'spawn'");
+		input.typeChars("spawn");
+		context.waitTicks(10);
+		List<String> visible = context.computeOnClient(mc -> ((ClickGuiScreen) mc.gui.screen()).visibleModules());
+		LOG.info("Visible modules while searching: {}", visible);
+		if (!visible.equals(List.of("Spawner ESP"))) {
+			throw new AssertionError("Searching 'spawn' showed " + visible + ", expected only Spawner ESP");
+		}
+		context.takeScreenshot("lumen_09_search");
+		input.pressKey(InputConstants.KEY_ESCAPE);
+		context.waitTicks(2);
+		String queryAfterEsc = context.computeOnClient(mc -> mc.gui.screen() instanceof ClickGuiScreen gui ? gui.query() : "<closed>");
+		if (!queryAfterEsc.isEmpty()) {
+			throw new AssertionError("Esc should clear the search and keep the GUI open, got '" + queryAfterEsc + "'");
+		}
+
+		LOG.info("Saving a profile through the Profiles screen");
+		int[] profiles = context.computeOnClient(mc -> ((ClickGuiScreen) mc.gui.screen()).profilesButtonCenter());
+		input.setCursorPos(profiles[0] * scale, profiles[1] * scale);
+		input.pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+		context.waitForScreen(ProfilesScreen.class);
+		context.waitTicks(10);
+		input.typeChars("Test profile");
+		input.pressKey(InputConstants.KEY_RETURN);
+		context.waitTicks(10);
+		boolean saved = context.computeOnClient(mc -> Lumen.profiles().exists("Test profile"));
+		if (!saved) throw new AssertionError("Pressing Enter on the Profiles screen did not save the profile");
+		context.takeScreenshot("lumen_10_profiles");
+		input.pressKey(InputConstants.KEY_ESCAPE);
+		context.waitForScreen(ClickGuiScreen.class);
+		context.waitTicks(5);
 
 		LOG.info("Closing the GUI");
 		input.pressKey(InputConstants.KEY_ESCAPE);
@@ -162,13 +218,20 @@ public final class LumenClientTest implements FabricClientGameTest {
 		Path config = FabricLoader.getInstance().getConfigDir().resolve("lumen.json");
 		if (!Files.exists(config)) throw new AssertionError("Closing the GUI did not save " + config);
 
+		LOG.info("Loading the profile restores changed settings");
+		context.runOnClient(mc -> ((NumberSetting) setting(Lumen.modules().storageEsp, "Fill opacity")).set(80.0));
+		context.runOnClient(mc -> Lumen.profiles().load("Test profile"));
+		double fill = context.computeOnClient(mc -> ((NumberSetting) setting(Lumen.modules().storageEsp, "Fill opacity")).get());
+		LOG.info("Storage ESP fill opacity after loading the profile: {}", fill);
+		if (fill != 22.0) throw new AssertionError("Loading the profile did not restore Fill opacity, got " + fill);
+
 		LOG.info("Toggling Spawner ESP with its new key");
 		boolean before = context.computeOnClient(mc -> Lumen.modules().spawnerEsp.isEnabled());
 		input.pressKey(InputConstants.KEY_G);
 		context.waitTicks(4);
 		boolean after = context.computeOnClient(mc -> Lumen.modules().spawnerEsp.isEnabled());
 		if (before == after) throw new AssertionError("Pressing the bound key did not toggle Spawner ESP");
-		context.takeScreenshot("lumen_08_keybind_notification");
+		context.takeScreenshot("lumen_11_keybind_notification");
 
 		testFreecam(context);
 	}
@@ -193,7 +256,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 		LOG.info("Freecam: body moved {} blocks, camera is {} blocks from the body", bodyMoved, cameraDistance);
 		if (bodyMoved > 0.05) throw new AssertionError("The body moved " + bodyMoved + " blocks while Freecam was flying");
 		if (cameraDistance < 5) throw new AssertionError("The camera is only " + cameraDistance + " blocks from the body");
-		context.takeScreenshot("lumen_09_freecam");
+		context.takeScreenshot("lumen_12_freecam");
 
 		LOG.info("Scrolling to change Freecam speed");
 		double speedBefore = context.computeOnClient(mc -> Lumen.modules().freecam.speed.get());
@@ -230,6 +293,12 @@ public final class LumenClientTest implements FabricClientGameTest {
 		command(server, "/setblock 2 -60 3 minecraft:trial_spawner");
 		command(server, "/setblock 4 -60 3 minecraft:dispenser[facing=north]");
 		command(server, "/setblock 6 -60 3 minecraft:hopper");
+		// Entities, behind the blocks. NoAI keeps them in place.
+		command(server, "/difficulty easy");
+		command(server, "/summon minecraft:creeper -3 -60 6 {NoAI:1b,Silent:1b}");
+		command(server, "/summon minecraft:pig 0 -60 6 {NoAI:1b,Silent:1b}");
+		command(server, "/summon minecraft:villager 3 -60 6 {NoAI:1b,Silent:1b}");
+		command(server, "/summon minecraft:item 5.5 -60 6.5 {Item:{id:\"minecraft:diamond\",count:1}}");
 	}
 
 	private static void command(TestServerContext server, String command) {

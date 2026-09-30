@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import dev.lumen.client.modules.ClickGuiModule;
+import dev.lumen.client.modules.EntityEsp;
 import dev.lumen.client.modules.Freecam;
 import dev.lumen.client.modules.HudModule;
 import dev.lumen.client.modules.SpawnerEsp;
@@ -15,6 +16,7 @@ public final class ModuleManager {
 
 	public final StorageEsp storageEsp;
 	public final SpawnerEsp spawnerEsp;
+	public final EntityEsp entityEsp;
 	public final Freecam freecam;
 	public final HudModule hud;
 	public final ClickGuiModule clickGui;
@@ -22,6 +24,7 @@ public final class ModuleManager {
 	public ModuleManager() {
 		storageEsp = register(new StorageEsp());
 		spawnerEsp = register(new SpawnerEsp());
+		entityEsp = register(new EntityEsp());
 		freecam = register(new Freecam());
 		hud = register(new HudModule());
 		clickGui = register(new ClickGuiModule());

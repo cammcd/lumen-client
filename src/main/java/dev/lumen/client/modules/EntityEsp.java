@@ -1,0 +1,87 @@
+package dev.lumen.client.modules;
+
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+import dev.lumen.client.render.EspBatch;
+import dev.lumen.client.setting.BoolSetting;
+import dev.lumen.client.setting.ColorSetting;
+
+public final class EntityEsp extends HighlightModule {
+	private final ColorSetting players = add(new ColorSetting("Players", "Other players.", 0xFFFF5D73, true));
+	private final ColorSetting hostile = add(new ColorSetting("Hostile mobs", "Monsters: zombies, creepers, skeletons and the like.", 0xFFFFA23A, true));
+	private final ColorSetting passive = add(new ColorSetting("Passive mobs", "Animals, fish, bats and other peaceful creatures.", 0xFF6BE38B, true));
+	private final ColorSetting items = add(new ColorSetting("Items", "Dropped items on the ground.", 0xFFFFE066, true));
+	private final ColorSetting other = add(new ColorSetting("Other", "Villagers, golems, armor stands and other creatures.", 0xFF7FD4FF, false));
+	private final BoolSetting showInvisible = add(new BoolSetting("Show invisible", "Also highlight entities that are invisible.", false));
+
+	private int lastCount;
+
+	public EntityEsp() {
+		super("Entity ESP", "Highlights players, mobs and dropped items.", 128, false, "Entities");
+	}
+
+	@Override
+	protected void onDisable() {
+		lastCount = 0;
+	}
+
+	/** Number of entities highlighted in the most recent frame. */
+	public int count() {
+		return lastCount;
+	}
+
+	@Override
+	public String hudInfo() {
+		return Integer.toString(lastCount);
+	}
+
+	private ColorSetting classify(Entity entity) {
+		if (entity instanceof Player) return players;
+		if (entity instanceof ItemEntity) return items;
+		if (!(entity instanceof LivingEntity)) return null;
+		if (entity instanceof Enemy) return hostile;
+
+		MobCategory category = entity.getType().getCategory();
+		if (category == MobCategory.MONSTER) return hostile;
+		if (category == MobCategory.MISC) return other;
+		return passive;
+	}
+
+	@Override
+	public void renderWorld(EspBatch batch, Vec3 cam) {
+		if (MC.level == null || MC.player == null) return;
+
+		float partialTick = MC.getDeltaTracker().getGameTimeDeltaPartialTick(true);
+		Style style = frameStyle();
+		int count = 0;
+
+		for (Entity entity : MC.level.entitiesForRendering()) {
+			if (entity == MC.player) continue;
+
+			ColorSetting setting = classify(entity);
+			if (setting == null || !setting.isEnabled()) continue;
+			if (entity.isInvisible() && !showInvisible.isOn()) continue;
+
+			AABB box = lerpedBox(entity, partialTick);
+			if (draw(batch, cam, style, box, setting.color(rainbowOffset(box.getCenter())))) count++;
+		}
+
+		lastCount = count;
+	}
+
+	/** The entity's box at its interpolated position, so highlights move smoothly between ticks. */
+	private static AABB lerpedBox(Entity entity, float partialTick) {
+		if (entity.isRemoved()) return entity.getBoundingBox();
+		double x = entity.xOld + (entity.getX() - entity.xOld) * partialTick;
+		double y = entity.yOld + (entity.getY() - entity.yOld) * partialTick;
+		double z = entity.zOld + (entity.getZ() - entity.zOld) * partialTick;
+		return entity.getBoundingBox().move(x - entity.getX(), y - entity.getY(), z - entity.getZ());
+	}
+}

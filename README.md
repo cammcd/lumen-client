@@ -8,6 +8,7 @@ A clean, customizable Fabric client for **Minecraft 26.3**.
 |---|---|
 | **Storage ESP** | Highlights chests, trapped chests, ender chests, shulker boxes, droppers and barrels. Dispensers, hoppers, furnaces, crafters and decorated pots can be switched on too. Every block type has its own colour and toggle. |
 | **Spawner ESP** | Highlights monster spawners and trial spawners, with tracers on by default. |
+| **Entity ESP** | Highlights players, hostile mobs, passive mobs and dropped items, with a separate toggle and colour for each. Villagers, golems and armor stands can be switched on too. Boxes follow entities smoothly between ticks. |
 | **Freecam** | Detaches the camera and flies it through blocks while your body stays still. WASD to move, Space and Shift for up and down, Sprint for a speed boost, scroll wheel to change speed. |
 | **HUD** | Watermark with FPS, an animated list of active modules, coordinates with Nether/Overworld conversion, and toggle notifications. |
 | **Click GUI** | Theme settings for the menu itself. |
@@ -35,10 +36,13 @@ background dim, blur, animation speed, hover descriptions and text shadow.
 - **Right Shift** opens the Click GUI (rebind it under Options > Controls > Lumen).
 - Left click a module to toggle it. Right click to open its settings.
 - Middle click a module, or use its Keybind row, to bind a key. Backspace clears a bind.
+- Start typing to search. It matches module names, descriptions and setting names. Esc clears the search.
+- **Profiles** (top right) saves your whole setup under a name, and loads or deletes saved setups.
 - Drag panel headers to move them. Right click a header to collapse it. Scroll long panels.
 - Right click most settings to reset them.
 
-Settings, keybinds and panel positions are saved to `config/lumen.json`.
+Settings, keybinds and panel positions are saved to `config/lumen.json`. Profiles are saved
+in `config/lumen/profiles/`.
 
 ## Install
 

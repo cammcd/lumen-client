@@ -19,6 +19,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.level.LevelExtractionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 
 import dev.lumen.client.config.ConfigManager;
+import dev.lumen.client.config.ProfileManager;
 import dev.lumen.client.gui.ClickGuiScreen;
 import dev.lumen.client.hud.HudRenderer;
 import dev.lumen.client.module.ModuleManager;
@@ -32,6 +33,7 @@ public final class Lumen implements ClientModInitializer {
 
 	private static ModuleManager modules;
 	private static ConfigManager config;
+	private static ProfileManager profiles;
 	private static KeyMapping clickGuiKey;
 	private static int ticksSinceSave;
 
@@ -40,6 +42,7 @@ public final class Lumen implements ClientModInitializer {
 		modules = new ModuleManager();
 		config = new ConfigManager();
 		config.load();
+		profiles = new ProfileManager();
 
 		KeyMapping.Category category = KeyMapping.Category.register(id("lumen"));
 		clickGuiKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
@@ -82,6 +85,10 @@ public final class Lumen implements ClientModInitializer {
 
 	public static ConfigManager config() {
 		return config;
+	}
+
+	public static ProfileManager profiles() {
+		return profiles;
 	}
 
 	public static KeyMapping clickGuiKey() {

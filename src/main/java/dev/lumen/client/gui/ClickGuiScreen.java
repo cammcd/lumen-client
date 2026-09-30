@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +14,9 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -39,7 +42,10 @@ public final class ClickGuiScreen extends Screen {
 	private static final int LEFT = InputConstants.MOUSE_BUTTON_LEFT;
 	private static final int RIGHT = InputConstants.MOUSE_BUTTON_RIGHT;
 	private static final int MIDDLE = InputConstants.MOUSE_BUTTON_MIDDLE;
-	private static final String HINT = "Left click: toggle   Right click: settings   Middle click: bind   Drag headers to move";
+	private static final String HINT = "Type to search   Left click: toggle   Right click: settings   Middle click: bind";
+	private static final int TOP_BAR_Y = 8;
+	private static final int TOP_BAR_H = 18;
+	private static final int SEARCH_W = 170;
 
 	private record Key(Object owner, String part) {
 	}
@@ -65,6 +71,8 @@ public final class ClickGuiScreen extends Screen {
 	}
 
 	private static final Object OPEN_KEY = new Object();
+	private static final Object SEARCH_GLOW_KEY = new Object();
+	private static final Object PROFILES_HOVER_KEY = new Object();
 
 	// Remembered across openings so the GUI comes back the way it was left.
 	private static final Set<String> EXPANDED = new HashSet<>();
@@ -81,6 +89,13 @@ public final class ClickGuiScreen extends Screen {
 	private DragHandler activeDrag;
 	private boolean mouseDown;
 	private Module listening;
+
+	private EditBox search;
+	private String query = "";
+	// A key press that sets a bind is followed by a typed character; it must not reach the search box.
+	private long swallowCharsUntil;
+	private final List<String> visibleModules = new ArrayList<>();
+	private int profilesX1, profilesY1, profilesX2, profilesY2;
 
 	public ClickGuiScreen() {
 		super(Component.literal("Lumen"));
@@ -100,7 +115,7 @@ public final class ClickGuiScreen extends Screen {
 
 		int x = 16;
 		for (Category category : Category.values()) {
-			Panel panel = new Panel(category, x, 16);
+			Panel panel = new Panel(category, x, TOP_BAR_Y + TOP_BAR_H + 8);
 			JsonElement e = saved.get(category.name());
 			if (e != null && e.isJsonObject()) {
 				JsonObject o = e.getAsJsonObject();
@@ -149,6 +164,19 @@ public final class ClickGuiScreen extends Screen {
 	}
 
 	@Override
+	protected void init() {
+		search = new EditBox(font, width / 2 - SEARCH_W / 2 + 20, TOP_BAR_Y + 5, SEARCH_W - 50, 10, Component.literal("Search"));
+		search.setBordered(false);
+		search.setMaxLength(32);
+		search.setTextColor(0xFFEDEFF7);
+		search.setValue(query);
+		search.setResponder(value -> query = value);
+		addWidget(search);
+		setFocused(search);
+		search.setFocused(true);
+	}
+
+	@Override
 	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		if (theme().blur.isOn()) {
 			super.extractBackground(graphics, mouseX, mouseY, partialTicks);
@@ -175,11 +203,102 @@ public final class ClickGuiScreen extends Screen {
 		int dim = (int) Math.round(t.dim.get() / 100.0 * 255);
 		ui.gradientV(0, 0, width, height, ColorUtil.argb(dim * 3 / 4, 6, 6, 12), ColorUtil.argb(dim, 6, 6, 12));
 
+		visibleModules.clear();
 		for (Panel panel : panels) {
 			drawPanel(panel, open);
 		}
 
+		drawTopBar(graphics, mouseX, mouseY, partialTicks);
 		drawFooter();
+	}
+
+	// ---- search and profiles ----
+
+	private void drawTopBar(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+		ClickGuiModule t = theme();
+		int r = t.cornerRadius.getInt();
+
+		// Search box, centred.
+		int sx1 = width / 2 - SEARCH_W / 2;
+		int sx2 = sx1 + SEARCH_W;
+		int sy1 = TOP_BAR_Y;
+		int sy2 = sy1 + TOP_BAR_H;
+		if (t.shadows.isOn()) ui.shadow(sx1, sy1, sx2, sy2, r, 70);
+		ui.roundRect(sx1, sy1, sx2, sy2, r, t.panelColor.color());
+		boolean searching = !query.isEmpty();
+		float glow = Anim.approach(SEARCH_GLOW_KEY, searching ? 1f : 0.35f);
+		ui.roundGradientH(sx1 + r, sy2 - 1, sx2 - r, sy2, 0,
+				ColorUtil.fade(t.accentAt(0f), glow), ColorUtil.fade(t.accentAt(1f), glow), false, false);
+
+		// Magnifier: a ring and a short handle.
+		int mx = sx1 + 8;
+		int my = sy1 + 5;
+		int icon = ColorUtil.lerp(DIM_TEXT, t.accentAt(0.3f), glow);
+		ui.roundRect(mx, my, mx + 7, my + 7, 3, icon);
+		ui.roundRect(mx + 1, my + 1, mx + 6, my + 6, 2, t.panelColor.color() | 0xFF000000);
+		ui.rect(mx + 6, my + 6, mx + 8, my + 8, icon);
+		ui.rect(mx + 7, my + 7, mx + 9, my + 9, icon);
+
+		if (searching) {
+			String n = Integer.toString(visibleModules.size());
+			ui.textRight(n, sx2 - 8, sy1 + 5, ColorUtil.fade(t.accentAt(0.6f), 0.9f));
+		} else {
+			ui.text("Type to search...", sx1 + 20, sy1 + 5, ColorUtil.darken(DIM_TEXT, 0.15f));
+		}
+		search.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+
+		// Profiles button, top right.
+		String active = Lumen.profiles().active();
+		String label = active.isEmpty() ? "Profiles" : "Profiles: " + active;
+		profilesX2 = width - 8;
+		profilesX1 = profilesX2 - ui.width(label) - 16;
+		profilesY1 = TOP_BAR_Y;
+		profilesY2 = TOP_BAR_Y + TOP_BAR_H;
+		boolean hover = ui.hovered(profilesX1, profilesY1, profilesX2, profilesY2);
+		float hov = Anim.approach(PROFILES_HOVER_KEY, hover ? 1f : 0f);
+		if (t.shadows.isOn()) ui.shadow(profilesX1, profilesY1, profilesX2, profilesY2, r, 70);
+		ui.roundRect(profilesX1, profilesY1, profilesX2, profilesY2, r, t.panelColor.color());
+		if (hov > 0.01f) {
+			ui.roundGradientH(profilesX1, profilesY1, profilesX2, profilesY2, r,
+					ColorUtil.fade(t.accentAt(0f), 0.35f * hov), ColorUtil.fade(t.accentAt(1f), 0.2f * hov), true, true);
+		}
+		ui.roundGradientH(profilesX1 + r, profilesY2 - 1, profilesX2 - r, profilesY2, 0, t.accentAt(0f), t.accentAt(1f), false, false);
+		ui.text(label, profilesX1 + 8, profilesY1 + 5, ColorUtil.lerp(DIM_TEXT, t.textColor.color(), 0.5f + 0.5f * hov));
+		if (hover) ui.tooltip = "Save your whole setup under a name, or load a saved one.";
+		ui.hit(profilesX1, profilesY1, profilesX2, profilesY2, (button, px, py) -> {
+			if (button == LEFT) openProfiles();
+		});
+	}
+
+	private void openProfiles() {
+		saveState();
+		minecraft.gui.setScreen(new ProfilesScreen(this));
+	}
+
+	private boolean matches(Module m) {
+		String q = query.trim().toLowerCase(Locale.ROOT);
+		if (q.isEmpty()) return true;
+		if (m.name().toLowerCase(Locale.ROOT).contains(q)) return true;
+		if (m.description().toLowerCase(Locale.ROOT).contains(q)) return true;
+		for (Setting<?> s : m.settings()) {
+			if (s.name().toLowerCase(Locale.ROOT).contains(q)) return true;
+		}
+		return false;
+	}
+
+	/** The current search text. */
+	public String query() {
+		return query;
+	}
+
+	/** Names of the modules drawn in the most recent frame, after search filtering. */
+	public List<String> visibleModules() {
+		return List.copyOf(visibleModules);
+	}
+
+	/** Centre of the Profiles button in GUI coordinates, from the most recent frame. */
+	public int[] profilesButtonCenter() {
+		return new int[] {(profilesX1 + profilesX2) / 2, (profilesY1 + profilesY2) / 2};
 	}
 
 	// ---- panels ----
@@ -210,10 +329,14 @@ public final class ClickGuiScreen extends Screen {
 		ui.rect(x + r, y + 1, x + w - r, y + HEADER_H / 2, 0x16FFFFFF);
 		ui.text(p.category.displayName(), x + 8, y + (HEADER_H - 8) / 2, 0xFFFFFFFF);
 
-		List<Module> modules = Lumen.modules().byCategory(p.category);
+		List<Module> all = Lumen.modules().byCategory(p.category);
+		List<Module> modules = new ArrayList<>();
+		for (Module m : all) {
+			if (matches(m)) modules.add(m);
+		}
 		int enabled = 0;
 		int toggleable = 0;
-		for (Module m : modules) {
+		for (Module m : all) {
 			if (m.isToggleable()) {
 				toggleable++;
 				if (m.isEnabled()) enabled++;
@@ -241,7 +364,12 @@ public final class ClickGuiScreen extends Screen {
 		int cy = contentTop - Math.round(scroll);
 		int start = cy;
 		for (Module m : modules) {
+			visibleModules.add(m.name());
 			cy += drawModule(m, x, cy, w);
+		}
+		if (modules.isEmpty() && !query.isEmpty()) {
+			ui.text("No matches", x + 11, cy + 4, ColorUtil.darken(DIM_TEXT, 0.2f));
+			cy += ROW_H;
 		}
 		p.contentHeight = cy - start + 1;
 		ui.popClip();
@@ -691,6 +819,7 @@ public final class ClickGuiScreen extends Screen {
 	public boolean keyPressed(KeyEvent event) {
 		if (listening != null) {
 			int key = event.key();
+			swallowCharsUntil = System.nanoTime() + 150_000_000L;
 			if (key == InputConstants.KEY_ESCAPE) {
 				listening = null;
 				return true;
@@ -703,7 +832,18 @@ public final class ClickGuiScreen extends Screen {
 			listening = null;
 			return true;
 		}
+		// Esc clears the search first, then closes the GUI.
+		if (event.key() == InputConstants.KEY_ESCAPE && !query.isEmpty()) {
+			search.setValue("");
+			return true;
+		}
 		return super.keyPressed(event);
+	}
+
+	@Override
+	public boolean charTyped(CharacterEvent event) {
+		if (System.nanoTime() < swallowCharsUntil) return true;
+		return super.charTyped(event);
 	}
 
 	// ---- helpers ----

@@ -40,11 +40,7 @@ public final class ConfigManager {
 			JsonObject obj = root.getAsJsonObject();
 
 			if (obj.has("modules") && obj.get("modules").isJsonObject()) {
-				for (Map.Entry<String, JsonElement> entry : obj.getAsJsonObject("modules").entrySet()) {
-					Module module = Lumen.modules().byName(entry.getKey());
-					if (module == null || !entry.getValue().isJsonObject()) continue;
-					loadModule(module, entry.getValue().getAsJsonObject());
-				}
+				applyModules(obj.getAsJsonObject("modules"));
 			}
 
 			if (obj.has("gui") && obj.get("gui").isJsonObject()) {
@@ -53,6 +49,33 @@ public final class ConfigManager {
 		} catch (Exception e) {
 			Lumen.LOGGER.error("Could not read {}, using defaults", file, e);
 		}
+	}
+
+	/** Applies saved module state: settings, keybinds and on/off. Modules not listed are left alone. */
+	public void applyModules(JsonObject modules) {
+		for (Map.Entry<String, JsonElement> entry : modules.entrySet()) {
+			Module module = Lumen.modules().byName(entry.getKey());
+			if (module == null || !entry.getValue().isJsonObject()) continue;
+			loadModule(module, entry.getValue().getAsJsonObject());
+		}
+	}
+
+	/** Every module's settings, keybind and on/off state. */
+	public JsonObject modulesJson() {
+		JsonObject modules = new JsonObject();
+		for (Module module : Lumen.modules().all()) {
+			JsonObject json = new JsonObject();
+			json.addProperty("enabled", module.isEnabled());
+			json.addProperty("key", module.key());
+
+			JsonObject settings = new JsonObject();
+			for (Setting<?> setting : module.settings()) {
+				settings.add(setting.name(), setting.toJson());
+			}
+			json.add("settings", settings);
+			modules.add(module.name(), json);
+		}
+		return modules;
 	}
 
 	private void loadModule(Module module, JsonObject json) {
@@ -75,33 +98,23 @@ public final class ConfigManager {
 
 	public void save() {
 		JsonObject root = new JsonObject();
-		JsonObject modules = new JsonObject();
-
-		for (Module module : Lumen.modules().all()) {
-			JsonObject json = new JsonObject();
-			json.addProperty("enabled", module.isEnabled());
-			json.addProperty("key", module.key());
-
-			JsonObject settings = new JsonObject();
-			for (Setting<?> setting : module.settings()) {
-				settings.add(setting.name(), setting.toJson());
-			}
-			json.add("settings", settings);
-			modules.add(module.name(), json);
-		}
-
-		root.add("modules", modules);
+		root.add("modules", modulesJson());
 		root.add("gui", guiState);
 
 		try {
-			Files.createDirectories(file.getParent());
-			Path tmp = file.resolveSibling("lumen.json.tmp");
-			try (Writer writer = Files.newBufferedWriter(tmp, StandardCharsets.UTF_8)) {
-				GSON.toJson(root, writer);
-			}
-			Files.move(tmp, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+			writeJson(file, root);
 		} catch (IOException e) {
 			Lumen.LOGGER.error("Could not save {}", file, e);
 		}
+	}
+
+	/** Writes JSON through a temporary file so a crash mid-write cannot corrupt it. */
+	public static void writeJson(Path target, JsonObject json) throws IOException {
+		Files.createDirectories(target.getParent());
+		Path tmp = target.resolveSibling(target.getFileName() + ".tmp");
+		try (Writer writer = Files.newBufferedWriter(tmp, StandardCharsets.UTF_8)) {
+			GSON.toJson(json, writer);
+		}
+		Files.move(tmp, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 	}
 }
