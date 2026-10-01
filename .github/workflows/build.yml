@@ -60,8 +60,8 @@ jobs:
             build/run/*/crash-reports
           compression-level: 0
 
-      # Also publish them to the ci-screenshots branch so they can be viewed
-      # without downloading an artifact.
+      # Also publish them, with the mod jar, to the ci-screenshots branch so they
+      # can be fetched without downloading an artifact.
       - name: Publish screenshots branch
         if: ${{ always() && github.event_name == 'push' }}
         env:
@@ -73,7 +73,11 @@ jobs:
             cp "$dir"logs/latest.log "$out"/latest.log 2>/dev/null || true
             cp -r "$dir"crash-reports "$out"/ 2>/dev/null || true
           done
-          echo "Screenshots for ${GITHUB_SHA}" > "$out"/README.md
+          # The mod jar too, so it can be fetched with git as well as from the artifact.
+          for jar in build/libs/*.jar; do
+            case "$jar" in *-sources.jar) ;; *) cp "$jar" "$out"/ ;; esac
+          done
+          echo "Screenshots and mod jar for ${GITHUB_SHA}" > "$out"/README.md
           cd "$out"
           git init -q -b ci-screenshots
           git config user.name "github-actions[bot]"
