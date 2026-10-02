@@ -1,0 +1,14 @@
+Compiled from "DisconnectionDetails.java"
+public final class net.minecraft.network.DisconnectionDetails extends java.lang.Record {
+  private final net.minecraft.network.chat.Component reason;
+  private final java.util.Optional<java.nio.file.Path> report;
+  private final java.util.Optional<java.net.URI> bugReportLink;
+  public net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component);
+  public net.minecraft.network.DisconnectionDetails(net.minecraft.network.chat.Component, java.util.Optional<java.nio.file.Path>, java.util.Optional<java.net.URI>);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public net.minecraft.network.chat.Component reason();
+  public java.util.Optional<java.nio.file.Path> report();
+  public java.util.Optional<java.net.URI> bugReportLink();
+}

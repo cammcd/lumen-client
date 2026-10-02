@@ -1,0 +1,20 @@
+Compiled from "ContainerInput.java"
+public final class net.minecraft.world.inventory.ContainerInput extends java.lang.Enum<net.minecraft.world.inventory.ContainerInput> {
+  public static final net.minecraft.world.inventory.ContainerInput PICKUP;
+  public static final net.minecraft.world.inventory.ContainerInput QUICK_MOVE;
+  public static final net.minecraft.world.inventory.ContainerInput SWAP;
+  public static final net.minecraft.world.inventory.ContainerInput CLONE;
+  public static final net.minecraft.world.inventory.ContainerInput THROW;
+  public static final net.minecraft.world.inventory.ContainerInput QUICK_CRAFT;
+  public static final net.minecraft.world.inventory.ContainerInput PICKUP_ALL;
+  private static final java.util.function.IntFunction<net.minecraft.world.inventory.ContainerInput> BY_ID;
+  public static final net.minecraft.network.codec.StreamCodec<io.netty.buffer.ByteBuf, net.minecraft.world.inventory.ContainerInput> STREAM_CODEC;
+  private final int id;
+  private static final net.minecraft.world.inventory.ContainerInput[] $VALUES;
+  public static net.minecraft.world.inventory.ContainerInput[] values();
+  public static net.minecraft.world.inventory.ContainerInput valueOf(java.lang.String);
+  private net.minecraft.world.inventory.ContainerInput(int);
+  public int id();
+  private static net.minecraft.world.inventory.ContainerInput[] $values();
+  static {};
+}

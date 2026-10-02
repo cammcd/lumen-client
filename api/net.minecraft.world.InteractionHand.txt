@@ -1,0 +1,18 @@
+Compiled from "InteractionHand.java"
+public final class net.minecraft.world.InteractionHand extends java.lang.Enum<net.minecraft.world.InteractionHand> {
+  public static final net.minecraft.world.InteractionHand MAIN_HAND;
+  public static final net.minecraft.world.InteractionHand OFF_HAND;
+  private static final java.util.function.IntFunction<net.minecraft.world.InteractionHand> BY_ID;
+  public static final net.minecraft.network.codec.StreamCodec<io.netty.buffer.ByteBuf, net.minecraft.world.InteractionHand> STREAM_CODEC;
+  private final int id;
+  private static final net.minecraft.world.InteractionHand[] $VALUES;
+  public static net.minecraft.world.InteractionHand[] values();
+  public static net.minecraft.world.InteractionHand valueOf(java.lang.String);
+  private net.minecraft.world.InteractionHand(int);
+  public net.minecraft.world.entity.HumanoidArm asArm(net.minecraft.world.entity.HumanoidArm);
+  public net.minecraft.world.entity.EquipmentSlot asEquipmentSlot();
+  private static net.minecraft.world.InteractionHand[] $values();
+  private static int lambda$static$1(net.minecraft.world.InteractionHand);
+  private static int lambda$static$0(net.minecraft.world.InteractionHand);
+  static {};
+}

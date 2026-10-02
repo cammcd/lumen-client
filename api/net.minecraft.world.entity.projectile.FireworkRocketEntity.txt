@@ -1,0 +1,39 @@
+Compiled from "FireworkRocketEntity.java"
+public class net.minecraft.world.entity.projectile.FireworkRocketEntity extends net.minecraft.world.entity.projectile.Projectile implements net.minecraft.world.entity.projectile.ItemSupplier {
+  private static final net.minecraft.network.syncher.EntityDataAccessor<net.minecraft.world.item.ItemStack> DATA_ID_FIREWORKS_ITEM;
+  private static final net.minecraft.network.syncher.EntityDataAccessor<java.util.OptionalInt> DATA_ATTACHED_TO_TARGET;
+  private static final net.minecraft.network.syncher.EntityDataAccessor<java.lang.Boolean> DATA_SHOT_AT_ANGLE;
+  private static final int DEFAULT_LIFE;
+  private static final int DEFAULT_LIFE_TIME;
+  private static final boolean DEFAULT_SHOT_AT_ANGLE;
+  private int life;
+  private int lifetime;
+  private net.minecraft.world.entity.LivingEntity attachedToEntity;
+  public net.minecraft.world.entity.projectile.FireworkRocketEntity(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.projectile.FireworkRocketEntity>, net.minecraft.world.level.Level);
+  public net.minecraft.world.entity.projectile.FireworkRocketEntity(net.minecraft.world.level.Level, double, double, double, net.minecraft.world.item.ItemStack);
+  public net.minecraft.world.entity.projectile.FireworkRocketEntity(net.minecraft.world.level.Level, net.minecraft.world.entity.Entity, double, double, double, net.minecraft.world.item.ItemStack);
+  public net.minecraft.world.entity.projectile.FireworkRocketEntity(net.minecraft.world.level.Level, net.minecraft.world.item.ItemStack, net.minecraft.world.entity.LivingEntity);
+  public net.minecraft.world.entity.projectile.FireworkRocketEntity(net.minecraft.world.level.Level, net.minecraft.world.item.ItemStack, double, double, double, boolean);
+  public net.minecraft.world.entity.projectile.FireworkRocketEntity(net.minecraft.world.level.Level, net.minecraft.world.item.ItemStack, net.minecraft.world.entity.Entity, double, double, double, boolean);
+  protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData$Builder);
+  public boolean shouldRenderAtSqrDistance(double);
+  public boolean shouldRender(double, double, double);
+  public void tick();
+  private void explode(net.minecraft.server.level.ServerLevel);
+  protected void onHitEntity(net.minecraft.world.phys.EntityHitResult);
+  protected void onHitBlock(net.minecraft.world.phys.BlockHitResult);
+  private boolean hasExplosion();
+  private void dealExplosionDamage(net.minecraft.server.level.ServerLevel);
+  private boolean isAttachedToEntity();
+  public boolean isShotAtAngle();
+  public void handleEntityEvent(byte);
+  protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput);
+  protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput);
+  private java.util.List<net.minecraft.world.item.component.FireworkExplosion> getExplosions();
+  public net.minecraft.world.item.ItemStack getItem();
+  public boolean isAttackable();
+  private static net.minecraft.world.item.ItemStack getDefaultItem();
+  public it.unimi.dsi.fastutil.doubles.DoubleDoubleImmutablePair calculateHorizontalHurtKnockbackDirection(net.minecraft.world.entity.LivingEntity, net.minecraft.world.damagesource.DamageSource);
+  private void lambda$tick$0(int);
+  static {};
+}

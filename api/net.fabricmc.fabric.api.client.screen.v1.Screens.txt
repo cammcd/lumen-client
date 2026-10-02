@@ -1,0 +1,7 @@
+Compiled from "Screens.java"
+public final class net.fabricmc.fabric.api.client.screen.v1.Screens {
+  public static java.util.List<net.minecraft.client.gui.components.AbstractWidget> getWidgets(net.minecraft.client.gui.screens.Screen);
+  public static net.minecraft.client.gui.Font getFont(net.minecraft.client.gui.screens.Screen);
+  public static net.minecraft.client.Minecraft getMinecraft(net.minecraft.client.gui.screens.Screen);
+  private net.fabricmc.fabric.api.client.screen.v1.Screens();
+}

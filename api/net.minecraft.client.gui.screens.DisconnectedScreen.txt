@@ -1,0 +1,25 @@
+Compiled from "DisconnectedScreen.java"
+public class net.minecraft.client.gui.screens.DisconnectedScreen extends net.minecraft.client.gui.screens.Screen {
+  private static final net.minecraft.network.chat.Component TO_SERVER_LIST;
+  private static final net.minecraft.network.chat.Component TO_TITLE;
+  private static final net.minecraft.network.chat.Component REPORT_TO_SERVER_TITLE;
+  private static final net.minecraft.network.chat.Component OPEN_REPORT_DIR_TITLE;
+  private final net.minecraft.client.gui.screens.Screen parent;
+  private final net.minecraft.network.DisconnectionDetails details;
+  private final net.minecraft.network.chat.Component buttonText;
+  private final net.minecraft.client.gui.layouts.LinearLayout layout;
+  public net.minecraft.client.gui.screens.DisconnectedScreen(net.minecraft.client.gui.screens.Screen, net.minecraft.network.chat.Component, net.minecraft.network.chat.Component);
+  public net.minecraft.client.gui.screens.DisconnectedScreen(net.minecraft.client.gui.screens.Screen, net.minecraft.network.chat.Component, net.minecraft.network.chat.Component, net.minecraft.network.chat.Component);
+  public net.minecraft.client.gui.screens.DisconnectedScreen(net.minecraft.client.gui.screens.Screen, net.minecraft.network.chat.Component, net.minecraft.network.DisconnectionDetails);
+  public net.minecraft.client.gui.screens.DisconnectedScreen(net.minecraft.client.gui.screens.Screen, net.minecraft.network.chat.Component, net.minecraft.network.DisconnectionDetails, net.minecraft.network.chat.Component);
+  protected void init();
+  protected void repositionElements();
+  public net.minecraft.network.chat.Component getNarrationMessage();
+  public boolean shouldCloseOnEsc();
+  private void lambda$init$4(net.minecraft.client.gui.components.Button);
+  private void lambda$init$3(net.minecraft.client.gui.components.Button);
+  private void lambda$init$1(java.nio.file.Path);
+  private static void lambda$init$2(java.nio.file.Path, net.minecraft.client.gui.components.Button);
+  private void lambda$init$0(java.net.URI);
+  static {};
+}

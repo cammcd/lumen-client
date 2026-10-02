@@ -1,0 +1,12 @@
+Compiled from "FireworkRocketItem.java"
+public class net.minecraft.world.item.FireworkRocketItem extends net.minecraft.world.item.Item implements net.minecraft.world.item.ProjectileItem {
+  public static final byte[] CRAFTABLE_DURATIONS;
+  public static final double ROCKET_PLACEMENT_OFFSET;
+  public net.minecraft.world.item.FireworkRocketItem(net.minecraft.world.item.Item$Properties);
+  public net.minecraft.world.InteractionResult useOn(net.minecraft.world.item.context.UseOnContext);
+  public net.minecraft.world.InteractionResult use(net.minecraft.world.level.Level, net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand);
+  public net.minecraft.world.entity.projectile.Projectile asProjectile(net.minecraft.world.level.Level, net.minecraft.core.Position, net.minecraft.world.item.ItemStack, net.minecraft.core.Direction);
+  public net.minecraft.world.item.ProjectileItem$DispenseConfig createDispenseConfig();
+  private static net.minecraft.world.phys.Vec3 getEntityJustOutsideOfBlockPos(net.minecraft.core.dispenser.BlockSource, net.minecraft.core.Direction);
+  static {};
+}
