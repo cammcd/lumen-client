@@ -70,7 +70,7 @@ public final class KillAura extends CombatModule {
 
 		if (criticals.critNow()) crits++;
 		MC.gameMode.attack(p, target);
-		p.swing(InteractionHand.MAIN_HAND);
+		p.swingAndResetAttackStrength(InteractionHand.MAIN_HAND, p.getMainHandItem().getAttackAnimation(), false);
 		hits++;
 	}
 

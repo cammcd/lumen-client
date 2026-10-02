@@ -46,6 +46,12 @@ jobs:
             [ -z "$cls" ] && continue
             javap -cp "$cp" -p "$cls" > "build/api/$cls.txt" 2>&1 || true
           done < .github/api-classes.txt
+          # Full bytecode for a few classes, to see how vanilla itself calls things.
+          mkdir -p build/api/code
+          while read -r cls; do
+            [ -z "$cls" ] && continue
+            javap -cp "$cp" -c -p "$cls" > "build/api/code/$cls.txt" 2>&1 || true
+          done < .github/api-code.txt
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v7

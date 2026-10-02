@@ -52,7 +52,7 @@ public final class TriggerBot extends CombatModule {
 		if (criticals.isEnabled() && !criticals.prepare()) return;
 
 		MC.gameMode.attack(p, entity);
-		p.swing(InteractionHand.MAIN_HAND);
+		p.swingAndResetAttackStrength(InteractionHand.MAIN_HAND, p.getMainHandItem().getAttackAnimation(), false);
 		hits++;
 	}
 }
