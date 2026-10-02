@@ -69,8 +69,9 @@ public final class KillAura extends CombatModule {
 		if (criticals.isEnabled() && !criticals.prepare()) return;
 
 		if (criticals.critNow()) crits++;
+		// The same two calls vanilla makes for a left click; attack() also resets the cooldown.
 		MC.gameMode.attack(p, target);
-		p.swingAndResetAttackStrength(InteractionHand.MAIN_HAND, p.getMainHandItem().getAttackAnimation(), false);
+		p.swing(InteractionHand.MAIN_HAND, p.getMainHandItem().getAttackAnimation(), false);
 		hits++;
 	}
 

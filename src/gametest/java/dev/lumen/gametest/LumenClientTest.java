@@ -357,7 +357,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 			context.waitTicks(30);
 			zombieHealth = context.computeOnClient(mc -> {
 				for (var e : mc.level.entitiesForRendering()) {
-					if (e.getType() == net.minecraft.world.entity.EntityType.ZOMBIE && e instanceof net.minecraft.world.entity.LivingEntity z) return z.getHealth();
+					if (isZombie(e) && e instanceof net.minecraft.world.entity.LivingEntity z) return z.getHealth();
 				}
 				return -1f;
 			});
@@ -446,7 +446,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 			long alive = context.computeOnClient(mc -> {
 				long n = 0;
 				for (var e : mc.level.entitiesForRendering()) {
-					if (e.getType() == net.minecraft.world.entity.EntityType.ZOMBIE && e.isAlive()) n++;
+					if (isZombie(e) && e.isAlive()) n++;
 				}
 				return n;
 			});
@@ -454,6 +454,10 @@ public final class LumenClientTest implements FabricClientGameTest {
 			context.waitTicks(5);
 		}
 		return false;
+	}
+
+	private static boolean isZombie(net.minecraft.world.entity.Entity entity) {
+		return net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).getPath().equals("zombie");
 	}
 
 	/** Detonates TNT two blocks east of the player at this x and returns how far it pushed them sideways. */
