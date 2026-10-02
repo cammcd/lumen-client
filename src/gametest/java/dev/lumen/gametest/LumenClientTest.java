@@ -255,6 +255,231 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testWorldFinders(context, sp);
 		testInfoModules(context, sp);
 		testXRayAndSigns(context, sp);
+		testCombat(context, sp);
+	}
+
+	private void testCombat(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing combat modules");
+
+		// Survival, so hits, arrows, eating and knockback behave as they do for players.
+		command(server, "/gamemode survival @a");
+		command(server, "/clear @a");
+		command(server, "/effect give @a minecraft:resistance infinite 4 true");
+		command(server, "/kill @e[type=minecraft:zombie]");
+
+		// ---- Kill Aura with Criticals ----
+		command(server, "/tp @a 40.5 -60 -40.5 0 0");
+		command(server, "/item replace entity @a weapon.mainhand with minecraft:netherite_sword");
+		command(server, "/summon minecraft:zombie 42.5 -60 -40.5 {NoAI:1b,Silent:1b}");
+		// A barrier right behind each zombie stops knockback carrying it out of reach.
+		command(server, "/fill 43 -60 -42 43 -58 -39 minecraft:barrier");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(5);
+		context.runOnClient(mc -> {
+			Lumen.modules().criticals.setEnabled(true);
+			Lumen.modules().killAura.setEnabled(true);
+		});
+		context.waitTicks(12);
+		context.takeScreenshot("lumen_18_kill_aura");
+		boolean auraKilled = waitForZombies(context, 0, 160);
+		int auraHits = context.computeOnClient(mc -> Lumen.modules().killAura.hits());
+		int auraCrits = context.computeOnClient(mc -> Lumen.modules().killAura.crits());
+		LOG.info("Kill Aura: zombie dead {}, hits {}, crits {}", auraKilled, auraHits, auraCrits);
+		if (!auraKilled) throw new AssertionError("Kill Aura did not kill the zombie (" + auraHits + " hits)");
+		if (auraCrits < 1) throw new AssertionError("Criticals did not land a single critical hit in " + auraHits + " hits");
+		context.runOnClient(mc -> {
+			Lumen.modules().killAura.setEnabled(false);
+			Lumen.modules().criticals.setEnabled(false);
+		});
+
+		// ---- Trigger Bot ----
+		command(server, "/summon minecraft:zombie 40.5 -60 -37.5 {NoAI:1b,Silent:1b}");
+		command(server, "/fill 39 -60 -37 42 -58 -37 minecraft:barrier");
+		context.waitTicks(5);
+		input.lookAt(0f, 12f);
+		context.runOnClient(mc -> Lumen.modules().triggerBot.setEnabled(true));
+		boolean triggerKilled = waitForZombies(context, 0, 160);
+		int triggerHits = context.computeOnClient(mc -> Lumen.modules().triggerBot.hits());
+		LOG.info("Trigger Bot: zombie dead {}, hits {}", triggerKilled, triggerHits);
+		if (!triggerKilled) throw new AssertionError("Trigger Bot did not kill the zombie under the crosshair (" + triggerHits + " hits)");
+		context.runOnClient(mc -> Lumen.modules().triggerBot.setEnabled(false));
+		command(server, "/fill 39 -60 -37 42 -58 -37 minecraft:air");
+
+		// ---- Aim Assist ----
+		command(server, "/summon minecraft:zombie 42.5 -60 -37 {NoAI:1b,Silent:1b}");
+		context.waitTicks(5);
+		input.lookAt(0f, 10f);
+		context.runOnClient(mc -> {
+			((BoolSetting) setting(Lumen.modules().aimAssist, "Only while clicking")).set(false);
+			Lumen.modules().aimAssist.setEnabled(true);
+		});
+		context.waitTicks(25);
+		float yaw = context.computeOnClient(mc -> mc.player.getYRot());
+		// Zombie centre is 2 east and 3.5 south of the player: yaw atan2(3.5, 2) - 90.
+		float expectedYaw = (float) Math.toDegrees(Math.atan2(3.5, 2.0)) - 90f;
+		LOG.info("Aim Assist: yaw {} (target {})", yaw, expectedYaw);
+		if (Math.abs(net.minecraft.util.Mth.wrapDegrees(yaw - expectedYaw)) > 3f) {
+			throw new AssertionError("Aim Assist turned to yaw " + yaw + ", expected about " + expectedYaw);
+		}
+		context.runOnClient(mc -> Lumen.modules().aimAssist.setEnabled(false));
+		command(server, "/kill @e[type=minecraft:zombie]");
+
+		// ---- Auto Clicker ----
+		command(server, "/summon minecraft:zombie 40.5 -60 -38 {NoAI:1b,Silent:1b,Invulnerable:1b}");
+		context.waitTicks(5);
+		input.lookAt(0f, 14f);
+		context.runOnClient(mc -> {
+			((NumberSetting) setting(Lumen.modules().autoClicker, "Min CPS")).set(10.0);
+			((NumberSetting) setting(Lumen.modules().autoClicker, "Max CPS")).set(10.0);
+			Lumen.modules().autoClicker.setEnabled(true);
+		});
+		int clicksBefore = context.computeOnClient(mc -> Lumen.modules().autoClicker.clicks());
+		input.holdKeyFor(options -> options.keyAttack, 40);
+		int clicks = context.computeOnClient(mc -> Lumen.modules().autoClicker.clicks()) - clicksBefore;
+		LOG.info("Auto Clicker: {} clicks in 2 seconds at 10 CPS", clicks);
+		if (clicks < 15 || clicks > 25) throw new AssertionError("Auto Clicker made " + clicks + " clicks in 2 seconds at 10 CPS");
+		context.runOnClient(mc -> Lumen.modules().autoClicker.setEnabled(false));
+		command(server, "/kill @e[type=minecraft:zombie]");
+
+		// ---- Bow Aimbot: the arrow has to actually hit ----
+		command(server, "/item replace entity @a weapon.mainhand with minecraft:bow");
+		command(server, "/give @a minecraft:arrow 16");
+		command(server, "/summon minecraft:zombie 44.5 -60 -22.5 {NoAI:1b,Silent:1b}");
+		context.waitTicks(5);
+		input.lookAt(0f, 0f);
+		context.runOnClient(mc -> Lumen.modules().bowAimbot.setEnabled(true));
+		// Vanilla arrows spread a little at random, so allow up to three shots.
+		float zombieHealth = -1f;
+		for (int shot = 1; shot <= 3; shot++) {
+			input.holdKeyFor(options -> options.keyUse, 25);
+			context.waitTicks(30);
+			zombieHealth = context.computeOnClient(mc -> {
+				for (var e : mc.level.entitiesForRendering()) {
+					if (e.getType() == net.minecraft.world.entity.EntityType.ZOMBIE && e instanceof net.minecraft.world.entity.LivingEntity z) return z.getHealth();
+				}
+				return -1f;
+			});
+			LOG.info("Bow Aimbot: zombie health after shot {}: {}", shot, zombieHealth);
+			if (zombieHealth >= 0 && zombieHealth < 20f) break;
+		}
+		if (zombieHealth < 0 || zombieHealth >= 20f) {
+			throw new AssertionError("Bow Aimbot missed the zombie 18 blocks away three times (health " + zombieHealth + ")");
+		}
+		context.runOnClient(mc -> Lumen.modules().bowAimbot.setEnabled(false));
+		command(server, "/kill @e[type=minecraft:zombie]");
+		command(server, "/kill @e[type=minecraft:arrow]");
+
+		// ---- Auto Totem ----
+		command(server, "/clear @a");
+		command(server, "/give @a minecraft:totem_of_undying 2");
+		context.waitTicks(3);
+		context.runOnClient(mc -> Lumen.modules().autoTotem.setEnabled(true));
+		context.waitTicks(10);
+		boolean totem = context.computeOnClient(mc -> mc.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING));
+		LOG.info("Auto Totem: totem in offhand {}", totem);
+		if (!totem) throw new AssertionError("Auto Totem did not move a totem into the offhand");
+
+		// ---- Auto Armor ----
+		command(server, "/item replace entity @a armor.chest with minecraft:leather_chestplate");
+		command(server, "/give @a minecraft:diamond_helmet");
+		command(server, "/give @a minecraft:iron_chestplate");
+		command(server, "/give @a minecraft:netherite_boots");
+		context.waitTicks(3);
+		context.runOnClient(mc -> Lumen.modules().autoArmor.setEnabled(true));
+		context.waitTicks(30);
+		String armor = context.computeOnClient(mc -> armorNames(mc.player));
+		boolean leatherKept = context.computeOnClient(mc -> {
+			int n = 0;
+			for (int i = 0; i < 36; i++) {
+				if (mc.player.getInventory().getItem(i).is(net.minecraft.world.item.Items.LEATHER_CHESTPLATE)) n++;
+			}
+			return n == 1;
+		});
+		LOG.info("Auto Armor: wearing {}, old chestplate kept in inventory {}", armor, leatherKept);
+		if (!armor.equals("diamond_helmet,iron_chestplate,,netherite_boots")) {
+			throw new AssertionError("Auto Armor left the player wearing " + armor);
+		}
+		if (!leatherKept) throw new AssertionError("Auto Armor lost the leather chestplate it replaced");
+
+		// ---- Auto Gapple ----
+		command(server, "/effect clear @a");
+		command(server, "/item replace entity @a hotbar.4 with minecraft:golden_apple 3");
+		context.runOnClient(mc -> {
+			mc.player.getInventory().setSelectedSlot(0);
+			Lumen.modules().autoGapple.setEnabled(true);
+		});
+		context.waitTicks(3);
+		// Magic damage ignores the armor Auto Armor just put on.
+		command(server, "/damage @a 13 minecraft:magic");
+		context.waitTicks(60);
+		int eaten = context.computeOnClient(mc -> Lumen.modules().autoGapple.eaten());
+		float absorption = context.computeOnClient(mc -> mc.player.getAbsorptionAmount());
+		int slot = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
+		LOG.info("Auto Gapple: apples eaten {}, absorption {}, selected slot {}", eaten, absorption, slot);
+		if (eaten < 1 || absorption <= 0) throw new AssertionError("Auto Gapple did not eat a golden apple at low health");
+		if (slot != 0) throw new AssertionError("Auto Gapple did not switch back to the original hotbar slot");
+		context.runOnClient(mc -> Lumen.modules().autoGapple.setEnabled(false));
+
+		// ---- Velocity: knockback from the same blast, without and then with it ----
+		command(server, "/effect give @a minecraft:resistance infinite 4 true");
+		double without = blastKnockback(context, sp, 70);
+		context.runOnClient(mc -> Lumen.modules().velocity.setEnabled(true));
+		double with = blastKnockback(context, sp, 100);
+		LOG.info("Velocity: blast moved the player {} blocks without it and {} with it", without, with);
+		if (without < 1.0) throw new AssertionError("The test blast only moved the player " + without + " blocks, so it proves nothing");
+		if (with > 0.3) throw new AssertionError("With Velocity on, the blast still moved the player " + with + " blocks");
+
+		LOG.info("Screenshot: the Combat panel");
+		input.pressKey(Lumen.clickGuiKey());
+		context.waitForScreen(ClickGuiScreen.class);
+		context.waitTicks(10);
+		context.takeScreenshot("lumen_19_combat_gui");
+		input.pressKey(InputConstants.KEY_ESCAPE);
+		context.waitForScreen(null);
+	}
+
+	/** Waits until at most {@code count} zombies are alive, for up to {@code maxTicks}. */
+	private static boolean waitForZombies(ClientGameTestContext context, int count, int maxTicks) {
+		for (int waited = 0; waited < maxTicks; waited += 5) {
+			long alive = context.computeOnClient(mc -> {
+				long n = 0;
+				for (var e : mc.level.entitiesForRendering()) {
+					if (e.getType() == net.minecraft.world.entity.EntityType.ZOMBIE && e.isAlive()) n++;
+				}
+				return n;
+			});
+			if (alive <= count) return true;
+			context.waitTicks(5);
+		}
+		return false;
+	}
+
+	/** Detonates TNT two blocks east of the player at this x and returns how far it pushed them sideways. */
+	private static double blastKnockback(ClientGameTestContext context, TestSingleplayerContext sp, int x) {
+		TestServerContext server = sp.getServer();
+		command(server, "/tp @a " + x + ".5 -60 -40.5 0 0");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		Vec3 start = context.computeOnClient(mc -> mc.player.position());
+		command(server, "/summon minecraft:tnt " + (x + 2) + ".5 -60 -40.5 {fuse:0}");
+		context.waitTicks(20);
+		Vec3 end = context.computeOnClient(mc -> mc.player.position());
+		return Math.sqrt((end.x - start.x) * (end.x - start.x) + (end.z - start.z) * (end.z - start.z));
+	}
+
+	private static String armorNames(net.minecraft.world.entity.player.Player player) {
+		StringBuilder sb = new StringBuilder();
+		net.minecraft.world.entity.EquipmentSlot[] slots = {
+				net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
+				net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET};
+		for (int i = 0; i < slots.length; i++) {
+			if (i > 0) sb.append(',');
+			var stack = player.getItemBySlot(slots[i]);
+			if (!stack.isEmpty()) sb.append(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath());
+		}
+		return sb.toString();
 	}
 
 	private void testXRayAndSigns(ClientGameTestContext context, TestSingleplayerContext sp) {

@@ -23,6 +23,28 @@ A clean, customizable Fabric client for **Minecraft 26.3**.
 | **HUD** | Watermark with FPS, an animated list of active modules, coordinates with Nether/Overworld conversion, and toggle notifications. |
 | **Click GUI** | Theme settings for the menu itself. |
 
+### Combat
+
+These are the modules servers ban for fastest. Nothing here is built to get past an anti-cheat.
+
+| Module | What it does |
+|---|---|
+| **Kill Aura** | Attacks the best target in range whenever your attack is charged. Optional turning to face the target, weapon-only mode, and pauses while you eat or have a menu open. |
+| **Trigger Bot** | Hits the target under your crosshair once your attack is charged, after a short reaction delay. |
+| **Criticals** | Times Kill Aura and Trigger Bot hits with a hop so they land as critical hits, the way you would by hand. |
+| **Auto Clicker** | Clicks at a rate between a min and max CPS while you hold a mouse button. Left click only on entities by default, so mining is not interrupted. |
+| **Aim Assist** | Smoothly pulls your aim toward the nearest target inside a field-of-view cone, optionally only while clicking. |
+| **Bow Aimbot** | While you draw a bow, aims at the best target with arrow drop and target movement allowed for. |
+| **Velocity** | Scales the knockback you take from hits and explosions, separately for sideways and upward. |
+| **Auto Totem** | Keeps a totem of undying in your offhand, always or only below a health threshold. |
+| **Auto Armor** | Equips the best armor in your inventory, by material then durability, and leaves a worn elytra alone. |
+| **Auto Gapple** | Eats a golden apple from your hotbar when health drops below a threshold, then switches back. |
+
+Kill Aura, Trigger Bot, Aim Assist and Bow Aimbot share target settings: range, players,
+hostile mobs, passive mobs, named mobs, invisible entities, through walls, and priority
+(closest, lowest health, or nearest the crosshair). Tamed pets and creative or spectator
+players are never targeted.
+
 ### ESP options (Storage, Spawner and Entity ESP)
 
 Render mode (fill + outline, outline, fill), through walls, fill opacity, outline opacity,

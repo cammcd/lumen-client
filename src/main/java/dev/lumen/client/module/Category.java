@@ -3,7 +3,9 @@ package dev.lumen.client.module;
 public enum Category {
 	RENDER("Render"),
 	WORLD("World"),
-	CLIENT("Client");
+	CLIENT("Client"),
+	// Last, so saved panel positions from older versions do not overlap it.
+	COMBAT("Combat");
 
 	private final String displayName;
 

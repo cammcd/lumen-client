@@ -8,15 +8,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 
 import dev.lumen.client.Lumen;
 import dev.lumen.client.modules.SoundLocator;
 import dev.lumen.client.modules.WorldScanHooks;
 
-/** Feeds block changes from the server to the world scanners. Only reads; sends nothing. */
+/**
+ * Feeds block changes and sounds from the server to the world scanners, and lets
+ * Velocity scale knockback. Sends nothing to the server.
+ */
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin {
 	@Inject(method = "handleBlockUpdate(Lnet/minecraft/network/protocol/game/ClientboundBlockUpdatePacket;)V", at = @At("TAIL"))
@@ -47,5 +52,26 @@ public abstract class ClientPacketListenerMixin {
 		SoundLocator locator = Lumen.modules() == null ? null : Lumen.modules().soundLocator;
 		if (locator == null || !locator.isEnabled()) return;
 		locator.onLevelEvent(packet.getType(), packet.getPos(), packet.isGlobalEvent());
+	}
+
+	// Velocity: note your motion before knockback is applied, then scale the change.
+	@Inject(method = "handleSetEntityMotion(Lnet/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket;)V", at = @At("HEAD"))
+	private void lumen$motionStart(ClientboundSetEntityMotionPacket packet, CallbackInfo ci) {
+		if (Lumen.modules() != null) Lumen.modules().velocity.beforePacket();
+	}
+
+	@Inject(method = "handleSetEntityMotion(Lnet/minecraft/network/protocol/game/ClientboundSetEntityMotionPacket;)V", at = @At("RETURN"))
+	private void lumen$motionEnd(ClientboundSetEntityMotionPacket packet, CallbackInfo ci) {
+		if (Lumen.modules() != null) Lumen.modules().velocity.afterPacket(false);
+	}
+
+	@Inject(method = "handleExplosion(Lnet/minecraft/network/protocol/game/ClientboundExplodePacket;)V", at = @At("HEAD"))
+	private void lumen$explosionStart(ClientboundExplodePacket packet, CallbackInfo ci) {
+		if (Lumen.modules() != null) Lumen.modules().velocity.beforePacket();
+	}
+
+	@Inject(method = "handleExplosion(Lnet/minecraft/network/protocol/game/ClientboundExplodePacket;)V", at = @At("RETURN"))
+	private void lumen$explosionEnd(ClientboundExplodePacket packet, CallbackInfo ci) {
+		if (Lumen.modules() != null) Lumen.modules().velocity.afterPacket(true);
 	}
 }
