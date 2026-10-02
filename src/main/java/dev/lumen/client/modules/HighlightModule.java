@@ -1,12 +1,18 @@
 package dev.lumen.client.modules;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import dev.lumen.client.gui.Ui;
+import dev.lumen.client.hud.HudOverlay;
 import dev.lumen.client.module.Category;
 import dev.lumen.client.module.Module;
 import dev.lumen.client.render.CameraUtil;
 import dev.lumen.client.render.EspBatch;
+import dev.lumen.client.render.Projection;
 import dev.lumen.client.render.WorldRenderable;
 import dev.lumen.client.setting.BoolSetting;
 import dev.lumen.client.setting.EnumSetting;
@@ -17,7 +23,11 @@ import dev.lumen.client.util.ColorUtil;
  * Shared look for every highlighter (blocks and entities): fill and outline boxes,
  * tracers, range, distance fade and pulse. Subclasses decide what to highlight.
  */
-public abstract class HighlightModule extends Module implements WorldRenderable {
+public abstract class HighlightModule extends Module implements WorldRenderable, HudOverlay {
+	/** Past this distance a block is only a few pixels wide, so a far marker is drawn too. */
+	private static final double MARKER_DISTANCE = 24;
+	private static final int MAX_MARKERS = 4096;
+
 	public enum Mode {
 		BOTH("Fill + Outline"),
 		OUTLINE("Outline"),
@@ -38,7 +48,10 @@ public abstract class HighlightModule extends Module implements WorldRenderable 
 	/** Per-frame values read once from the settings, then reused for every target. */
 	protected record Style(boolean throughWalls, boolean fill, boolean outline, float fillAlpha, float outlineAlpha,
 			float tracerAlpha, float lineWidth, float tracerWidth, double padding, double range, boolean distanceFade,
-			float pulse, float[] tracerStart) {
+			float pulse, float[] tracerStart, boolean markers) {
+	}
+
+	private record Marker(Vec3 pos, int color) {
 	}
 
 	protected final EnumSetting<Mode> mode;
@@ -52,6 +65,8 @@ public abstract class HighlightModule extends Module implements WorldRenderable 
 	protected final NumberSetting tracerOpacity;
 	protected final NumberSetting range;
 	protected final BoolSetting distanceFade;
+	protected final BoolSetting farMarkers;
+	protected final NumberSetting markerSize;
 	protected final BoolSetting pulse;
 	protected final NumberSetting pulseSpeed;
 
@@ -75,6 +90,9 @@ public abstract class HighlightModule extends Module implements WorldRenderable 
 				.visibleWhen(tracers::isOn);
 		range = add(new NumberSetting("Range", "Maximum distance to highlight, in blocks.", defaultRange, 8, 512, 8, "m"));
 		distanceFade = add(new BoolSetting("Distance fade", "Fade highlights out as they approach the range limit.", true));
+		farMarkers = add(new BoolSetting("Far markers", "A fixed-size dot on distant highlights, so they stay visible when the box is only a few pixels wide.", true));
+		markerSize = add(new NumberSetting("Marker size", "Size of far markers.", 2, 1, 6, 1))
+				.visibleWhen(farMarkers::isOn);
 		pulse = add(new BoolSetting("Pulse", "Gently breathe the highlight opacity.", false));
 		pulseSpeed = add(new NumberSetting("Pulse speed", "How fast highlights breathe.", 1.0, 0.2, 4, 0.1, "x"))
 				.visibleWhen(pulse::isOn);
@@ -84,7 +102,10 @@ public abstract class HighlightModule extends Module implements WorldRenderable 
 		insertFutureSettingsAtTop();
 	}
 
+	private final List<Marker> markers = new ArrayList<>();
+
 	protected Style frameStyle() {
+		markers.clear();
 		float pulseFactor = 1f;
 		if (pulse.isOn()) {
 			double t = System.nanoTime() / 1_000_000_000.0 * pulseSpeed.get() * Math.PI;
@@ -103,7 +124,8 @@ public abstract class HighlightModule extends Module implements WorldRenderable 
 				range.get(),
 				distanceFade.isOn(),
 				pulseFactor,
-				tracers.isOn() ? CameraUtil.tracerOrigin() : null);
+				tracers.isOn() ? CameraUtil.tracerOrigin() : null,
+				farMarkers.isOn() && throughWalls.isOn());
 	}
 
 	/**
@@ -118,8 +140,8 @@ public abstract class HighlightModule extends Module implements WorldRenderable 
 
 		float fade = s.pulse();
 		if (s.distanceFade()) {
-			double start = s.range() * 0.6;
-			if (dist > start) fade *= (float) Math.max(0.12, 1.0 - (dist - start) / (s.range() - start));
+			double start = s.range() * 0.75;
+			if (dist > start) fade *= (float) Math.max(0.35, 1.0 - (dist - start) / (s.range() - start));
 		}
 		float colorAlpha = ColorUtil.alpha(baseColor) / 255f;
 
@@ -134,7 +156,27 @@ public abstract class HighlightModule extends Module implements WorldRenderable 
 			batch.tracer(t[0], t[1], t[2], center.x, center.y, center.z,
 					ColorUtil.withAlpha(baseColor, Math.round(255 * s.tracerAlpha() * colorAlpha * fade)), s.tracerWidth());
 		}
+		if (s.markers() && dist > MARKER_DISTANCE && markers.size() < MAX_MARKERS) {
+			markers.add(new Marker(center, ColorUtil.withAlpha(baseColor, Math.round(255 * colorAlpha * Math.max(0.6f, fade)))));
+		}
 		return true;
+	}
+
+	/** Far markers collected while drawing this frame's world highlights. */
+	@Override
+	public void drawOverlay(Ui ui, int screenWidth, int screenHeight) {
+		if (markers.isEmpty()) return;
+		int r = markerSize.getInt();
+		for (Marker marker : markers) {
+			Projection.Point p = Projection.toScreen(marker.pos());
+			if (p == null) continue;
+			int x = Math.round(p.x());
+			int y = Math.round(p.y());
+			int backdrop = ColorUtil.argb(Math.round(ColorUtil.alpha(marker.color()) * 0.55f), 8, 9, 14);
+			ui.roundRect(x - r - 1, y - r - 1, x + r + 1, y + r + 1, r + 1, backdrop);
+			ui.roundRect(x - r, y - r, x + r, y + r, r, marker.color());
+		}
+		markers.clear();
 	}
 
 	/** A rainbow phase offset that makes rainbow colours flow across space. */

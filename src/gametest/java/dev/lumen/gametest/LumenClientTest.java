@@ -30,6 +30,7 @@ import dev.lumen.client.gui.ClickGuiScreen;
 import dev.lumen.client.gui.ProfilesScreen;
 import dev.lumen.client.gui.WaypointsScreen;
 import dev.lumen.client.module.Module;
+import dev.lumen.client.modules.SignReader;
 import dev.lumen.client.modules.SoundLocator;
 import dev.lumen.client.setting.BoolSetting;
 import dev.lumen.client.setting.EnumSetting;
@@ -253,6 +254,77 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testFreecam(context);
 		testWorldFinders(context, sp);
 		testInfoModules(context, sp);
+		testXRayAndSigns(context, sp);
+	}
+
+	private void testXRayAndSigns(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing X-Ray and Sign Reader");
+
+		checkCoordinates("Base at 1200 64 -3400", "1200 64 -3400");
+		checkCoordinates("X: 1200 Z: -3400", "1200 -3400");
+		checkCoordinates("x 100 y 70 z -200", "100 70 -200");
+		checkCoordinates("stash 5000, -7000", "5000 -7000");
+		checkCoordinates("Shop open 9 to 5", null);
+		checkCoordinates("Welcome to spawn", null);
+
+		// The flat world has no ores of its own, so these two are the only ones X-Ray can find.
+		command(server, "/setblock -2 -63 -6 minecraft:diamond_ore");
+		// Signs facing the player: one with coordinates, one without.
+		command(server, "/setblock 3 -60 -6 minecraft:oak_sign[rotation=8]{front_text:{messages:[\"Base at\",\"1200 64 -3400\",\"\",\"\"]}}");
+		command(server, "/setblock -4 -60 -6 minecraft:oak_sign[rotation=8]{front_text:{messages:[\"Welcome\",\"to spawn\",\"\",\"\"]}}");
+		command(server, "/tp @a 0.5 -60 -11.5 0 30");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(5);
+		input.lookAt(0f, 30f);
+
+		context.runOnClient(mc -> {
+			Lumen.modules().xRay.setEnabled(true);
+			Lumen.modules().signReader.setEnabled(true);
+		});
+		context.waitTicks(3);
+		// Placed after enabling, so the block update path is covered as well as the first scan.
+		command(server, "/setblock 2 -62 -6 minecraft:ancient_debris");
+		context.waitTicks(5);
+		for (int i = 0; i < 80; i++) {
+			int pending = context.computeOnClient(mc -> Lumen.modules().xRay.pending() + Lumen.modules().signReader.pending());
+			if (pending == 0) break;
+			context.waitTicks(5);
+		}
+		context.waitTicks(5);
+
+		int ores = context.computeOnClient(mc -> Lumen.modules().xRay.count());
+		List<SignReader.Sign> signs = context.computeOnClient(mc -> Lumen.modules().signReader.signs());
+		LOG.info("X-Ray found {} blocks. Sign Reader found {}", ores, signs);
+		if (ores != 2) throw new AssertionError("X-Ray found " + ores + " blocks, expected the diamond ore and the ancient debris");
+		if (signs.size() != 2) throw new AssertionError("Sign Reader found " + signs.size() + " signs, expected 2");
+		boolean coords = signs.stream().anyMatch(s -> s.pos().equals(new BlockPos(3, -60, -6)) && "1200 64 -3400".equals(s.coords()));
+		boolean plain = signs.stream().anyMatch(s -> s.pos().equals(new BlockPos(-4, -60, -6)) && !s.hasCoords()
+				&& s.front().equals(List.of("Welcome", "to spawn")));
+		if (!coords) throw new AssertionError("Sign Reader did not read coordinates 1200 64 -3400 from the sign at 3, -60, -6");
+		if (!plain) throw new AssertionError("Sign Reader did not read the plain sign at -4, -60, -6 correctly");
+
+		Path signLog = FabricLoader.getInstance().getConfigDir().resolve("lumen").resolve("signs.csv");
+		if (!Files.exists(signLog)) throw new AssertionError("Sign Reader did not write " + signLog);
+
+		context.takeScreenshot("lumen_16_xray_signs");
+
+		LOG.info("Screenshot: far markers on the scene from about 60 blocks away");
+		command(server, "/tp @a 0.5 -56 -60.5 0 4");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		input.lookAt(0f, 4f);
+		context.waitTicks(5);
+		context.takeScreenshot("lumen_17_far_markers");
+	}
+
+	private static void checkCoordinates(String text, String expected) {
+		String got = SignReader.coordinates(text);
+		LOG.info("Coordinates in \"{}\": {}", text, got);
+		if (!java.util.Objects.equals(got, expected)) {
+			throw new AssertionError("Coordinates in \"" + text + "\" read as " + got + ", expected " + expected);
+		}
 	}
 
 	private void testInfoModules(ClientGameTestContext context, TestSingleplayerContext sp) {

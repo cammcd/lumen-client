@@ -1,7 +1,10 @@
 package dev.lumen.client.modules;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -26,7 +29,11 @@ public abstract class WorldScanModule extends Module implements WorldRenderable 
 	private ClientLevel lastLevel;
 
 	protected WorldScanModule(String name, String description) {
-		super(name, description, Category.WORLD);
+		this(name, description, Category.WORLD);
+	}
+
+	protected WorldScanModule(String name, String description, Category category) {
+		super(name, description, category);
 	}
 
 	/** Clears all results. Called on enable and when the world changes. */
@@ -91,17 +98,34 @@ public abstract class WorldScanModule extends Module implements WorldRenderable 
 		}
 	}
 
+	/** Clears results and rescans every loaded chunk, e.g. after a setting changes what counts. */
+	protected void rescanAll() {
+		queue.clear();
+		queued.clear();
+		reset();
+		enqueueLoaded();
+	}
+
+	/** Chunks still waiting to be scanned. */
+	public int pending() {
+		return queue.size();
+	}
+
+	/** Queues every loaded chunk, nearest first, so results near the player show up first. */
 	private void enqueueLoaded() {
 		ClientLevel level = MC.level;
 		LocalPlayer player = MC.player;
 		if (level == null || player == null) return;
 		int radius = MC.options.getEffectiveRenderDistance() + 1;
 		ChunkPos center = player.chunkPosition();
+		List<ChunkPos> loaded = new ArrayList<>();
 		for (int cx = center.x() - radius; cx <= center.x() + radius; cx++) {
 			for (int cz = center.z() - radius; cz <= center.z() + radius; cz++) {
-				if (level.hasChunk(cx, cz)) enqueue(new ChunkPos(cx, cz));
+				if (level.hasChunk(cx, cz)) loaded.add(new ChunkPos(cx, cz));
 			}
 		}
+		loaded.sort(Comparator.comparingInt(p -> Math.max(Math.abs(p.x() - center.x()), Math.abs(p.z() - center.z()))));
+		for (ChunkPos pos : loaded) enqueue(pos);
 	}
 
 	/** A box covering a whole chunk between two heights. */

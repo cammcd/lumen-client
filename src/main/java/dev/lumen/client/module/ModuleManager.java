@@ -13,11 +13,13 @@ import dev.lumen.client.modules.LogoutSpots;
 import dev.lumen.client.modules.Nametags;
 import dev.lumen.client.modules.NewChunks;
 import dev.lumen.client.modules.Radar;
+import dev.lumen.client.modules.SignReader;
 import dev.lumen.client.modules.SoundLocator;
 import dev.lumen.client.modules.SpawnerEsp;
 import dev.lumen.client.modules.StashFinder;
 import dev.lumen.client.modules.StorageEsp;
 import dev.lumen.client.modules.Waypoints;
+import dev.lumen.client.modules.XRay;
 
 public final class ModuleManager {
 	private final List<Module> modules = new ArrayList<>();
@@ -26,10 +28,12 @@ public final class ModuleManager {
 	public final SpawnerEsp spawnerEsp;
 	public final EntityEsp entityEsp;
 	public final Nametags nametags;
+	public final XRay xRay;
 	public final Freecam freecam;
 	public final NewChunks newChunks;
 	public final StashFinder stashFinder;
 	public final BaseFinder baseFinder;
+	public final SignReader signReader;
 	public final LogoutSpots logoutSpots;
 	public final SoundLocator soundLocator;
 	public final Waypoints waypoints;
@@ -42,10 +46,12 @@ public final class ModuleManager {
 		spawnerEsp = register(new SpawnerEsp());
 		entityEsp = register(new EntityEsp());
 		nametags = register(new Nametags());
+		xRay = register(new XRay());
 		freecam = register(new Freecam());
 		newChunks = register(new NewChunks());
 		stashFinder = register(new StashFinder());
 		baseFinder = register(new BaseFinder());
+		signReader = register(new SignReader());
 		logoutSpots = register(new LogoutSpots());
 		soundLocator = register(new SoundLocator());
 		waypoints = register(new Waypoints());

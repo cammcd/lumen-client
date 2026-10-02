@@ -25,4 +25,11 @@ public final class WorldScanHooks {
 			if (module.isEnabled() && module instanceof WorldScanModule scanner) scanner.onBlockUpdate(pos);
 		}
 	}
+
+	/** Block entity data changed, such as a sign's text. Only Sign Reader reads it. */
+	public static void blockEntityUpdated(BlockPos pos) {
+		if (Lumen.modules() == null) return;
+		SignReader signs = Lumen.modules().signReader;
+		if (signs.isEnabled()) signs.onBlockUpdate(pos);
+	}
 }

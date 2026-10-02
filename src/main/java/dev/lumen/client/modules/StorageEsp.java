@@ -40,7 +40,7 @@ public final class StorageEsp extends EspModule {
 	private final ColorSetting pots = add(new ColorSetting("Decorated pots", "Decorated pots, which hold one stack.", 0xFFC7714A, false));
 
 	public StorageEsp() {
-		super("Storage ESP", "Highlights chests, shulker boxes, droppers and other storage blocks.", 160, false);
+		super("Storage ESP", "Highlights chests, shulker boxes, droppers and other storage blocks.", 256, false);
 	}
 
 	@Override

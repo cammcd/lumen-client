@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
@@ -26,6 +27,12 @@ public abstract class ClientPacketListenerMixin {
 	@Inject(method = "handleChunkBlocksUpdate(Lnet/minecraft/network/protocol/game/ClientboundSectionBlocksUpdatePacket;)V", at = @At("TAIL"))
 	private void lumen$sectionUpdate(ClientboundSectionBlocksUpdatePacket packet, CallbackInfo ci) {
 		packet.runUpdates((pos, state) -> WorldScanHooks.blockUpdated(pos.immutable()));
+	}
+
+	// Sign text arrives in its own packet, after the block itself.
+	@Inject(method = "handleBlockEntityData(Lnet/minecraft/network/protocol/game/ClientboundBlockEntityDataPacket;)V", at = @At("TAIL"))
+	private void lumen$blockEntityData(ClientboundBlockEntityDataPacket packet, CallbackInfo ci) {
+		WorldScanHooks.blockEntityUpdated(packet.getPos());
 	}
 
 	@Inject(method = "handleSoundEvent(Lnet/minecraft/network/protocol/game/ClientboundSoundPacket;)V", at = @At("TAIL"))

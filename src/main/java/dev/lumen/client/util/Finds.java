@@ -67,8 +67,9 @@ public final class Finds {
 		}
 	}
 
-	private static String csv(String value) {
-		if (value.contains(",") || value.contains("\"")) return "\"" + value.replace("\"", "\"\"") + "\"";
+	/** Quotes a CSV field when it holds a comma, quote or line break. */
+	public static String csv(String value) {
+		if (value.contains(",") || value.contains("\"") || value.contains("\n")) return "\"" + value.replace("\"", "\"\"") + "\"";
 		return value;
 	}
 }
