@@ -58,3 +58,11 @@ net.minecraft.world.level.block.entity.SignBlockEntity
 net.minecraft.world.level.block.entity.SignText
 net.minecraft.world.level.block.entity.HangingSignBlockEntity
 net.minecraft.world.level.block.entity.BlockEntity
+net.minecraft.world.entity.boss.enderdragon.EndCrystal
+net.minecraft.world.level.ClipContext
+net.minecraft.world.entity.ai.attributes.Attributes
+net.minecraft.world.effect.MobEffects
+net.minecraft.world.effect.MobEffectInstance
+net.minecraft.world.level.block.RespawnAnchorBlock
+net.minecraft.world.level.Level
+net.minecraft.world.Difficulty

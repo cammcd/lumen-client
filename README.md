@@ -39,8 +39,17 @@ These are the modules servers ban for fastest. Nothing here is built to get past
 | **Auto Totem** | Keeps a totem of undying in your offhand, always or only below a health threshold. |
 | **Auto Armor** | Equips the best armor in your inventory, by material then durability, and leaves a worn elytra alone. |
 | **Auto Gapple** | Eats a golden apple from your hotbar when health drops below a threshold, then switches back. |
+| **Crystal Aura** | Places end crystals on obsidian or bedrock near a target and breaks them, picking the spot that hurts the target most. Skips any crystal that would deal you more than your max self damage, and with Anti suicide on, any that would kill you. |
+| **Anchor Aura** | Outside the Nether, places a respawn anchor next to a target, charges it with glowstone and sets it off, with the same damage limits as Crystal Aura. |
+| **Auto Trap** | Boxes the nearest target in obsidian: around the feet, around the head, and a roof. |
+| **Surround** | Rings your feet with obsidian (or ender chests) so crystals cannot be placed beside you. Turns off when you step out of the block. |
 
-Kill Aura, Trigger Bot, Aim Assist and Bow Aimbot share target settings: range, players,
+Crystal Aura and Anchor Aura estimate explosion damage with the game's own formula:
+distance, how much of the hitbox the blast can see, difficulty, armor and Resistance.
+Blast Protection is not counted, so the estimate runs high, which keeps the self-damage
+limit on the safe side.
+
+Kill Aura, Trigger Bot, Aim Assist, Bow Aimbot, Crystal Aura, Anchor Aura and Auto Trap share target settings: range, players,
 hostile mobs, passive mobs, named mobs, invisible entities, through walls, and priority
 (closest, lowest health, or nearest the crosshair). Tamed pets and creative or spectator
 players are never targeted.

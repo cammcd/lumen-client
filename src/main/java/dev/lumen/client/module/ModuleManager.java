@@ -5,14 +5,17 @@ import java.util.Collections;
 import java.util.List;
 
 import dev.lumen.client.modules.AimAssist;
+import dev.lumen.client.modules.AnchorAura;
 import dev.lumen.client.modules.AutoArmor;
 import dev.lumen.client.modules.AutoClicker;
 import dev.lumen.client.modules.AutoGapple;
 import dev.lumen.client.modules.AutoTotem;
+import dev.lumen.client.modules.AutoTrap;
 import dev.lumen.client.modules.BaseFinder;
 import dev.lumen.client.modules.BowAimbot;
 import dev.lumen.client.modules.ClickGuiModule;
 import dev.lumen.client.modules.Criticals;
+import dev.lumen.client.modules.CrystalAura;
 import dev.lumen.client.modules.EntityEsp;
 import dev.lumen.client.modules.Freecam;
 import dev.lumen.client.modules.HudModule;
@@ -26,6 +29,7 @@ import dev.lumen.client.modules.SoundLocator;
 import dev.lumen.client.modules.SpawnerEsp;
 import dev.lumen.client.modules.StashFinder;
 import dev.lumen.client.modules.StorageEsp;
+import dev.lumen.client.modules.Surround;
 import dev.lumen.client.modules.TriggerBot;
 import dev.lumen.client.modules.Velocity;
 import dev.lumen.client.modules.Waypoints;
@@ -60,6 +64,10 @@ public final class ModuleManager {
 	public final AutoTotem autoTotem;
 	public final AutoArmor autoArmor;
 	public final AutoGapple autoGapple;
+	public final CrystalAura crystalAura;
+	public final AnchorAura anchorAura;
+	public final AutoTrap autoTrap;
+	public final Surround surround;
 
 	public ModuleManager() {
 		storageEsp = register(new StorageEsp());
@@ -89,6 +97,10 @@ public final class ModuleManager {
 		autoTotem = register(new AutoTotem());
 		autoArmor = register(new AutoArmor());
 		autoGapple = register(new AutoGapple());
+		crystalAura = register(new CrystalAura());
+		anchorAura = register(new AnchorAura());
+		autoTrap = register(new AutoTrap());
+		surround = register(new Surround());
 	}
 
 	private <M extends Module> M register(M module) {

@@ -256,6 +256,102 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testInfoModules(context, sp);
 		testXRayAndSigns(context, sp);
 		testCombat(context, sp);
+		testCrystalPvp(context, sp);
+	}
+
+	private void testCrystalPvp(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing crystal PvP modules");
+
+		// Resistance V makes every explosion harmless, so the self-damage limits allow them.
+		command(server, "/kill @e[type=minecraft:zombie]");
+		command(server, "/effect give @a minecraft:resistance infinite 4 true");
+		command(server, "/clear @a");
+
+		// ---- Surround ----
+		command(server, "/tp @a 130.5 -60 -40.5 0 0");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		command(server, "/item replace entity @a hotbar.0 with minecraft:obsidian 64");
+		context.waitTicks(3);
+		context.runOnClient(mc -> {
+			mc.player.getInventory().setSelectedSlot(0);
+			Lumen.modules().surround.setEnabled(true);
+		});
+		context.waitTicks(10);
+		int open = context.computeOnClient(mc -> Lumen.modules().surround.missing(mc.player.blockPosition()).size());
+		LOG.info("Surround: {} of 4 sides still open", open);
+		if (open != 0) throw new AssertionError("Surround left " + open + " sides open");
+		context.runOnClient(mc -> Lumen.modules().surround.setEnabled(false));
+		command(server, "/fill 129 -60 -42 131 -60 -40 minecraft:air");
+
+		// ---- Auto Trap ----
+		command(server, "/summon minecraft:zombie 133.5 -60 -40.5 {NoAI:1b,Silent:1b}");
+		context.waitTicks(5);
+		input.lookAt(-90f, 10f);
+		context.runOnClient(mc -> Lumen.modules().autoTrap.setEnabled(true));
+		context.waitTicks(30);
+		int trapBlocks = context.computeOnClient(mc -> {
+			for (var e : mc.level.entitiesForRendering()) {
+				if (!isZombie(e)) continue;
+				int n = 0;
+				for (BlockPos pos : Lumen.modules().autoTrap.plan(e.blockPosition())) {
+					if (mc.level.getBlockState(pos).is(net.minecraft.world.level.block.Blocks.OBSIDIAN)) n++;
+				}
+				return n;
+			}
+			return -1;
+		});
+		LOG.info("Auto Trap: {} of 10 trap blocks in place", trapBlocks);
+		context.takeScreenshot("lumen_20_auto_trap");
+		if (trapBlocks != 10) throw new AssertionError("Auto Trap placed " + trapBlocks + " of 10 blocks around the zombie");
+		context.runOnClient(mc -> Lumen.modules().autoTrap.setEnabled(false));
+		command(server, "/kill @e[type=minecraft:zombie]");
+		command(server, "/fill 132 -60 -42 134 -58 -40 minecraft:air");
+
+		// ---- Crystal Aura: it has to kill the zombie with crystals ----
+		command(server, "/fill 131 -61 -43 136 -61 -38 minecraft:obsidian");
+		command(server, "/summon minecraft:zombie 134.5 -60 -40.5 {NoAI:1b,Silent:1b}");
+		command(server, "/item replace entity @a hotbar.1 with minecraft:end_crystal 16");
+		context.waitTicks(5);
+		input.lookAt(-90f, 15f);
+		context.runOnClient(mc -> Lumen.modules().crystalAura.setEnabled(true));
+		context.waitTicks(3);
+		context.takeScreenshot("lumen_21_crystal_aura");
+		boolean crystalKilled = waitForZombies(context, 0, 120);
+		int crystalsPlaced = context.computeOnClient(mc -> Lumen.modules().crystalAura.placed());
+		int crystalsBroken = context.computeOnClient(mc -> Lumen.modules().crystalAura.broken());
+		LOG.info("Crystal Aura: zombie dead {}, crystals placed {}, broken {}", crystalKilled, crystalsPlaced, crystalsBroken);
+		if (!crystalKilled || crystalsPlaced < 1 || crystalsBroken < 1) {
+			throw new AssertionError("Crystal Aura did not kill the zombie with crystals (placed " + crystalsPlaced + ", broken " + crystalsBroken + ")");
+		}
+		context.runOnClient(mc -> Lumen.modules().crystalAura.setEnabled(false));
+		command(server, "/kill @e[type=minecraft:end_crystal]");
+
+		// ---- Anchor Aura: place, charge and set off anchors until the zombie dies ----
+		command(server, "/tp @a 160.5 -60 -40.5 0 0");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		command(server, "/summon minecraft:zombie 163.5 -60 -40.5 {NoAI:1b,Silent:1b}");
+		command(server, "/item replace entity @a hotbar.2 with minecraft:respawn_anchor 8");
+		command(server, "/item replace entity @a hotbar.3 with minecraft:glowstone 16");
+		context.waitTicks(5);
+		input.lookAt(-90f, 15f);
+		context.runOnClient(mc -> Lumen.modules().anchorAura.setEnabled(true));
+		context.waitTicks(2);
+		context.takeScreenshot("lumen_22_anchor_aura");
+		boolean anchorKilled = waitForZombies(context, 0, 120);
+		int anchorsPlaced = context.computeOnClient(mc -> Lumen.modules().anchorAura.placed());
+		int anchorsDetonated = context.computeOnClient(mc -> Lumen.modules().anchorAura.detonated());
+		LOG.info("Anchor Aura: zombie dead {}, anchors placed {}, detonated {}", anchorKilled, anchorsPlaced, anchorsDetonated);
+		if (!anchorKilled || anchorsPlaced < 1 || anchorsDetonated < 1) {
+			throw new AssertionError("Anchor Aura did not kill the zombie with anchors (placed " + anchorsPlaced + ", detonated " + anchorsDetonated + ")");
+		}
+		context.runOnClient(mc -> Lumen.modules().anchorAura.setEnabled(false));
+
+		boolean alive = context.computeOnClient(mc -> mc.player.isAlive() && !(mc.gui.screen() instanceof DeathScreen));
+		if (!alive) throw new AssertionError("The player died during the crystal tests");
 	}
 
 	private void testCombat(ClientGameTestContext context, TestSingleplayerContext sp) {
