@@ -32,6 +32,21 @@ jobs:
           chmod +x ./gradlew
           ./gradlew build --stacktrace
 
+      # Signatures of the game classes the client uses, published with the screenshots
+      # so method names can be checked without a local copy of the game.
+      - name: Dump game API signatures
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          mkdir -p build/api
+          find ~/.gradle/caches/fabric-loom .gradle/loom-cache ~/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api \
+            -name '*.jar' 2>/dev/null | grep -v -- '-sources' > build/api/jars.txt || true
+          cp=$(tr '\n' ':' < build/api/jars.txt)
+          while read -r cls; do
+            [ -z "$cls" ] && continue
+            javap -cp "$cp" -p "$cls" > "build/api/$cls.txt" 2>&1 || true
+          done < .github/api-classes.txt
+
       - name: Upload mod jar
         uses: actions/upload-artifact@v7
         with:
@@ -77,6 +92,7 @@ jobs:
           for jar in build/libs/*.jar; do
             case "$jar" in *-sources.jar) ;; *) cp "$jar" "$out"/ ;; esac
           done
+          cp -r build/api "$out"/api 2>/dev/null || true
           echo "Screenshots and mod jar for ${GITHUB_SHA}" > "$out"/README.md
           cd "$out"
           git init -q -b ci-screenshots
