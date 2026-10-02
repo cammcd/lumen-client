@@ -10,8 +10,10 @@ import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import com.mojang.blaze3d.platform.InputConstants;
 
+import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
@@ -26,7 +28,9 @@ import net.fabricmc.loader.api.FabricLoader;
 import dev.lumen.client.Lumen;
 import dev.lumen.client.gui.ClickGuiScreen;
 import dev.lumen.client.gui.ProfilesScreen;
+import dev.lumen.client.gui.WaypointsScreen;
 import dev.lumen.client.module.Module;
+import dev.lumen.client.modules.SoundLocator;
 import dev.lumen.client.setting.BoolSetting;
 import dev.lumen.client.setting.EnumSetting;
 import dev.lumen.client.setting.NumberSetting;
@@ -248,6 +252,73 @@ public final class LumenClientTest implements FabricClientGameTest {
 
 		testFreecam(context);
 		testWorldFinders(context, sp);
+		testInfoModules(context, sp);
+	}
+
+	private void testInfoModules(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing Nametags, Logout Spots, Sound Locator, Waypoints and Radar");
+
+		command(server, "/tp @a 0.5 -60 -8.5 0 22");
+		context.waitTicks(5);
+		input.lookAt(0f, 22f);
+		context.runOnClient(mc -> {
+			Lumen.modules().nametags.setEnabled(true);
+			((BoolSetting) setting(Lumen.modules().nametags, "Named mobs")).set(true);
+			Lumen.modules().logoutSpots.setEnabled(true);
+			Lumen.modules().soundLocator.setEnabled(true);
+			Lumen.modules().radar.setEnabled(true);
+		});
+		context.waitTicks(2);
+
+		LOG.info("Playing a loud sound about 90 blocks away");
+		command(server, "/playsound minecraft:entity.generic.explode master @a 60 -60 60 8");
+		context.waitTicks(5);
+		List<SoundLocator.Marker> markers = context.computeOnClient(mc -> Lumen.modules().soundLocator.markers());
+		LOG.info("Sound Locator markers: {}", markers);
+		boolean located = markers.stream().anyMatch(m -> m.pos().distanceTo(new Vec3(60, -60, 60)) < 2);
+		if (!located) throw new AssertionError("Sound Locator did not mark the explosion at 60, -60, 60");
+
+		LOG.info("Adding a waypoint with its key");
+		int waypointsBefore = context.computeOnClient(mc -> Lumen.modules().waypoints.here().size());
+		input.pressKey(Lumen.addWaypointKey());
+		context.waitTicks(3);
+		int waypointsAfter = context.computeOnClient(mc -> Lumen.modules().waypoints.here().size());
+		if (waypointsAfter != waypointsBefore + 1) {
+			throw new AssertionError("The add-waypoint key did not add a waypoint (" + waypointsBefore + " -> " + waypointsAfter + ")");
+		}
+		context.runOnClient(mc -> Lumen.modules().waypoints.add("Stash", new BlockPos(21, -59, 22), false));
+		context.waitTicks(5);
+		context.takeScreenshot("lumen_14_info_overlays");
+
+		LOG.info("Dying saves a death waypoint");
+		long deathsBefore = context.computeOnClient(mc -> Lumen.modules().waypoints.here().stream().filter(w -> w.death).count());
+		command(server, "/kill @a");
+		context.waitForScreen(DeathScreen.class);
+		context.waitTicks(40);
+		long deathsAfter = context.computeOnClient(mc -> Lumen.modules().waypoints.here().stream().filter(w -> w.death).count());
+		LOG.info("Death waypoints: {} -> {}", deathsBefore, deathsAfter);
+		if (deathsAfter != deathsBefore + 1) throw new AssertionError("Dying did not save a death waypoint");
+		context.clickScreenButton("deathScreen.respawn");
+		context.waitForScreen(null);
+		context.waitTicks(10);
+
+		LOG.info("Opening the Waypoints screen from the click GUI");
+		input.pressKey(Lumen.clickGuiKey());
+		context.waitForScreen(ClickGuiScreen.class);
+		context.waitTicks(10);
+		int scale = context.computeOnClient(mc -> mc.getWindow().getGuiScale());
+		int[] button = context.computeOnClient(mc -> ((ClickGuiScreen) mc.gui.screen()).waypointsButtonCenter());
+		input.setCursorPos(button[0] * scale, button[1] * scale);
+		input.pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+		context.waitForScreen(WaypointsScreen.class);
+		context.waitTicks(10);
+		context.takeScreenshot("lumen_15_waypoints_screen");
+		input.pressKey(InputConstants.KEY_ESCAPE);
+		context.waitForScreen(ClickGuiScreen.class);
+		input.pressKey(InputConstants.KEY_ESCAPE);
+		context.waitForScreen(null);
 	}
 
 	private void testWorldFinders(ClientGameTestContext context, TestSingleplayerContext sp) {

@@ -9,10 +9,15 @@ import dev.lumen.client.modules.ClickGuiModule;
 import dev.lumen.client.modules.EntityEsp;
 import dev.lumen.client.modules.Freecam;
 import dev.lumen.client.modules.HudModule;
+import dev.lumen.client.modules.LogoutSpots;
+import dev.lumen.client.modules.Nametags;
 import dev.lumen.client.modules.NewChunks;
+import dev.lumen.client.modules.Radar;
+import dev.lumen.client.modules.SoundLocator;
 import dev.lumen.client.modules.SpawnerEsp;
 import dev.lumen.client.modules.StashFinder;
 import dev.lumen.client.modules.StorageEsp;
+import dev.lumen.client.modules.Waypoints;
 
 public final class ModuleManager {
 	private final List<Module> modules = new ArrayList<>();
@@ -20,10 +25,15 @@ public final class ModuleManager {
 	public final StorageEsp storageEsp;
 	public final SpawnerEsp spawnerEsp;
 	public final EntityEsp entityEsp;
+	public final Nametags nametags;
 	public final Freecam freecam;
 	public final NewChunks newChunks;
 	public final StashFinder stashFinder;
 	public final BaseFinder baseFinder;
+	public final LogoutSpots logoutSpots;
+	public final SoundLocator soundLocator;
+	public final Waypoints waypoints;
+	public final Radar radar;
 	public final HudModule hud;
 	public final ClickGuiModule clickGui;
 
@@ -31,10 +41,15 @@ public final class ModuleManager {
 		storageEsp = register(new StorageEsp());
 		spawnerEsp = register(new SpawnerEsp());
 		entityEsp = register(new EntityEsp());
+		nametags = register(new Nametags());
 		freecam = register(new Freecam());
 		newChunks = register(new NewChunks());
 		stashFinder = register(new StashFinder());
 		baseFinder = register(new BaseFinder());
+		logoutSpots = register(new LogoutSpots());
+		soundLocator = register(new SoundLocator());
+		waypoints = register(new Waypoints());
+		radar = register(new Radar());
 		hud = register(new HudModule());
 		clickGui = register(new ClickGuiModule());
 	}

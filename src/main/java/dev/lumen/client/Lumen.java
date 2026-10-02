@@ -35,6 +35,7 @@ public final class Lumen implements ClientModInitializer {
 	private static ConfigManager config;
 	private static ProfileManager profiles;
 	private static KeyMapping clickGuiKey;
+	private static KeyMapping addWaypointKey;
 	private static int ticksSinceSave;
 
 	@Override
@@ -47,6 +48,8 @@ public final class Lumen implements ClientModInitializer {
 		KeyMapping.Category category = KeyMapping.Category.register(id("lumen"));
 		clickGuiKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.lumen.click_gui", InputConstants.Type.KEYBOARD, SDLScancode.SDL_SCANCODE_RSHIFT, category));
+		addWaypointKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+				"key.lumen.add_waypoint", InputConstants.Type.KEYBOARD, SDLScancode.SDL_SCANCODE_N, category));
 
 		ClientTickEvents.END_CLIENT_TICK.register(Lumen::onEndTick);
 		ClientChunkEvents.CHUNK_LOAD.register(WorldScanHooks::chunkLoaded);
@@ -68,6 +71,10 @@ public final class Lumen implements ClientModInitializer {
 			if (client.gui.screen() == null) {
 				client.gui.setScreen(new ClickGuiScreen());
 			}
+		}
+
+		while (addWaypointKey.consumeClick()) {
+			if (client.player != null) modules.waypoints.addHere(null);
 		}
 
 		modules.onTick();
@@ -93,6 +100,10 @@ public final class Lumen implements ClientModInitializer {
 
 	public static KeyMapping clickGuiKey() {
 		return clickGuiKey;
+	}
+
+	public static KeyMapping addWaypointKey() {
+		return addWaypointKey;
 	}
 
 	public static Identifier id(String path) {

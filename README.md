@@ -9,10 +9,15 @@ A clean, customizable Fabric client for **Minecraft 26.3**.
 | **Storage ESP** | Highlights chests, trapped chests, ender chests, shulker boxes, droppers and barrels. Dispensers, hoppers, furnaces, crafters and decorated pots can be switched on too. Every block type has its own colour and toggle. |
 | **Spawner ESP** | Highlights monster spawners and trial spawners, with tracers on by default. |
 | **Entity ESP** | Highlights players, hostile mobs, passive mobs, dropped items, tamed pets, named mobs, item frames and chest/hopper minecarts and boats, each with its own toggle and colour. Villagers, golems and armor stands can be switched on too. Boxes follow entities smoothly between ticks. |
+| **Nametags** | Player labels with health (absorption in gold), distance, ping and their armor and held items, drawn crisply over the world and through walls. Can include named mobs. |
 | **Freecam** | Detaches the camera and flies it through blocks while your body stays still. WASD to move, Space and Shift for up and down, Sprint for a speed boost, scroll wheel to change speed. |
 | **New Chunks** | Colours chunks the world just generated differently from chunks that existed before. Liquids generate still and only flow once a chunk has been loaded, so old chunks in fresh land show where players have travelled. |
 | **Stash Finder** | Flags chunks with more containers than a threshold you set, then pops up a notification, prints the coordinates in chat (client-side only) and appends them to `config/lumen/stashes.csv`. |
 | **Base Finder** | Scores each chunk for blocks that never or rarely generate naturally (ender chests, shulker boxes, beacons, concrete, hoppers, signs, and in the Nether or End, everyday blocks like crafting tables and torches). Village-type blocks count little and are capped, so villages alone do not trigger it. Finds are marked in the world and logged to `config/lumen/bases.csv`. |
+| **Logout Spots** | When a nearby player disappears from the tab list, marks where they logged out with a ghost box and a label showing how long ago. Logged to `config/lumen/logouts.csv`. |
+| **Sound Locator** | Marks where server-wide events (a wither spawning, the dragon dying, an end portal opening) and loud distant sounds came from, with a beam, a tracer and a label. Logged to `config/lumen/sounds.csv`. |
+| **Waypoints** | Saved locations per server and dimension with a beam, name and distance. Press **N** to add one where you stand; a death waypoint is saved automatically. Manage them from the **Waypoints** button in the Click GUI. |
+| **Radar** | A north-up minimap of nearby chunks: new and old chunks from New Chunks, stashes, bases, players and waypoints. |
 | **HUD** | Watermark with FPS, an animated list of active modules, coordinates with Nether/Overworld conversion, and toggle notifications. |
 | **Click GUI** | Theme settings for the menu itself. |
 

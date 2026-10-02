@@ -23,6 +23,7 @@ import dev.lumen.client.util.ColorUtil;
 
 public final class HudRenderer {
 	private static final Ui UI = new Ui();
+	private static final Ui OVERLAY_UI = new Ui();
 	private static final int ENTRY_H = 11;
 
 	private record Entry(Module module, String name, String info, int width, float anim) {
@@ -34,6 +35,17 @@ public final class HudRenderer {
 	public static void render(GuiGraphicsExtractor g, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
 		if (Lumen.modules() == null || mc.player == null) return;
+
+		// World labels belong to their modules, so they show even with the HUD module off.
+		OVERLAY_UI.begin(g, -1, -1);
+		OVERLAY_UI.alpha = 1f;
+		OVERLAY_UI.textShadow = true;
+		for (Module module : Lumen.modules().all()) {
+			if (module.isEnabled() && module instanceof HudOverlay overlay) {
+				overlay.drawOverlay(OVERLAY_UI, g.guiWidth(), g.guiHeight());
+			}
+		}
+
 		HudModule hud = Lumen.modules().hud;
 		if (!hud.isEnabled()) return;
 

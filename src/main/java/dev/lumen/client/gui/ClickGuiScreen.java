@@ -73,6 +73,7 @@ public final class ClickGuiScreen extends Screen {
 	private static final Object OPEN_KEY = new Object();
 	private static final Object SEARCH_GLOW_KEY = new Object();
 	private static final Object PROFILES_HOVER_KEY = new Object();
+	private static final Object WAYPOINTS_HOVER_KEY = new Object();
 
 	// Remembered across openings so the GUI comes back the way it was left.
 	private static final Set<String> EXPANDED = new HashSet<>();
@@ -96,6 +97,7 @@ public final class ClickGuiScreen extends Screen {
 	private long swallowCharsUntil;
 	private final List<String> visibleModules = new ArrayList<>();
 	private int profilesX1, profilesY1, profilesX2, profilesY2;
+	private int waypointsX1, waypointsX2;
 
 	public ClickGuiScreen() {
 		super(Component.literal("Lumen"));
@@ -268,6 +270,33 @@ public final class ClickGuiScreen extends Screen {
 		ui.hit(profilesX1, profilesY1, profilesX2, profilesY2, (button, px, py) -> {
 			if (button == LEFT) openProfiles();
 		});
+
+		// Waypoints button, to the left of Profiles.
+		String wpLabel = "Waypoints";
+		waypointsX2 = profilesX1 - 6;
+		waypointsX1 = waypointsX2 - ui.width(wpLabel) - 16;
+		boolean wpHover = ui.hovered(waypointsX1, profilesY1, waypointsX2, profilesY2);
+		float wpHov = Anim.approach(WAYPOINTS_HOVER_KEY, wpHover ? 1f : 0f);
+		if (t.shadows.isOn()) ui.shadow(waypointsX1, profilesY1, waypointsX2, profilesY2, r, 70);
+		ui.roundRect(waypointsX1, profilesY1, waypointsX2, profilesY2, r, t.panelColor.color());
+		if (wpHov > 0.01f) {
+			ui.roundGradientH(waypointsX1, profilesY1, waypointsX2, profilesY2, r,
+					ColorUtil.fade(t.accentAt(0f), 0.35f * wpHov), ColorUtil.fade(t.accentAt(1f), 0.2f * wpHov), true, true);
+		}
+		ui.roundGradientH(waypointsX1 + r, profilesY2 - 1, waypointsX2 - r, profilesY2, 0, t.accentAt(0f), t.accentAt(1f), false, false);
+		ui.text(wpLabel, waypointsX1 + 8, profilesY1 + 5, ColorUtil.lerp(DIM_TEXT, t.textColor.color(), 0.5f + 0.5f * wpHov));
+		if (wpHover) ui.tooltip = "Saved locations for this server and dimension.";
+		ui.hit(waypointsX1, profilesY1, waypointsX2, profilesY2, (button, px, py) -> {
+			if (button == LEFT) {
+				saveState();
+				minecraft.gui.setScreen(new WaypointsScreen(this));
+			}
+		});
+	}
+
+	/** Centre of the Waypoints button in GUI coordinates, from the most recent frame. */
+	public int[] waypointsButtonCenter() {
+		return new int[] {(waypointsX1 + waypointsX2) / 2, (profilesY1 + profilesY2) / 2};
 	}
 
 	private void openProfiles() {

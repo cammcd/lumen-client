@@ -19,6 +19,12 @@ public final class WorldRenderer {
 		if (mc.level == null || mc.player == null || Lumen.modules() == null) return;
 
 		Vec3 cam = cameraState.pos;
+
+		// Camera rotation as a matrix, shared by the ESP pass and by 2D label projection.
+		PoseStack poseStack = new PoseStack();
+		poseStack.mulPose(cameraState.viewRotationMatrix);
+		Projection.update(new org.joml.Matrix4f(poseStack.last().pose()), cam);
+
 		EspBatch batch = new EspBatch(cam.x, cam.y, cam.z);
 
 		for (Module module : Lumen.modules().all()) {
@@ -31,8 +37,6 @@ public final class WorldRenderer {
 
 		// Geometry is camera-relative; the camera's rotation is applied here because this
 		// runs outside the level renderer's own transforms.
-		PoseStack poseStack = new PoseStack();
-		poseStack.mulPose(cameraState.viewRotationMatrix);
 		batch.drawNow(poseStack);
 	}
 }
