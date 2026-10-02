@@ -39,7 +39,8 @@ public final class AnchorAura extends CombatModule {
 	private int detonated;
 
 	public AnchorAura() {
-		super("Anchor Aura", "Places, charges and sets off respawn anchors next to targets outside the Nether.", 8, 16);
+		// Through walls by default: targets hide behind blocks, and the damage estimate accounts for cover.
+		super("Anchor Aura", "Places, charges and sets off respawn anchors next to targets outside the Nether.", 8, 16, true);
 	}
 
 	public int placed() {

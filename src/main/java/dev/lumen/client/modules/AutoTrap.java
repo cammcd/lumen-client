@@ -24,7 +24,8 @@ public final class AutoTrap extends CombatModule {
 	private LivingEntity target;
 
 	public AutoTrap() {
-		super("Auto Trap", "Traps the nearest target in obsidian.", 4.5, 6);
+		// Through walls by default: the walls hide the target before the roof goes on.
+		super("Auto Trap", "Traps the nearest target in obsidian.", 4.5, 6, true);
 	}
 
 	@Override

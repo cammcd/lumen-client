@@ -42,7 +42,8 @@ public final class CrystalAura extends CombatModule {
 	private int broken;
 
 	public CrystalAura() {
-		super("Crystal Aura", "Places and breaks end crystals near targets, keeping your own damage under a limit.", 10, 16);
+		// Through walls by default: targets hide behind blocks, and the damage estimate accounts for cover.
+		super("Crystal Aura", "Places and breaks end crystals near targets, keeping your own damage under a limit.", 10, 16, true);
 	}
 
 	public int placed() {

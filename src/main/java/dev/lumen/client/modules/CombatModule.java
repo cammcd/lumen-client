@@ -52,6 +52,10 @@ public abstract class CombatModule extends Module {
 	protected final EnumSetting<Priority> priority;
 
 	protected CombatModule(String name, String description, double defaultRange, double maxRange) {
+		this(name, description, defaultRange, maxRange, false);
+	}
+
+	protected CombatModule(String name, String description, double defaultRange, double maxRange, boolean defaultThroughWalls) {
 		super(name, description, Category.COMBAT);
 		setDefaultSection("Targets");
 		range = add(new NumberSetting("Range", "Maximum distance to a target, in blocks.", defaultRange, 1, maxRange, 0.1, "m"));
@@ -60,7 +64,7 @@ public abstract class CombatModule extends Module {
 		passives = add(new BoolSetting("Passive mobs", "Target animals, villagers and other peaceful mobs.", false));
 		ignoreNamed = add(new BoolSetting("Ignore named mobs", "Leave mobs with a name tag alone.", true));
 		ignoreInvisible = add(new BoolSetting("Ignore invisible", "Skip invisible entities.", false));
-		throughWalls = add(new BoolSetting("Through walls", "Allow targets you cannot see.", false));
+		throughWalls = add(new BoolSetting("Through walls", "Allow targets you cannot see.", defaultThroughWalls));
 		priority = add(new EnumSetting<>("Priority", "Which target goes first.", Priority.CLOSEST));
 
 		setDefaultSection("General");

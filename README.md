@@ -52,7 +52,8 @@ limit on the safe side.
 Kill Aura, Trigger Bot, Aim Assist, Bow Aimbot, Crystal Aura, Anchor Aura and Auto Trap share target settings: range, players,
 hostile mobs, passive mobs, named mobs, invisible entities, through walls, and priority
 (closest, lowest health, or nearest the crosshair). Tamed pets and creative or spectator
-players are never targeted.
+players are never targeted. Through walls starts on for Crystal Aura, Anchor Aura and Auto
+Trap, since their targets are usually behind blocks, and off for the rest.
 
 ### ESP options (Storage, Spawner and Entity ESP)
 
