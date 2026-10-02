@@ -305,7 +305,26 @@ public final class LumenClientTest implements FabricClientGameTest {
 			return -1;
 		});
 		LOG.info("Auto Trap: {} of 10 trap blocks in place", trapBlocks);
+		String trapState = context.computeOnClient(mc -> {
+			StringBuilder sb = new StringBuilder();
+			for (var e : mc.level.entitiesForRendering()) {
+				if (!isZombie(e)) continue;
+				sb.append("zombie at ").append(e.blockPosition().toShortString()).append(':');
+				for (BlockPos pos : Lumen.modules().autoTrap.plan(e.blockPosition())) {
+					sb.append(' ').append(pos.toShortString()).append('=')
+							.append(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(mc.level.getBlockState(pos).getBlock()).getPath());
+				}
+			}
+			return sb.toString();
+		});
+		LOG.info("Auto Trap blocks: {}", trapState);
 		context.takeScreenshot("lumen_20_auto_trap");
+		command(server, "/tp @a 130.5 -55 -40.5 -90 35");
+		context.waitTicks(5);
+		input.lookAt(-90f, 35f);
+		context.takeScreenshot("lumen_20b_auto_trap_above");
+		command(server, "/tp @a 130.5 -60 -40.5 -90 10");
+		context.waitTicks(5);
 		if (trapBlocks != 10) throw new AssertionError("Auto Trap placed " + trapBlocks + " of 10 blocks around the zombie");
 		context.runOnClient(mc -> Lumen.modules().autoTrap.setEnabled(false));
 		command(server, "/kill @e[type=minecraft:zombie]");
