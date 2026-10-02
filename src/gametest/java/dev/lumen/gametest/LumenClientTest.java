@@ -286,13 +286,16 @@ public final class LumenClientTest implements FabricClientGameTest {
 			var found = Lumen.modules().baseFinder.bases().get(new ChunkPos(-2, 1));
 			return found == null ? 0 : found.score();
 		});
-		int falseBases = context.computeOnClient(mc -> Lumen.modules().baseFinder.bases().size()) - (base ? 1 : 0);
-		LOG.info("New Chunks marked (0, 2) new: {}. Stash in (1, 1): {} ({} containers). Base in (-2, 1): {} (score {}). Other flagged chunks: {}",
-				newChunk, stash, stashCount, base, baseScore, falseBases);
+		// The earlier scene in chunk (0, 0) holds an ender chest, two shulker boxes and a hopper,
+		// which is player-made too, so it should be flagged as well. Nothing else should be.
+		java.util.Set<ChunkPos> flagged = context.computeOnClient(mc -> Lumen.modules().baseFinder.bases().keySet());
+		java.util.Set<ChunkPos> expected = java.util.Set.of(new ChunkPos(-2, 1), new ChunkPos(0, 0));
+		LOG.info("New Chunks marked (0, 2) new: {}. Stash in (1, 1): {} ({} containers). Base in (-2, 1): {} (score {}). Flagged chunks: {}",
+				newChunk, stash, stashCount, base, baseScore, flagged);
 		if (!newChunk) throw new AssertionError("New Chunks did not mark the chunk with flowing water as new");
 		if (!stash || stashCount != 48) throw new AssertionError("Stash Finder found " + stashCount + " containers in (1, 1), expected 48");
 		if (!base) throw new AssertionError("Base Finder did not flag the chunk with an ender chest, beacon and respawn anchor");
-		if (falseBases != 0) throw new AssertionError("Base Finder flagged " + falseBases + " chunks with no player-made blocks");
+		if (!flagged.equals(expected)) throw new AssertionError("Base Finder flagged " + flagged + ", expected " + expected);
 
 		Path stashLog = FabricLoader.getInstance().getConfigDir().resolve("lumen").resolve("stashes.csv");
 		Path baseLog = FabricLoader.getInstance().getConfigDir().resolve("lumen").resolve("bases.csv");
