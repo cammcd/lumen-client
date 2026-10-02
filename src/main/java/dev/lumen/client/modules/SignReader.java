@@ -11,10 +11,12 @@ import java.util.regex.Pattern;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
@@ -113,8 +115,11 @@ public final class SignReader extends WorldScanModule implements HudOverlay {
 		List<Sign> found = new ArrayList<>();
 		for (BlockEntity be : chunk.getBlockEntities().values()) {
 			if (!(be instanceof SignBlockEntity sign)) continue;
-			List<String> front = lines(sign.getFrontText());
-			List<String> back = lines(sign.getBackText());
+			List<String> front = new ArrayList<>();
+			List<String> back = new ArrayList<>();
+			for (SignTextSlot slot : SignTextSlot.values()) {
+				(slot.name().contains("BACK") ? back : front).addAll(lines(sign.getText(slot)));
+			}
 			if (front.isEmpty() && back.isEmpty()) continue;
 
 			BlockPos pos = sign.getBlockPos().immutable();
@@ -134,8 +139,8 @@ public final class SignReader extends WorldScanModule implements HudOverlay {
 
 	private static List<String> lines(SignText text) {
 		List<String> lines = new ArrayList<>();
-		for (int i = 0; i < 4; i++) {
-			String line = text.getMessage(i, false).getString().strip();
+		for (Component message : text.getMessages(false)) {
+			String line = message.getString().strip();
 			if (!line.isEmpty()) lines.add(line);
 		}
 		return lines;
