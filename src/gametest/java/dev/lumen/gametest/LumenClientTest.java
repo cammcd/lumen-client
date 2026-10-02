@@ -198,13 +198,14 @@ public final class LumenClientTest implements FabricClientGameTest {
 		context.waitTicks(20);
 		context.takeScreenshot("lumen_08_color_picker");
 
-		LOG.info("Searching for 'spawn'");
-		input.typeChars("spawn");
+		// "spawner", not "spawn": search also matches descriptions, and Anchor Aura's mentions respawn anchors.
+		LOG.info("Searching for 'spawner'");
+		input.typeChars("spawner");
 		context.waitTicks(10);
 		List<String> visible = context.computeOnClient(mc -> ((ClickGuiScreen) mc.gui.screen()).visibleModules());
 		LOG.info("Visible modules while searching: {}", visible);
 		if (!visible.equals(List.of("Spawner ESP"))) {
-			throw new AssertionError("Searching 'spawn' showed " + visible + ", expected only Spawner ESP");
+			throw new AssertionError("Searching 'spawner' showed " + visible + ", expected only Spawner ESP");
 		}
 		context.takeScreenshot("lumen_09_search");
 		input.pressKey(InputConstants.KEY_ESCAPE);
