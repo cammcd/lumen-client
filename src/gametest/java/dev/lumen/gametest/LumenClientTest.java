@@ -277,11 +277,13 @@ public final class LumenClientTest implements FabricClientGameTest {
 		command(server, "/fill 43 -60 -42 43 -58 -39 minecraft:barrier");
 		sp.getConnection().waitForChunksRender();
 		context.waitTicks(5);
+		// Face the zombie only so the screenshot shows it; Kill Aura does not need it.
+		input.lookAt(-90f, 15f);
 		context.runOnClient(mc -> {
 			Lumen.modules().criticals.setEnabled(true);
 			Lumen.modules().killAura.setEnabled(true);
 		});
-		context.waitTicks(12);
+		context.waitTicks(4);
 		context.takeScreenshot("lumen_18_kill_aura");
 		boolean auraKilled = waitForZombies(context, 0, 160);
 		int auraHits = context.computeOnClient(mc -> Lumen.modules().killAura.hits());
@@ -317,9 +319,20 @@ public final class LumenClientTest implements FabricClientGameTest {
 		});
 		context.waitTicks(25);
 		float yaw = context.computeOnClient(mc -> mc.player.getYRot());
-		// Zombie centre is 2 east and 3.5 south of the player: yaw atan2(3.5, 2) - 90.
-		float expectedYaw = (float) Math.toDegrees(Math.atan2(3.5, 2.0)) - 90f;
-		LOG.info("Aim Assist: yaw {} (target {})", yaw, expectedYaw);
+		// The yaw from the player's eyes to the zombie's centre, from where both actually are.
+		float expectedYaw = context.computeOnClient(mc -> {
+			for (var e : mc.level.entitiesForRendering()) {
+				if (!isZombie(e)) continue;
+				Vec3 c = e.getBoundingBox().getCenter();
+				Vec3 eye = mc.player.getEyePosition();
+				return (float) Math.toDegrees(Math.atan2(c.z - eye.z, c.x - eye.x)) - 90f;
+			}
+			return Float.NaN;
+		});
+		LOG.info("Aim Assist: yaw {} (target {}, started at 0)", yaw, expectedYaw);
+		if (Float.isNaN(expectedYaw) || Math.abs(expectedYaw) < 15f) {
+			throw new AssertionError("The Aim Assist zombie was not placed well off-aim (target yaw " + expectedYaw + ")");
+		}
 		if (Math.abs(net.minecraft.util.Mth.wrapDegrees(yaw - expectedYaw)) > 3f) {
 			throw new AssertionError("Aim Assist turned to yaw " + yaw + ", expected about " + expectedYaw);
 		}
