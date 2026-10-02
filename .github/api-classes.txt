@@ -54,3 +54,7 @@ net.minecraft.client.multiplayer.ClientLevel
 net.minecraft.world.level.block.Block
 net.minecraft.world.level.block.state.BlockState
 net.minecraft.client.gui.screens.inventory.InventoryScreen
+net.minecraft.world.level.block.entity.SignBlockEntity
+net.minecraft.world.level.block.entity.SignText
+net.minecraft.world.level.block.entity.HangingSignBlockEntity
+net.minecraft.world.level.block.entity.BlockEntity

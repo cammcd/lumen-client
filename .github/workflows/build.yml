@@ -90,6 +90,7 @@ jobs:
           done
           # The mod jar too, so it can be fetched with git as well as from the artifact.
           for jar in build/libs/*.jar; do
+            [ -e "$jar" ] || continue
             case "$jar" in *-sources.jar) ;; *) cp "$jar" "$out"/ ;; esac
           done
           cp -r build/api "$out"/api 2>/dev/null || true
