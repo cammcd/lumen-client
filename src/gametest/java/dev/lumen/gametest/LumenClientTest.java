@@ -425,7 +425,11 @@ public final class LumenClientTest implements FabricClientGameTest {
 		});
 		context.waitTicks(3);
 		// Magic damage ignores the armor Auto Armor just put on.
-		command(server, "/damage @a 13 minecraft:magic");
+		command(server, "/damage @a[limit=1] 13 minecraft:magic");
+		context.waitTicks(2);
+		float hurtHealth = context.computeOnClient(mc -> mc.player.getHealth());
+		LOG.info("Auto Gapple: health after the hit {}", hurtHealth);
+		if (hurtHealth > 10f) throw new AssertionError("The test hit only brought health down to " + hurtHealth);
 		context.waitTicks(60);
 		int eaten = context.computeOnClient(mc -> Lumen.modules().autoGapple.eaten());
 		float absorption = context.computeOnClient(mc -> mc.player.getAbsorptionAmount());
