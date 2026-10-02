@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
@@ -23,6 +24,7 @@ import dev.lumen.client.gui.ClickGuiScreen;
 import dev.lumen.client.hud.HudRenderer;
 import dev.lumen.client.module.ModuleManager;
 import dev.lumen.client.modules.Freecam;
+import dev.lumen.client.modules.WorldScanHooks;
 
 public final class Lumen implements ClientModInitializer {
 	public static final String MOD_ID = "lumen";
@@ -47,6 +49,7 @@ public final class Lumen implements ClientModInitializer {
 				"key.lumen.click_gui", InputConstants.Type.KEYBOARD, SDLScancode.SDL_SCANCODE_RSHIFT, category));
 
 		ClientTickEvents.END_CLIENT_TICK.register(Lumen::onEndTick);
+		ClientChunkEvents.CHUNK_LOAD.register(WorldScanHooks::chunkLoaded);
 		LevelExtractionEvents.AFTER_BLOCK_OUTLINE_EXTRACTION.register((context, hit) -> {
 			// The outline belongs to the body's view, which is misleading from a detached camera.
 			Freecam freecam = Freecam.active();

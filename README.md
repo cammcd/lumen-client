@@ -8,8 +8,11 @@ A clean, customizable Fabric client for **Minecraft 26.3**.
 |---|---|
 | **Storage ESP** | Highlights chests, trapped chests, ender chests, shulker boxes, droppers and barrels. Dispensers, hoppers, furnaces, crafters and decorated pots can be switched on too. Every block type has its own colour and toggle. |
 | **Spawner ESP** | Highlights monster spawners and trial spawners, with tracers on by default. |
-| **Entity ESP** | Highlights players, hostile mobs, passive mobs and dropped items, with a separate toggle and colour for each. Villagers, golems and armor stands can be switched on too. Boxes follow entities smoothly between ticks. |
+| **Entity ESP** | Highlights players, hostile mobs, passive mobs, dropped items, tamed pets, named mobs, item frames and chest/hopper minecarts and boats, each with its own toggle and colour. Villagers, golems and armor stands can be switched on too. Boxes follow entities smoothly between ticks. |
 | **Freecam** | Detaches the camera and flies it through blocks while your body stays still. WASD to move, Space and Shift for up and down, Sprint for a speed boost, scroll wheel to change speed. |
+| **New Chunks** | Colours chunks the world just generated differently from chunks that existed before. Liquids generate still and only flow once a chunk has been loaded, so old chunks in fresh land show where players have travelled. |
+| **Stash Finder** | Flags chunks with more containers than a threshold you set, then pops up a notification, prints the coordinates in chat (client-side only) and appends them to `config/lumen/stashes.csv`. |
+| **Base Finder** | Scores each chunk for blocks that never or rarely generate naturally (ender chests, shulker boxes, beacons, concrete, hoppers, signs, and in the Nether or End, everyday blocks like crafting tables and torches). Village-type blocks count little and are capped, so villages alone do not trigger it. Finds are marked in the world and logged to `config/lumen/bases.csv`. |
 | **HUD** | Watermark with FPS, an animated list of active modules, coordinates with Nether/Overworld conversion, and toggle notifications. |
 | **Click GUI** | Theme settings for the menu itself. |
 

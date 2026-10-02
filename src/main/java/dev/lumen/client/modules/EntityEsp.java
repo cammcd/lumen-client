@@ -1,6 +1,10 @@
 package dev.lumen.client.modules;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -19,12 +23,16 @@ public final class EntityEsp extends HighlightModule {
 	private final ColorSetting passive = add(new ColorSetting("Passive mobs", "Animals, fish, bats and other peaceful creatures.", 0xFF6BE38B, true));
 	private final ColorSetting items = add(new ColorSetting("Items", "Dropped items on the ground.", 0xFFFFE066, true));
 	private final ColorSetting other = add(new ColorSetting("Other", "Villagers, golems, armor stands and other creatures.", 0xFF7FD4FF, false));
+	private final ColorSetting pets = add(new ColorSetting("Pets", "Tamed wolves, cats, parrots and horses: someone lives nearby.", 0xFFFF8AD8, true));
+	private final ColorSetting named = add(new ColorSetting("Named mobs", "Mobs given a name tag.", 0xFFB388FF, true));
+	private final ColorSetting itemFrames = add(new ColorSetting("Item frames", "Item frames and glow item frames.", 0xFFFFC857, true));
+	private final ColorSetting storageVehicles = add(new ColorSetting("Storage carts & boats", "Chest and hopper minecarts, chest boats and rafts.", 0xFF4DD0E1, true));
 	private final BoolSetting showInvisible = add(new BoolSetting("Show invisible", "Also highlight entities that are invisible.", false));
 
 	private int lastCount;
 
 	public EntityEsp() {
-		super("Entity ESP", "Highlights players, mobs and dropped items.", 128, false, "Entities");
+		super("Entity ESP", "Highlights players, mobs, items, pets, item frames and storage carts.", 128, false, "Entities");
 	}
 
 	@Override
@@ -45,6 +53,16 @@ public final class EntityEsp extends HighlightModule {
 	private ColorSetting classify(Entity entity) {
 		if (entity instanceof Player) return players;
 		if (entity instanceof ItemEntity) return items;
+		// Base-hunting groups come before the general ones.
+		if (entity instanceof ItemFrame) return itemFrames;
+		String id = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).getPath();
+		if (id.equals("chest_minecart") || id.equals("hopper_minecart") || id.endsWith("_chest_boat")
+				|| id.endsWith("_chest_raft")) {
+			return storageVehicles;
+		}
+		if (entity instanceof TamableAnimal tamable && tamable.isTame()) return pets;
+		if (entity instanceof AbstractHorse horse && horse.isTamed()) return pets;
+		if (entity instanceof LivingEntity && entity.hasCustomName()) return named;
 		if (!(entity instanceof LivingEntity)) return null;
 		if (entity instanceof Enemy) return hostile;
 

@@ -215,14 +215,15 @@ public final class HudRenderer {
 		for (int i = entries.size() - 1; i >= 0; i--) {
 			Notifications.Entry n = entries.get(i);
 			float age = n.ageSeconds();
+			float show = n.showSeconds();
 			float a;
 			if (age < 0.2f) a = ease(age / 0.2f);
-			else if (age > Notifications.SHOW_SECONDS) a = 1f - ease((age - Notifications.SHOW_SECONDS) / Notifications.FADE_SECONDS);
+			else if (age > show) a = 1f - ease((age - show) / Notifications.FADE_SECONDS);
 			else a = 1f;
 			a = Math.max(0f, Math.min(1f, a));
 
-			String state = n.on() ? "Enabled" : "Disabled";
-			int stateColor = n.on() ? 0xFF6CF0A0 : 0xFFFF6B7A;
+			String state = n.detail();
+			int stateColor = n.color();
 			int w = Math.max(UI.width(n.title()), UI.width(state)) + 22;
 			int slide = Math.round((1f - a) * (w + 8));
 			int x2 = sw - 4 + slide;
@@ -237,7 +238,7 @@ public final class HudRenderer {
 			UI.text(state, x1 + 11, iy + 15, stateColor);
 
 			// Progress line showing how long the notification stays.
-			float life = Math.max(0f, Math.min(1f, 1f - age / Notifications.SHOW_SECONDS));
+			float life = Math.max(0f, Math.min(1f, 1f - age / show));
 			int lw = Math.round((w - 2 * r) * life);
 			if (lw > 0) UI.rect(x1 + r, iy + h - 1, x1 + r + lw, iy + h, ColorUtil.fade(color(hud, 0.5f), 0.8f));
 			UI.alpha = saved;

@@ -12,6 +12,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 
@@ -43,9 +44,10 @@ public final class LumenClientTest implements FabricClientGameTest {
 	// counts once; the dispenser and hopper are off by default.
 	private static final int EXPECTED_STORAGE = 9;
 	private static final int EXPECTED_SPAWNERS = 2;
-	// Creeper (hostile), pig (passive) and a dropped diamond (item). The villager is
-	// in the Other group, which is off by default, and the test player is skipped.
-	private static final int EXPECTED_ENTITIES = 3;
+	// Creeper (hostile), pig (passive), a dropped diamond (item), a named pig, a chest
+	// minecart and an item frame. The villager is in the Other group, which is off by
+	// default, and the test player is skipped.
+	private static final int EXPECTED_ENTITIES = 6;
 
 	// Default click GUI layout: panels start below the search bar at y 34, the header
 	// is 20 high and module rows are 16 high.
@@ -245,6 +247,71 @@ public final class LumenClientTest implements FabricClientGameTest {
 		context.takeScreenshot("lumen_11_keybind_notification");
 
 		testFreecam(context);
+		testWorldFinders(context, sp);
+	}
+
+	private void testWorldFinders(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing New Chunks, Stash Finder and Base Finder");
+
+		context.runOnClient(mc -> Lumen.modules().newChunks.setEnabled(true));
+		context.waitTicks(2);
+
+		// Water poured on flat ground starts flowing, which is how a freshly generated chunk behaves.
+		command(server, "/setblock 8 -60 40 minecraft:water");
+		// A stash: 48 barrels in chunk (1, 1).
+		command(server, "/fill 20 -60 20 23 -59 25 minecraft:barrel");
+		// A base: blocks that never generate naturally, in chunk (-2, 1).
+		command(server, "/setblock -24 -60 20 minecraft:ender_chest");
+		command(server, "/setblock -22 -60 20 minecraft:beacon");
+		command(server, "/setblock -20 -60 20 minecraft:respawn_anchor");
+		command(server, "/setblock -24 -60 22 minecraft:crafting_table");
+		context.waitTicks(40);
+
+		context.runOnClient(mc -> {
+			Lumen.modules().stashFinder.setEnabled(true);
+			Lumen.modules().baseFinder.setEnabled(true);
+		});
+		context.waitTicks(30);
+
+		boolean newChunk = context.computeOnClient(mc -> Lumen.modules().newChunks.isNew(new ChunkPos(0, 2)));
+		boolean stash = context.computeOnClient(mc -> Lumen.modules().stashFinder.stashes().containsKey(new ChunkPos(1, 1)));
+		int stashCount = context.computeOnClient(mc -> {
+			var found = Lumen.modules().stashFinder.stashes().get(new ChunkPos(1, 1));
+			return found == null ? 0 : found.total();
+		});
+		boolean base = context.computeOnClient(mc -> Lumen.modules().baseFinder.bases().containsKey(new ChunkPos(-2, 1)));
+		int baseScore = context.computeOnClient(mc -> {
+			var found = Lumen.modules().baseFinder.bases().get(new ChunkPos(-2, 1));
+			return found == null ? 0 : found.score();
+		});
+		int falseBases = context.computeOnClient(mc -> Lumen.modules().baseFinder.bases().size()) - (base ? 1 : 0);
+		LOG.info("New Chunks marked (0, 2) new: {}. Stash in (1, 1): {} ({} containers). Base in (-2, 1): {} (score {}). Other flagged chunks: {}",
+				newChunk, stash, stashCount, base, baseScore, falseBases);
+		if (!newChunk) throw new AssertionError("New Chunks did not mark the chunk with flowing water as new");
+		if (!stash || stashCount != 48) throw new AssertionError("Stash Finder found " + stashCount + " containers in (1, 1), expected 48");
+		if (!base) throw new AssertionError("Base Finder did not flag the chunk with an ender chest, beacon and respawn anchor");
+		if (falseBases != 0) throw new AssertionError("Base Finder flagged " + falseBases + " chunks with no player-made blocks");
+
+		Path stashLog = FabricLoader.getInstance().getConfigDir().resolve("lumen").resolve("stashes.csv");
+		Path baseLog = FabricLoader.getInstance().getConfigDir().resolve("lumen").resolve("bases.csv");
+		if (!Files.exists(stashLog)) throw new AssertionError("Stash Finder did not write " + stashLog);
+		if (!Files.exists(baseLog)) throw new AssertionError("Base Finder did not write " + baseLog);
+
+		LOG.info("Screenshot: world finders from above");
+		context.runOnClient(mc -> {
+			Module newChunks = Lumen.modules().newChunks;
+			((BoolSetting) setting(newChunks, "Follow player")).set(false);
+			((NumberSetting) setting(newChunks, "Height")).set(-60.0);
+		});
+		command(server, "/setblock 0 -41 6 minecraft:barrier");
+		command(server, "/tp @a 0.5 -40 6.5 0 60");
+		context.waitTicks(10);
+		input.lookAt(0f, 60f);
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		context.takeScreenshot("lumen_13_world_finders");
 	}
 
 	private void testFreecam(ClientGameTestContext context) {
@@ -310,6 +377,9 @@ public final class LumenClientTest implements FabricClientGameTest {
 		command(server, "/summon minecraft:pig 0 -60 6 {NoAI:1b,Silent:1b}");
 		command(server, "/summon minecraft:villager 3 -60 6 {NoAI:1b,Silent:1b}");
 		command(server, "/summon minecraft:item 5.5 -60 6.5 {Item:{id:\"minecraft:diamond\",count:1}}");
+		command(server, "/summon minecraft:pig 1.5 -60 9 {NoAI:1b,Silent:1b,CustomName:\"Bob\"}");
+		command(server, "/summon minecraft:chest_minecart -1.5 -60 9");
+		command(server, "/summon minecraft:item_frame 3.5 -60 9 {Facing:1b}");
 	}
 
 	private static void command(TestServerContext server, String command) {

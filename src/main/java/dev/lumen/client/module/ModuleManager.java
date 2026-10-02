@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import dev.lumen.client.modules.BaseFinder;
 import dev.lumen.client.modules.ClickGuiModule;
 import dev.lumen.client.modules.EntityEsp;
 import dev.lumen.client.modules.Freecam;
 import dev.lumen.client.modules.HudModule;
+import dev.lumen.client.modules.NewChunks;
 import dev.lumen.client.modules.SpawnerEsp;
+import dev.lumen.client.modules.StashFinder;
 import dev.lumen.client.modules.StorageEsp;
 
 public final class ModuleManager {
@@ -18,6 +21,9 @@ public final class ModuleManager {
 	public final SpawnerEsp spawnerEsp;
 	public final EntityEsp entityEsp;
 	public final Freecam freecam;
+	public final NewChunks newChunks;
+	public final StashFinder stashFinder;
+	public final BaseFinder baseFinder;
 	public final HudModule hud;
 	public final ClickGuiModule clickGui;
 
@@ -26,6 +32,9 @@ public final class ModuleManager {
 		spawnerEsp = register(new SpawnerEsp());
 		entityEsp = register(new EntityEsp());
 		freecam = register(new Freecam());
+		newChunks = register(new NewChunks());
+		stashFinder = register(new StashFinder());
+		baseFinder = register(new BaseFinder());
 		hud = register(new HudModule());
 		clickGui = register(new ClickGuiModule());
 	}
