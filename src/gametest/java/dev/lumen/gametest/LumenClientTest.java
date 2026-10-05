@@ -311,7 +311,63 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testCombat(context, sp);
 		testCrystalPvp(context, sp);
 		testUtility(context, sp);
+		testFreecamSurvival(context, sp);
 		testFakeName(context);
+	}
+
+	/**
+	 * Freecam the way it is played: survival, walking forward and sideways while
+	 * sprinting, jumping and looking around with the mouse. The body must not move or turn.
+	 */
+	private void testFreecamSurvival(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing Freecam in survival with every movement key and the mouse");
+		command(server, "/gamemode survival @a");
+		command(server, "/tp @a 250.5 -60 -40.5 0 0");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		input.lookAt(0f, 0f);
+		context.waitTicks(2);
+
+		Vec3 bodyBefore = context.computeOnClient(mc -> mc.player.position());
+		float[] rotBefore = context.computeOnClient(mc -> new float[] {mc.player.getYRot(), mc.player.getXRot()});
+		context.runOnClient(mc -> Lumen.modules().freecam.setEnabled(true));
+		context.waitTicks(2);
+
+		input.holdKey(options -> options.keyUp);
+		input.holdKey(options -> options.keyLeft);
+		input.holdKey(options -> options.keySprint);
+		for (int i = 0; i < 6; i++) {
+			input.moveCursor(120, 40);
+			input.pressKey(options -> options.keyJump);
+			context.waitTicks(5);
+		}
+		input.releaseKey(options -> options.keyUp);
+		input.releaseKey(options -> options.keyLeft);
+		input.releaseKey(options -> options.keySprint);
+		context.waitTicks(10);
+
+		Vec3 bodyAfter = context.computeOnClient(mc -> mc.player.position());
+		float[] rotAfter = context.computeOnClient(mc -> new float[] {mc.player.getYRot(), mc.player.getXRot()});
+		float camYaw = context.computeOnClient(mc -> Lumen.modules().freecam.yaw());
+		Vec3 camera = context.computeOnClient(mc -> mc.gameRenderer.mainCamera().position());
+		context.takeScreenshot("lumen_30_freecam_survival");
+		context.runOnClient(mc -> Lumen.modules().freecam.setEnabled(false));
+		context.waitTicks(3);
+
+		double moved = Math.hypot(bodyAfter.x - bodyBefore.x, bodyAfter.z - bodyBefore.z);
+		double rose = bodyAfter.y - bodyBefore.y;
+		LOG.info("Freecam survival: body moved {} sideways and {} up; body rotation {}/{} -> {}/{}; camera yaw {}, camera {} blocks away",
+				moved, rose, rotBefore[0], rotBefore[1], rotAfter[0], rotAfter[1], camYaw, camera.distanceTo(bodyAfter));
+		if (moved > 0.05 || Math.abs(rose) > 0.05) {
+			throw new AssertionError("The body moved " + moved + " sideways and " + rose + " up while Freecam was on");
+		}
+		if (rotAfter[0] != rotBefore[0] || rotAfter[1] != rotBefore[1]) {
+			throw new AssertionError("The body turned while Freecam was on: " + rotBefore[0] + "/" + rotBefore[1] + " -> " + rotAfter[0] + "/" + rotAfter[1]);
+		}
+		if (camYaw == rotBefore[0]) throw new AssertionError("Moving the mouse did not turn the Freecam camera");
+		if (camera.distanceTo(bodyAfter) < 3) throw new AssertionError("The Freecam camera did not fly away from the body");
 	}
 
 	private void testFakeName(ClientGameTestContext context) {
