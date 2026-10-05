@@ -9,9 +9,11 @@
 		"FirstPersonHandsAndItemsRendererMixin",
 		"KeyboardHandlerMixin",
 		"LevelRendererMixin",
+		"LocalPlayerAccessor",
 		"LocalPlayerMixin",
 		"MinecraftAccessor",
-		"MouseHandlerMixin"
+		"MouseHandlerMixin",
+		"PlayerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

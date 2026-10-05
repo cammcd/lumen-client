@@ -85,7 +85,59 @@ public final class LumenClientTest implements FabricClientGameTest {
 			testInWorld(context, sp);
 		}
 
+		testAutoReconnect(context);
 		LOG.info("Lumen client test complete");
+	}
+
+	/**
+	 * Opens a disconnect screen for a server on a closed local port: the countdown button
+	 * must appear, and when it runs out a real connection attempt must be made, which
+	 * fails straight back to a disconnect screen.
+	 */
+	private void testAutoReconnect(ClientGameTestContext context) {
+		LOG.info("Testing Auto Reconnect");
+		context.runOnClient(mc -> {
+			var module = Lumen.modules().autoReconnect;
+			((NumberSetting) setting(module, "Delay")).set(1.0);
+			module.setEnabled(true);
+			module.remember(new net.minecraft.client.multiplayer.ServerData("Lumen test", "127.0.0.1:1",
+					net.minecraft.client.multiplayer.ServerData.Type.OTHER));
+			mc.gui.setScreen(new net.minecraft.client.gui.screens.DisconnectedScreen(new TitleScreen(),
+					net.minecraft.network.chat.Component.literal("Disconnected"),
+					net.minecraft.network.chat.Component.literal("Kicked for testing")));
+		});
+		context.waitTicks(5);
+		String label = context.computeOnClient(mc -> {
+			for (var widget : net.fabricmc.fabric.api.client.screen.v1.Screens.getWidgets(mc.gui.screen())) {
+				String text = widget.getMessage().getString();
+				if (text.startsWith("Reconnect")) return text;
+			}
+			return null;
+		});
+		LOG.info("Auto Reconnect button: {}", label);
+		context.takeScreenshot("lumen_24_auto_reconnect");
+		if (label == null) throw new AssertionError("Auto Reconnect did not add its button to the disconnect screen");
+
+		int attempts = 0;
+		for (int i = 0; i < 80 && attempts < 1; i++) {
+			context.waitTicks(5);
+			attempts = context.computeOnClient(mc -> Lumen.modules().autoReconnect.attempts());
+		}
+		LOG.info("Auto Reconnect: {} connection attempts", attempts);
+		if (attempts < 1) throw new AssertionError("Auto Reconnect never tried to reconnect after its countdown");
+		// The closed port refuses the connection, which lands back on a disconnect screen.
+		boolean failedBack = false;
+		for (int i = 0; i < 40 && !failedBack; i++) {
+			context.waitTicks(5);
+			failedBack = context.computeOnClient(mc -> mc.gui.screen() instanceof net.minecraft.client.gui.screens.DisconnectedScreen);
+		}
+		LOG.info("Auto Reconnect: the attempt failed back to the disconnect screen {}", failedBack);
+
+		context.runOnClient(mc -> {
+			Lumen.modules().autoReconnect.setEnabled(false);
+			mc.gui.setScreen(new TitleScreen());
+		});
+		context.waitForScreen(TitleScreen.class);
 	}
 
 	private void testInWorld(ClientGameTestContext context, TestSingleplayerContext sp) {
@@ -258,6 +310,210 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testXRayAndSigns(context, sp);
 		testCombat(context, sp);
 		testCrystalPvp(context, sp);
+		testUtility(context, sp);
+	}
+
+	private void testUtility(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing utility and movement modules");
+
+		command(server, "/clear @a");
+		command(server, "/kill @e[type=minecraft:zombie]");
+		command(server, "/effect give @a minecraft:resistance infinite 4 true");
+		// Saturation keeps food full, which sprinting needs.
+		command(server, "/effect give @a minecraft:saturation infinite 0 true");
+
+		// ---- Auto Tool: the pickaxe while mining stone, then back to the stick ----
+		command(server, "/tp @a 200.5 -60 -40.5 0 0");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		command(server, "/setblock 200 -59 -38 minecraft:stone");
+		command(server, "/item replace entity @a hotbar.0 with minecraft:stick");
+		command(server, "/item replace entity @a hotbar.3 with minecraft:diamond_pickaxe");
+		command(server, "/item replace entity @a hotbar.5 with minecraft:diamond_shovel");
+		context.waitTicks(3);
+		context.runOnClient(mc -> {
+			mc.player.getInventory().setSelectedSlot(0);
+			Lumen.modules().autoTool.setEnabled(true);
+		});
+		lookAt(context, input, new Vec3(200.5, -58.5, -37.5));
+		context.waitTicks(3);
+		input.holdKey(options -> options.keyAttack);
+		context.waitTicks(3);
+		int miningSlot = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
+		input.releaseKey(options -> options.keyAttack);
+		context.waitTicks(5);
+		int afterSlot = context.computeOnClient(mc -> mc.player.getInventory().getSelectedSlot());
+		LOG.info("Auto Tool: slot {} while mining stone, {} after", miningSlot, afterSlot);
+		if (miningSlot != 3) throw new AssertionError("Auto Tool held slot " + miningSlot + " while mining stone, expected the pickaxe in 3");
+		if (afterSlot != 0) throw new AssertionError("Auto Tool did not switch back to slot 0, it is on " + afterSlot);
+		context.runOnClient(mc -> Lumen.modules().autoTool.setEnabled(false));
+
+		// ---- Chest Stealer: empties a real chest and closes it ----
+		command(server, "/setblock 202 -60 -38 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:diamond\",count:5},"
+				+ "{Slot:13b,id:\"minecraft:emerald\",count:3},{Slot:26b,id:\"minecraft:gold_ingot\",count:7}]}");
+		context.waitTicks(5);
+		context.runOnClient(mc -> Lumen.modules().chestStealer.setEnabled(true));
+		lookAt(context, input, new Vec3(202.5, -59.5, -37.5));
+		context.waitTicks(3);
+		input.pressKey(options -> options.keyUse);
+		context.waitTicks(4);
+		context.takeScreenshot("lumen_25_chest_stealer");
+		context.waitTicks(40);
+		String loot = context.computeOnClient(mc -> count(mc.player, net.minecraft.world.item.Items.DIAMOND) + " diamonds, "
+				+ count(mc.player, net.minecraft.world.item.Items.EMERALD) + " emeralds, "
+				+ count(mc.player, net.minecraft.world.item.Items.GOLD_INGOT) + " gold");
+		boolean closed = context.computeOnClient(mc -> mc.gui.screen() == null);
+		LOG.info("Chest Stealer: took {}, menu closed {}", loot, closed);
+		if (!loot.equals("5 diamonds, 3 emeralds, 7 gold")) throw new AssertionError("Chest Stealer took " + loot);
+		if (!closed) throw new AssertionError("Chest Stealer did not close the emptied chest");
+		context.runOnClient(mc -> Lumen.modules().chestStealer.setEnabled(false));
+
+		// ---- Anti AFK ----
+		float yawBefore = context.computeOnClient(mc -> mc.player.getYRot());
+		context.runOnClient(mc -> {
+			Module afk = Lumen.modules().antiAfk;
+			((NumberSetting) setting(afk, "Interval")).set(5.0);
+			((NumberSetting) setting(afk, "Jitter")).set(0.0);
+			afk.setEnabled(true);
+		});
+		context.waitTicks(110);
+		int afkActions = context.computeOnClient(mc -> Lumen.modules().antiAfk.actions());
+		float yawAfter = context.computeOnClient(mc -> mc.player.getYRot());
+		LOG.info("Anti AFK: {} rounds in 5.5 seconds at a 5 second interval, yaw {} -> {}", afkActions, yawBefore, yawAfter);
+		if (afkActions < 1) throw new AssertionError("Anti AFK did nothing in 5.5 seconds at a 5 second interval");
+		if (yawAfter == yawBefore) throw new AssertionError("Anti AFK's turn did not change the yaw");
+		context.runOnClient(mc -> Lumen.modules().antiAfk.setEnabled(false));
+
+		// ---- Auto Walk and Auto Sprint ----
+		command(server, "/tp @a 200.5 -60 -30.5 0 0");
+		context.waitTicks(5);
+		input.lookAt(0f, 0f);
+		Vec3 walkStart = context.computeOnClient(mc -> mc.player.position());
+		context.runOnClient(mc -> {
+			Lumen.modules().autoWalk.setEnabled(true);
+			Lumen.modules().autoSprint.setEnabled(true);
+		});
+		context.waitTicks(30);
+		boolean sprinting = context.computeOnClient(mc -> mc.player.isSprinting());
+		double walked = context.computeOnClient(mc -> mc.player.position().distanceTo(walkStart));
+		context.runOnClient(mc -> {
+			Lumen.modules().autoWalk.setEnabled(false);
+			Lumen.modules().autoSprint.setEnabled(false);
+		});
+		LOG.info("Auto Walk and Auto Sprint: moved {} blocks in 1.5 seconds, sprinting {}", walked, sprinting);
+		if (walked < 4) throw new AssertionError("Auto Walk only moved " + walked + " blocks in 1.5 seconds");
+		if (!sprinting) throw new AssertionError("Auto Sprint did not make the player sprint");
+
+		// ---- Safe Walk: stays on a floating block; without it, falls off ----
+		// Standing at z -40.5 means standing over block z -41.
+		command(server, "/setblock 210 -50 -41 minecraft:stone");
+		command(server, "/tp @a 210.5 -49 -40.5 0 0");
+		context.waitTicks(10);
+		context.runOnClient(mc -> {
+			Lumen.modules().safeWalk.setEnabled(true);
+			Lumen.modules().autoWalk.setEnabled(true);
+		});
+		context.waitTicks(30);
+		double safeY = context.computeOnClient(mc -> mc.player.getY());
+		context.runOnClient(mc -> Lumen.modules().safeWalk.setEnabled(false));
+		context.waitTicks(30);
+		double unsafeY = context.computeOnClient(mc -> mc.player.getY());
+		context.runOnClient(mc -> Lumen.modules().autoWalk.setEnabled(false));
+		LOG.info("Safe Walk: y {} with it walking at the edge, y {} after turning it off", safeY, unsafeY);
+		if (safeY < -49.1) throw new AssertionError("With Safe Walk on, the player still walked off the block (y " + safeY + ")");
+		if (unsafeY > -50) throw new AssertionError("The control failed: with Safe Walk off the player stayed up (y " + unsafeY + ")");
+
+		// ---- Scaffold: bridges out from a floating block ----
+		command(server, "/setblock 220 -50 -41 minecraft:stone");
+		command(server, "/tp @a 220.5 -49 -40.5 0 0");
+		command(server, "/item replace entity @a hotbar.0 with minecraft:cobblestone 64");
+		context.waitTicks(10);
+		context.runOnClient(mc -> {
+			mc.player.getInventory().setSelectedSlot(0);
+			Lumen.modules().scaffold.setEnabled(true);
+			Lumen.modules().autoWalk.setEnabled(true);
+		});
+		context.waitTicks(40);
+		context.takeScreenshot("lumen_26_scaffold");
+		int bridge = context.computeOnClient(mc -> {
+			int n = 0;
+			for (int z = -40; z <= -20; z++) {
+				if (mc.level.getBlockState(new BlockPos(220, -50, z)).is(net.minecraft.world.level.block.Blocks.COBBLESTONE)) n++;
+			}
+			return n;
+		});
+		double bridgeY = context.computeOnClient(mc -> mc.player.getY());
+		context.runOnClient(mc -> {
+			Lumen.modules().scaffold.setEnabled(false);
+			Lumen.modules().autoWalk.setEnabled(false);
+		});
+		LOG.info("Scaffold: {} blocks of bridge, player at y {}", bridge, bridgeY);
+		if (bridge < 5) throw new AssertionError("Scaffold only placed " + bridge + " blocks of bridge in 2 seconds");
+		if (bridgeY < -49.5) throw new AssertionError("The player fell off the Scaffold bridge (y " + bridgeY + ")");
+
+		// ---- Elytra+: holds pitch and fires a rocket in real flight ----
+		command(server, "/item replace entity @a armor.chest with minecraft:elytra");
+		command(server, "/item replace entity @a hotbar.1 with minecraft:firework_rocket 16");
+		command(server, "/tp @a 230.5 0 -40.5 0 0");
+		context.waitTicks(8);
+		input.holdKeyFor(options -> options.keyJump, 2);
+		context.waitTicks(3);
+		boolean gliding = context.computeOnClient(mc -> mc.player.isFallFlying());
+		LOG.info("Elytra+: gliding after the jump {}", gliding);
+		if (!gliding) throw new AssertionError("The test could not start elytra flight");
+		context.runOnClient(mc -> {
+			// A high minimum speed makes it fire straight away, so one rocket is certain.
+			((NumberSetting) setting(Lumen.modules().elytraPlus, "Min speed")).set(40.0);
+			Lumen.modules().elytraPlus.setEnabled(true);
+		});
+		context.waitTicks(30);
+		context.takeScreenshot("lumen_27_elytra");
+		boolean stillGliding = context.computeOnClient(mc -> mc.player.isFallFlying());
+		float flightPitch = context.computeOnClient(mc -> mc.player.getXRot());
+		int rockets = context.computeOnClient(mc -> Lumen.modules().elytraPlus.rockets());
+		context.runOnClient(mc -> Lumen.modules().elytraPlus.setEnabled(false));
+		command(server, "/item replace entity @a armor.chest with minecraft:air");
+		command(server, "/tp @a 230.5 -60 -40.5 0 0");
+		LOG.info("Elytra+: gliding {}, pitch {} (target 4), rockets {}", stillGliding, flightPitch, rockets);
+		if (!stillGliding) throw new AssertionError("Elytra flight stopped with Elytra+ on");
+		if (Math.abs(flightPitch - 4f) > 1.5f) throw new AssertionError("Elytra+ held pitch " + flightPitch + ", expected 4");
+		if (rockets < 1) throw new AssertionError("Elytra+ did not fire a rocket below its minimum speed");
+
+		// ---- Trail Follower: picks the heading of a trail of old chunks ----
+		java.util.Set<ChunkPos> trail = new java.util.HashSet<>();
+		double trailYaw = Math.toRadians(-40);
+		for (int d = 0; d <= 200; d += 4) {
+			trail.add(new ChunkPos(net.minecraft.util.Mth.floor(8 - Math.sin(trailYaw) * d) >> 4,
+					net.minecraft.util.Mth.floor(8 + Math.cos(trailYaw) * d) >> 4));
+		}
+		float heading = dev.lumen.client.modules.TrailFollower.bestHeading(8, 8, 0f, trail::contains, c -> false, 6, 60);
+		float noTrail = dev.lumen.client.modules.TrailFollower.bestHeading(8, 8, 0f, c -> false, c -> false, 6, 60);
+		LOG.info("Trail Follower: heading {} for a trail at -40, {} with no trail", heading, noTrail);
+		if (Float.isNaN(heading) || Math.abs(net.minecraft.util.Mth.wrapDegrees(heading + 40f)) > 5f) {
+			throw new AssertionError("Trail Follower chose heading " + heading + " for a trail at -40");
+		}
+		if (!Float.isNaN(noTrail)) throw new AssertionError("Trail Follower chose heading " + noTrail + " with no trail at all");
+	}
+
+	/** Turns the camera to look at a point from the player's eyes. */
+	private static void lookAt(ClientGameTestContext context, TestInput input, Vec3 point) {
+		float[] rot = context.computeOnClient(mc -> {
+			Vec3 eye = mc.player.getEyePosition();
+			double dx = point.x - eye.x, dy = point.y - eye.y, dz = point.z - eye.z;
+			return new float[] {(float) Math.toDegrees(Math.atan2(dz, dx)) - 90f,
+					(float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)))};
+		});
+		input.lookAt(rot[0], rot[1]);
+	}
+
+	private static int count(net.minecraft.world.entity.player.Player player, net.minecraft.world.item.Item item) {
+		int n = 0;
+		for (int i = 0; i < 36; i++) {
+			if (player.getInventory().getItem(i).is(item)) n += player.getInventory().getItem(i).getCount();
+		}
+		return n;
 	}
 
 	private void testCrystalPvp(ClientGameTestContext context, TestSingleplayerContext sp) {

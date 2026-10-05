@@ -116,6 +116,9 @@ public final class ClickGuiScreen extends Screen {
 		JsonObject saved = state.has("panels") && state.get("panels").isJsonObject() ? state.getAsJsonObject("panels") : new JsonObject();
 
 		int x = 16;
+		Panel client = null;
+		Panel player = null;
+		boolean playerSaved = false;
 		for (Category category : Category.values()) {
 			Panel panel = new Panel(category, x, TOP_BAR_Y + TOP_BAR_H + 8);
 			JsonElement e = saved.get(category.name());
@@ -124,9 +127,18 @@ public final class ClickGuiScreen extends Screen {
 				if (o.has("x")) panel.x = o.get("x").getAsInt();
 				if (o.has("y")) panel.y = o.get("y").getAsInt();
 				if (o.has("collapsed")) panel.collapsed = o.get("collapsed").getAsBoolean();
+				if (category == Category.PLAYER) playerSaved = true;
 			}
+			if (category == Category.CLIENT) client = panel;
+			if (category == Category.PLAYER) player = panel;
 			panels.add(panel);
-			x += PANEL_W + 12;
+			// Player sits under the short Client panel rather than in a fifth column off screen.
+			if (category != Category.PLAYER) x += PANEL_W + 12;
+		}
+		if (player != null && client != null && !playerSaved) {
+			int clientRows = Lumen.modules().byCategory(Category.CLIENT).size();
+			player.x = client.x;
+			player.y = client.y + HEADER_H + 2 + clientRows * ROW_H + 5 + 10;
 		}
 
 		if (EXPANDED.isEmpty() && state.has("expanded") && state.get("expanded").isJsonArray()) {

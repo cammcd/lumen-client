@@ -22,6 +22,23 @@ A clean, customizable Fabric client for **Minecraft 26.3**.
 | **Radar** | A north-up minimap of nearby chunks: new and old chunks from New Chunks, stashes, bases, players and waypoints. |
 | **HUD** | Watermark with FPS, an animated list of active modules, coordinates with Nether/Overworld conversion, and toggle notifications. |
 | **Click GUI** | Theme settings for the menu itself. |
+| **Auto Reconnect** | Adds a reconnect button to the disconnect screen and, by default, counts down and rejoins the last server. |
+
+### Player
+
+The Player panel sits under the Client panel.
+
+| Module | What it does |
+|---|---|
+| **Auto Tool** | Switches to the fastest tool in your hotbar while you mine, skips tools about to break, and switches back when you stop. |
+| **Chest Stealer** | Takes everything from chests, barrels and shulker boxes when you open them, then closes the menu. |
+| **Anti AFK** | Jumps, swings and looks around on a timer, with random jitter, so idle-kick plugins see you as active. |
+| **Scaffold** | Places full solid blocks from your hotbar under your feet as you walk, so you can bridge gaps. It bridges at the height you last stood at, so jumping does not build a tower. |
+| **Auto Walk** | Holds forward for you, and swims up in water. Pauses while a menu is open. |
+| **Auto Sprint** | Sprints whenever the game itself would let you start: moving forward, enough food, not sneaking, eating or blind. |
+| **Safe Walk** | Stops you walking off edges, the way sneaking does, at full speed. |
+| **Elytra+** | Cruise control for elytra flight: holds a pitch or an altitude, and fires a rocket from your hotbar or offhand when speed drops. |
+| **Trail Follower** | Steers along trails of old chunks from New Chunks, which are where other players have travelled. Pair it with Auto Walk or Elytra+. |
 
 ### Combat
 

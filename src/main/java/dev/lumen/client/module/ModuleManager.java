@@ -6,16 +6,23 @@ import java.util.List;
 
 import dev.lumen.client.modules.AimAssist;
 import dev.lumen.client.modules.AnchorAura;
+import dev.lumen.client.modules.AntiAfk;
 import dev.lumen.client.modules.AutoArmor;
 import dev.lumen.client.modules.AutoClicker;
 import dev.lumen.client.modules.AutoGapple;
+import dev.lumen.client.modules.AutoReconnect;
+import dev.lumen.client.modules.AutoSprint;
+import dev.lumen.client.modules.AutoTool;
 import dev.lumen.client.modules.AutoTotem;
 import dev.lumen.client.modules.AutoTrap;
+import dev.lumen.client.modules.AutoWalk;
 import dev.lumen.client.modules.BaseFinder;
 import dev.lumen.client.modules.BowAimbot;
+import dev.lumen.client.modules.ChestStealer;
 import dev.lumen.client.modules.ClickGuiModule;
 import dev.lumen.client.modules.Criticals;
 import dev.lumen.client.modules.CrystalAura;
+import dev.lumen.client.modules.ElytraPlus;
 import dev.lumen.client.modules.EntityEsp;
 import dev.lumen.client.modules.Freecam;
 import dev.lumen.client.modules.HudModule;
@@ -24,12 +31,15 @@ import dev.lumen.client.modules.LogoutSpots;
 import dev.lumen.client.modules.Nametags;
 import dev.lumen.client.modules.NewChunks;
 import dev.lumen.client.modules.Radar;
+import dev.lumen.client.modules.SafeWalk;
+import dev.lumen.client.modules.Scaffold;
 import dev.lumen.client.modules.SignReader;
 import dev.lumen.client.modules.SoundLocator;
 import dev.lumen.client.modules.SpawnerEsp;
 import dev.lumen.client.modules.StashFinder;
 import dev.lumen.client.modules.StorageEsp;
 import dev.lumen.client.modules.Surround;
+import dev.lumen.client.modules.TrailFollower;
 import dev.lumen.client.modules.TriggerBot;
 import dev.lumen.client.modules.Velocity;
 import dev.lumen.client.modules.Waypoints;
@@ -68,6 +78,16 @@ public final class ModuleManager {
 	public final AnchorAura anchorAura;
 	public final AutoTrap autoTrap;
 	public final Surround surround;
+	public final AutoReconnect autoReconnect;
+	public final AutoTool autoTool;
+	public final ChestStealer chestStealer;
+	public final AntiAfk antiAfk;
+	public final Scaffold scaffold;
+	public final AutoWalk autoWalk;
+	public final AutoSprint autoSprint;
+	public final SafeWalk safeWalk;
+	public final ElytraPlus elytraPlus;
+	public final TrailFollower trailFollower;
 
 	public ModuleManager() {
 		storageEsp = register(new StorageEsp());
@@ -86,6 +106,7 @@ public final class ModuleManager {
 		radar = register(new Radar());
 		hud = register(new HudModule());
 		clickGui = register(new ClickGuiModule());
+		autoReconnect = register(new AutoReconnect());
 		// Criticals ticks before the attackers so it can release a hop before they ask for another.
 		criticals = register(new Criticals());
 		killAura = register(new KillAura());
@@ -101,6 +122,15 @@ public final class ModuleManager {
 		anchorAura = register(new AnchorAura());
 		autoTrap = register(new AutoTrap());
 		surround = register(new Surround());
+		autoTool = register(new AutoTool());
+		chestStealer = register(new ChestStealer());
+		antiAfk = register(new AntiAfk());
+		scaffold = register(new Scaffold());
+		autoWalk = register(new AutoWalk());
+		autoSprint = register(new AutoSprint());
+		safeWalk = register(new SafeWalk());
+		elytraPlus = register(new ElytraPlus());
+		trailFollower = register(new TrailFollower());
 	}
 
 	private <M extends Module> M register(M module) {

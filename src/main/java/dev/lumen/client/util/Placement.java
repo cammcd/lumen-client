@@ -51,6 +51,11 @@ public final class Placement {
 		BlockState state = MC.level.getBlockState(pos);
 		if (state.canBeReplaced() || state.hasBlockEntity()) return false;
 		if (!state.isCollisionShapeFullBlock(MC.level, pos)) return false;
+		return isSupportBlock(state);
+	}
+
+	/** False for blocks that open or toggle when clicked. */
+	public static boolean isSupportBlock(BlockState state) {
 		String path = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();
 		for (String word : INTERACTIVE) {
 			if (path.contains(word)) return false;

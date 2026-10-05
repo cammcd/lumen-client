@@ -66,3 +66,6 @@ net.minecraft.world.effect.MobEffectInstance
 net.minecraft.world.level.block.RespawnAnchorBlock
 net.minecraft.world.level.Level
 net.minecraft.world.Difficulty
+net.minecraft.client.multiplayer.ServerData$Type
+net.minecraft.client.gui.components.Button$Builder
+net.minecraft.world.level.block.FallingBlock
