@@ -26,6 +26,7 @@ import dev.lumen.client.modules.ElytraPlus;
 import dev.lumen.client.modules.EntityEsp;
 import dev.lumen.client.modules.FakeName;
 import dev.lumen.client.modules.Freecam;
+import dev.lumen.client.modules.Fullbright;
 import dev.lumen.client.modules.HudModule;
 import dev.lumen.client.modules.KillAura;
 import dev.lumen.client.modules.LogoutSpots;
@@ -54,6 +55,7 @@ public final class ModuleManager {
 	public final EntityEsp entityEsp;
 	public final Nametags nametags;
 	public final XRay xRay;
+	public final Fullbright fullbright;
 	public final Freecam freecam;
 	public final NewChunks newChunks;
 	public final StashFinder stashFinder;
@@ -97,6 +99,7 @@ public final class ModuleManager {
 		entityEsp = register(new EntityEsp());
 		nametags = register(new Nametags());
 		xRay = register(new XRay());
+		fullbright = register(new Fullbright());
 		freecam = register(new Freecam());
 		newChunks = register(new NewChunks());
 		stashFinder = register(new StashFinder());

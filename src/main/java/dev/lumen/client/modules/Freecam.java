@@ -80,6 +80,10 @@ public final class Freecam extends Module implements WorldRenderable {
 		yaw = camera != null ? camera.yRot() : player.getYRot();
 		pitch = camera != null ? camera.xRot() : player.getXRot();
 		lastHealth = player.getHealth();
+		// Stop the body where it is rather than letting a run carry it on.
+		player.setSprinting(false);
+		Vec3 motion = player.getDeltaMovement();
+		player.setDeltaMovement(0, motion.y, 0);
 	}
 
 	@Override

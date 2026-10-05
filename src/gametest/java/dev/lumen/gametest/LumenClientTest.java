@@ -312,7 +312,62 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testCrystalPvp(context, sp);
 		testUtility(context, sp);
 		testFreecamSurvival(context, sp);
+		testFullbright(context, sp);
 		testFakeName(context);
+	}
+
+	/**
+	 * A sealed stone room at midnight, photographed with Fullbright off and then on. The
+	 * centre of the second picture must be much brighter, measured from the pixels.
+	 */
+	private void testFullbright(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing Fullbright");
+		command(server, "/time set midnight");
+		command(server, "/fill 268 -61 -44 274 -55 -36 minecraft:stone hollow");
+		command(server, "/tp @a 271.5 -60 -40.5 0 0");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(20);
+		input.lookAt(0f, 10f);
+		context.waitTicks(5);
+
+		double dark = brightness(context.takeScreenshot("lumen_31_dark_room"));
+		context.runOnClient(mc -> Lumen.modules().fullbright.setEnabled(true));
+		context.waitTicks(10);
+		boolean nightVision = context.computeOnClient(mc -> mc.player.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION));
+		double lit = brightness(context.takeScreenshot("lumen_32_fullbright"));
+		context.runOnClient(mc -> Lumen.modules().fullbright.setEnabled(false));
+		context.waitTicks(3);
+		boolean removed = context.computeOnClient(mc -> !mc.player.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION));
+		command(server, "/time set noon");
+
+		LOG.info("Fullbright: centre brightness {} in the dark room, {} with Fullbright; night vision {}, removed after {}",
+				dark, lit, nightVision, removed);
+		if (!nightVision) throw new AssertionError("Fullbright did not give the client night vision");
+		if (lit < dark + 40) throw new AssertionError("Fullbright only raised the brightness from " + dark + " to " + lit);
+		if (!removed) throw new AssertionError("Turning Fullbright off did not take its night vision away");
+	}
+
+	/** Average brightness, 0 to 255, of the middle third of a screenshot, away from the HUD. */
+	private static double brightness(Path screenshot) {
+		try {
+			java.awt.image.BufferedImage image = javax.imageio.ImageIO.read(screenshot.toFile());
+			int w = image.getWidth();
+			int h = image.getHeight();
+			long sum = 0;
+			int n = 0;
+			for (int y = h / 3; y < 2 * h / 3; y += 2) {
+				for (int x = w / 3; x < 2 * w / 3; x += 2) {
+					int rgb = image.getRGB(x, y);
+					sum += ((rgb >> 16) & 0xFF) * 299 + ((rgb >> 8) & 0xFF) * 587 + (rgb & 0xFF) * 114;
+					n++;
+				}
+			}
+			return sum / 1000.0 / n;
+		} catch (java.io.IOException e) {
+			throw new AssertionError("Could not read the screenshot " + screenshot, e);
+		}
 	}
 
 	/**

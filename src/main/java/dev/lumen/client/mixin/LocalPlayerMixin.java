@@ -37,6 +37,20 @@ public abstract class LocalPlayerMixin {
 		if (freecam != null) freecam.restoreInput((LocalPlayer) (Object) this);
 	}
 
+	/**
+	 * Movement keys become movement here. Whatever input object is in place, the body
+	 * gets none of it while Freecam flies, so no route can walk it.
+	 */
+	@Inject(method = "applyInput()V", at = @At("HEAD"), cancellable = true)
+	private void lumen$freezeInput(CallbackInfo ci) {
+		if (Freecam.active() == null) return;
+		LocalPlayer self = (LocalPlayer) (Object) this;
+		self.xxa = 0f;
+		self.zza = 0f;
+		self.setJumping(false);
+		ci.cancel();
+	}
+
 	/** Holding sneak lowers the camera; the body should not crouch. */
 	@Inject(method = "isShiftKeyDown()Z", at = @At("HEAD"), cancellable = true)
 	private void lumen$noSneak(CallbackInfoReturnable<Boolean> cir) {
