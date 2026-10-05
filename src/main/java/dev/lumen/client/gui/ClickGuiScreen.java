@@ -29,6 +29,7 @@ import dev.lumen.client.setting.BoolSetting;
 import dev.lumen.client.setting.ColorSetting;
 import dev.lumen.client.setting.EnumSetting;
 import dev.lumen.client.setting.NumberSetting;
+import dev.lumen.client.setting.TextSetting;
 import dev.lumen.client.setting.Setting;
 import dev.lumen.client.util.ColorUtil;
 import dev.lumen.client.util.KeyNames;
@@ -90,6 +91,8 @@ public final class ClickGuiScreen extends Screen {
 	private DragHandler activeDrag;
 	private boolean mouseDown;
 	private Module listening;
+	private TextSetting editingText;
+	private String textBuffer = "";
 
 	private EditBox search;
 	private String query = "";
@@ -519,6 +522,7 @@ public final class ClickGuiScreen extends Screen {
 				case NumberSetting n -> drawNumber(n, x1, cy, x2);
 				case EnumSetting<?> e -> drawEnum(e, x1, cy, x2);
 				case ColorSetting c -> drawColor(c, x1, cy, x2);
+				case TextSetting text -> drawText(text, x1, cy, x2);
 				default -> 0;
 			};
 		}
@@ -597,6 +601,40 @@ public final class ClickGuiScreen extends Screen {
 				activeDrag.drag(mx, my);
 			} else if (button == RIGHT) {
 				n.reset();
+			}
+		});
+		return h;
+	}
+
+	private int drawText(TextSetting s, int x1, int y, int x2) {
+		ClickGuiModule t = theme();
+		int h = 26;
+		boolean editing = editingText == s;
+		boolean hover = ui.hovered(x1 - 3, y, x2, y + h);
+		ui.text(s.name(), x1, y + 2, hover || editing ? t.textColor.color() : DIM_TEXT);
+
+		int by = y + 12;
+		ui.roundRect(x1, by, x2, by + 12, 3, editing ? 0xFF262A38 : 0xFF1E212C);
+		if (editing) ui.outlineRect(x1, by, x2, by + 12, ColorUtil.fade(t.accentAt(0.5f), 0.8f));
+		String shown = editing ? textBuffer : s.get();
+		boolean placeholder = shown.isEmpty() && !editing;
+		if (placeholder) shown = "Click to type";
+		// Show the end of long text, where you are typing.
+		while (ui.width(shown) > x2 - x1 - 10 && shown.length() > 1) shown = shown.substring(1);
+		ui.text(shown, x1 + 4, by + 2, placeholder ? 0x60FFFFFF : 0xFFFFFFFF);
+		if (editing && (System.currentTimeMillis() / 500) % 2 == 0) {
+			int cx = x1 + 4 + ui.width(shown) + 1;
+			ui.rect(cx, by + 2, cx + 1, by + 10, 0xFFFFFFFF);
+		}
+
+		if (hover) ui.tooltip = s.description() + "  (Enter saves, Esc cancels, right click resets)";
+		ui.hit(x1 - 3, y, x2, y + h, (button, mx, my) -> {
+			if (button == LEFT) {
+				editingText = s;
+				textBuffer = s.get();
+			} else if (button == RIGHT) {
+				s.reset();
+				if (editingText == s) textBuffer = s.get();
 			}
 		});
 		return h;
@@ -798,6 +836,8 @@ public final class ClickGuiScreen extends Screen {
 		String text;
 		if (listening != null) {
 			text = "Press a key to bind " + listening.name() + ". Esc cancels, Backspace clears.";
+		} else if (editingText != null) {
+			text = "Typing " + editingText.name() + ". Enter saves, Esc cancels.";
 		} else if (ui.tooltip != null && t.descriptions.isOn()) {
 			text = ui.tooltip;
 		} else {
@@ -825,6 +865,11 @@ public final class ClickGuiScreen extends Screen {
 		mouseDown = true;
 		if (listening != null && event.button() != MIDDLE) {
 			listening = null;
+		}
+		// Clicking away from a text field keeps what was typed.
+		if (editingText != null) {
+			editingText.set(textBuffer);
+			editingText = null;
 		}
 		ui.click(event.x(), event.y(), event.button());
 		return true;
@@ -858,6 +903,18 @@ public final class ClickGuiScreen extends Screen {
 
 	@Override
 	public boolean keyPressed(KeyEvent event) {
+		if (editingText != null) {
+			int key = event.key();
+			if (key == InputConstants.KEY_ESCAPE) {
+				editingText = null;
+			} else if (key == InputConstants.KEY_RETURN || key == InputConstants.KEY_NUMPADENTER) {
+				editingText.set(textBuffer);
+				editingText = null;
+			} else if (key == InputConstants.KEY_BACKSPACE && !textBuffer.isEmpty()) {
+				textBuffer = textBuffer.substring(0, textBuffer.length() - 1);
+			}
+			return true;
+		}
 		if (listening != null) {
 			int key = event.key();
 			swallowCharsUntil = System.nanoTime() + 150_000_000L;
@@ -884,7 +941,17 @@ public final class ClickGuiScreen extends Screen {
 	@Override
 	public boolean charTyped(CharacterEvent event) {
 		if (System.nanoTime() < swallowCharsUntil) return true;
+		if (editingText != null) {
+			String typed = Character.toString(event.codepoint());
+			if (textBuffer.length() + typed.length() <= editingText.maxLength()) textBuffer += typed;
+			return true;
+		}
 		return super.charTyped(event);
+	}
+
+	/** True while a text setting is being typed into; used by the game test. */
+	public boolean isEditingText() {
+		return editingText != null;
 	}
 
 	// ---- helpers ----

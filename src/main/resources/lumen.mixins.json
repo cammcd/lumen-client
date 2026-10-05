@@ -13,7 +13,8 @@
 		"LocalPlayerMixin",
 		"MinecraftAccessor",
 		"MouseHandlerMixin",
-		"PlayerMixin"
+		"PlayerMixin",
+		"StringDecomposerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

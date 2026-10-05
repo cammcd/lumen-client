@@ -41,8 +41,42 @@ public final class BaseFinder extends WorldScanModule {
 	private static final int LIGHT = 2;
 	private static final int WEAK = 1;
 
-	/** A flagged chunk. Reasons map block names to how many were found. */
-	public record Base(ChunkPos pos, int score, Map<String, Integer> reasons, List<BlockPos> hits, int minY, int maxY) {
+	/**
+	 * A flagged chunk. Reasons map block names to how many were found. minY and maxY are
+	 * the full height range of the blocks found; weightAtY holds their points per height,
+	 * counted up from floorY, so the box can show where they are concentrated.
+	 */
+	public record Base(ChunkPos pos, int score, Map<String, Integer> reasons, List<BlockPos> hits, int minY, int maxY,
+			int floorY, int[] weightAtY) {
+		/**
+		 * The lowest and highest flagged block inside the band of at most {@code maxHeight}
+		 * blocks holding the most points, so a stray block far above or below the base
+		 * does not stretch the box.
+		 */
+		public int[] core(int maxHeight) {
+			int window = Math.max(1, maxHeight);
+			long sum = 0;
+			long best = -1;
+			int bestStart = 0;
+			for (int i = 0; i < weightAtY.length; i++) {
+				sum += weightAtY[i];
+				if (i >= window) sum -= weightAtY[i - window];
+				if (sum > best) {
+					best = sum;
+					bestStart = Math.max(0, i - window + 1);
+				}
+			}
+			int end = Math.min(weightAtY.length - 1, bestStart + window - 1);
+			int lo = -1;
+			int hi = -1;
+			for (int i = bestStart; i <= end; i++) {
+				if (weightAtY[i] == 0) continue;
+				if (lo < 0) lo = i;
+				hi = i;
+			}
+			if (lo < 0) return new int[] {minY, maxY};
+			return new int[] {floorY + lo, floorY + hi};
+		}
 	}
 
 	private record Weight(int points, int perTypeCap, boolean weak) {
@@ -55,6 +89,9 @@ public final class BaseFinder extends WorldScanModule {
 	private final BoolSetting log = add(new BoolSetting("Log to file", "Append finds to config/lumen/bases.csv.", true));
 	private final BoolSetting highlight = add(new BoolSetting("Highlight", "Outline flagged chunks in the world.", true));
 	private final ColorSetting color = add(new ColorSetting("Color", "Colour of flagged chunks.", 0xFFFF8A3D))
+			.visibleWhen(highlight::isOn);
+	private final NumberSetting boxHeight = add(new NumberSetting("Max box height",
+			"The box covers the band of at most this many blocks where most of the base is, not every stray block.", 16, 4, 384, 4))
 			.visibleWhen(highlight::isOn);
 	private final BoolSetting markBlocks = add(new BoolSetting("Mark blocks", "Outline the blocks that raised the score.", true));
 	private final ColorSetting markerColor = add(new ColorSetting("Marker color", "Colour of block markers.", 0xFFFFE066))
@@ -164,6 +201,7 @@ public final class BaseFinder extends WorldScanModule {
 		int baseX = pos.getMinBlockX();
 		int baseZ = pos.getMinBlockZ();
 		LevelChunkSection[] sections = chunk.getSections();
+		int[] weightAtY = new int[sections.length * 16];
 		for (int i = 0; i < sections.length; i++) {
 			LevelChunkSection section = sections[i];
 			if (section == null || section.hasOnlyAir()) continue;
@@ -177,6 +215,7 @@ public final class BaseFinder extends WorldScanModule {
 						Weight weight = weights.get(state.getBlock());
 						if (weight == null) continue;
 						counts.merge(state.getBlock(), 1, Integer::sum);
+						weightAtY[i * 16 + y] += weight.points();
 						if (!weight.weak() && hits.size() < 32) hits.add(new BlockPos(baseX + x, baseY + y, baseZ + z));
 						minY = Math.min(minY, baseY + y);
 						maxY = Math.max(maxY, baseY + y);
@@ -205,7 +244,7 @@ public final class BaseFinder extends WorldScanModule {
 			return;
 		}
 
-		Base base = new Base(pos, score, reasons, List.copyOf(hits), minY, maxY);
+		Base base = new Base(pos, score, reasons, List.copyOf(hits), minY, maxY, chunk.getMinY(), weightAtY);
 		bases.put(pos, base);
 		if (reported.add(pos)) report(base);
 	}
@@ -226,7 +265,7 @@ public final class BaseFinder extends WorldScanModule {
 		if (chat.isOn()) Finds.chat("Possible base: " + detail + " (" + top + ")");
 		if (log.isOn()) {
 			Finds.log("bases.csv", "chunk_x,chunk_z,x,y,z,score,found",
-					base.pos().x() + "," + base.pos().z() + "," + x + "," + base.minY() + "," + z + "," + base.score()
+					base.pos().x() + "," + base.pos().z() + "," + x + "," + base.core(boxHeight.getInt())[0] + "," + z + "," + base.score()
 							+ ",\"" + top + "\"");
 		}
 	}
@@ -243,7 +282,8 @@ public final class BaseFinder extends WorldScanModule {
 			if (highlight.isOn()) {
 				// Stronger finds glow brighter.
 				float strength = Math.min(1f, b.score() / limit);
-				AABB column = chunkBox(b.pos(), b.minY() - 1, b.maxY() + 2);
+				int[] core = b.core(boxHeight.getInt());
+				AABB column = chunkBox(b.pos(), core[0] - 1, core[1] + 2);
 				batch.fill(column, ColorUtil.fade(base, 0.06f + 0.12f * strength), true);
 				batch.outline(column, ColorUtil.fade(base, 0.55f + 0.45f * strength), 2f, true);
 			}

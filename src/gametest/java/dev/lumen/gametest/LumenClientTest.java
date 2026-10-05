@@ -311,6 +311,76 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testCombat(context, sp);
 		testCrystalPvp(context, sp);
 		testUtility(context, sp);
+		testFakeName(context);
+	}
+
+	private void testFakeName(ClientGameTestContext context) {
+		TestInput input = context.getInput();
+		LOG.info("Testing Fake Name and the text field");
+		context.runOnClient(mc -> Lumen.modules().fakeName.setEnabled(true));
+
+		// Type the name through the click GUI, the way a player would.
+		input.pressKey(Lumen.clickGuiKey());
+		context.waitForScreen(ClickGuiScreen.class);
+		context.waitTicks(5);
+		input.typeChars("fake name");
+		context.waitTicks(10);
+		List<String> visible = context.computeOnClient(mc -> ((ClickGuiScreen) mc.gui.screen()).visibleModules());
+		if (!visible.equals(List.of("Fake Name"))) throw new AssertionError("Searching 'fake name' showed " + visible);
+		int scale = context.computeOnClient(mc -> mc.getWindow().getGuiScale());
+		// Client is the third panel, and with the search on, Fake Name is its first row.
+		int clientCenterX = 16 + 2 * (136 + 12) + 68;
+		input.setCursorPos(clientCenterX * scale, STORAGE_ROW_Y * scale);
+		input.pressMouse(InputConstants.MOUSE_BUTTON_RIGHT);
+		context.waitTicks(15);
+		// Below the row: 2 of padding, the keybind row (14), then the Name label with its box 12 to 24 down.
+		int fieldY = STORAGE_ROW_Y - 8 + 16 + 2 + 14 + 18;
+		input.setCursorPos(clientCenterX * scale, fieldY * scale);
+		input.pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+		context.waitTicks(3);
+		boolean editing = context.computeOnClient(mc -> ((ClickGuiScreen) mc.gui.screen()).isEditingText());
+		if (!editing) {
+			context.takeScreenshot("lumen_28_fake_name_field");
+			throw new AssertionError("Clicking the Name field did not start editing it");
+		}
+		input.typeChars("Lumen-Fake");
+		context.waitTicks(3);
+		context.takeScreenshot("lumen_28_fake_name_field");
+		input.pressKey(InputConstants.KEY_RETURN);
+		context.waitTicks(2);
+		String typed = context.computeOnClient(mc -> (String) setting(Lumen.modules().fakeName, "Name").get());
+		LOG.info("Fake Name: the field saved '{}'", typed);
+		if (!"Lumen-Fake".equals(typed)) throw new AssertionError("The Name field saved '" + typed + "', expected 'Lumen-Fake'");
+		input.pressKey(InputConstants.KEY_ESCAPE);
+		context.waitTicks(2);
+		input.pressKey(InputConstants.KEY_ESCAPE);
+		context.waitForScreen(null);
+
+		// Every string drawn on screen is broken into characters here.
+		String drawn = context.computeOnClient(mc -> drawnText("<Lumen-Bot> hello"));
+		LOG.info("Fake Name: '<Lumen-Bot> hello' draws as '{}'", drawn);
+		if (!drawn.equals("<Lumen-Fake> hello")) throw new AssertionError("With Fake Name on, the text draws as '" + drawn + "'");
+
+		context.runOnClient(mc -> mc.gui.hud.getChat().addClientSystemMessage(
+				net.minecraft.network.chat.Component.literal("Lumen-Bot joined the game")));
+		input.holdKey(options -> options.keyPlayerList);
+		context.waitTicks(5);
+		context.takeScreenshot("lumen_29_fake_name");
+		input.releaseKey(options -> options.keyPlayerList);
+
+		context.runOnClient(mc -> Lumen.modules().fakeName.setEnabled(false));
+		String off = context.computeOnClient(mc -> drawnText("<Lumen-Bot> hello"));
+		if (!off.equals("<Lumen-Bot> hello")) throw new AssertionError("With Fake Name off, the text draws as '" + off + "'");
+	}
+
+	/** The characters a piece of text is drawn as, after any client-side rewriting. */
+	private static String drawnText(String text) {
+		StringBuilder sb = new StringBuilder();
+		net.minecraft.util.StringDecomposer.iterateFormatted(text, net.minecraft.network.chat.Style.EMPTY, (index, style, codepoint) -> {
+			sb.appendCodePoint(codepoint);
+			return true;
+		});
+		return sb.toString();
 	}
 
 	private void testUtility(ClientGameTestContext context, TestSingleplayerContext sp) {
@@ -1028,6 +1098,8 @@ public final class LumenClientTest implements FabricClientGameTest {
 		command(server, "/setblock -22 -60 20 minecraft:beacon");
 		command(server, "/setblock -20 -60 20 minecraft:respawn_anchor");
 		command(server, "/setblock -24 -60 22 minecraft:crafting_table");
+		// A stray block 30 above the base; the box should stay at the base, not stretch up to it.
+		command(server, "/setblock -20 -30 22 minecraft:ender_chest");
 		context.waitTicks(40);
 
 		context.runOnClient(mc -> {
@@ -1057,6 +1129,15 @@ public final class LumenClientTest implements FabricClientGameTest {
 		if (!stash || stashCount != 48) throw new AssertionError("Stash Finder found " + stashCount + " containers in (1, 1), expected 48");
 		if (!base) throw new AssertionError("Base Finder did not flag the chunk with an ender chest, beacon and respawn anchor");
 		if (!flagged.equals(expected)) throw new AssertionError("Base Finder flagged " + flagged + ", expected " + expected);
+		int[] baseBox = context.computeOnClient(mc -> {
+			var found = Lumen.modules().baseFinder.bases().get(new ChunkPos(-2, 1));
+			return new int[] {found.minY(), found.maxY(), found.core(16)[0], found.core(16)[1]};
+		});
+		LOG.info("Base Finder: blocks from y {} to {}, box from y {} to {}", baseBox[0], baseBox[1], baseBox[2], baseBox[3]);
+		if (baseBox[1] != -30) throw new AssertionError("The stray ender chest at y -30 was not counted (top " + baseBox[1] + ")");
+		if (baseBox[2] != -60 || baseBox[3] != -60) {
+			throw new AssertionError("Base Finder's box spans y " + baseBox[2] + " to " + baseBox[3] + ", expected just the base at -60");
+		}
 
 		Path stashLog = FabricLoader.getInstance().getConfigDir().resolve("lumen").resolve("stashes.csv");
 		Path baseLog = FabricLoader.getInstance().getConfigDir().resolve("lumen").resolve("bases.csv");

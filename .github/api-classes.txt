@@ -69,3 +69,7 @@ net.minecraft.world.Difficulty
 net.minecraft.client.multiplayer.ServerData$Type
 net.minecraft.client.gui.components.Button$Builder
 net.minecraft.world.level.block.FallingBlock
+net.minecraft.util.StringDecomposer
+net.minecraft.util.FormattedCharSink
+net.minecraft.client.input.CharacterEvent
+net.minecraft.client.User

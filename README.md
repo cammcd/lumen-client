@@ -14,7 +14,7 @@ A clean, customizable Fabric client for **Minecraft 26.3**.
 | **Freecam** | Detaches the camera and flies it through blocks while your body stays still. WASD to move, Space and Shift for up and down, Sprint for a speed boost, scroll wheel to change speed. |
 | **New Chunks** | Colours chunks the world just generated differently from chunks that existed before. Liquids generate still and only flow once a chunk has been loaded, so old chunks in fresh land show where players have travelled. |
 | **Stash Finder** | Flags chunks with more containers than a threshold you set, then pops up a notification, prints the coordinates in chat (client-side only) and appends them to `config/lumen/stashes.csv`. |
-| **Base Finder** | Scores each chunk for blocks that never or rarely generate naturally (ender chests, shulker boxes, beacons, concrete, hoppers, signs, and in the Nether or End, everyday blocks like crafting tables and torches). Village-type blocks count little and are capped, so villages alone do not trigger it. Finds are marked in the world and logged to `config/lumen/bases.csv`. |
+| **Base Finder** | Scores each chunk for blocks that never or rarely generate naturally (ender chests, shulker boxes, beacons, concrete, hoppers, signs, and in the Nether or End, everyday blocks like crafting tables and torches). Village-type blocks count little and are capped, so villages alone do not trigger it. Finds are marked in the world and logged to `config/lumen/bases.csv`. The box covers the band of up to 16 blocks (Max box height) where most of the base is, so a stray block far above or below does not stretch it; Mark blocks still outlines every block it counted. |
 | **Sign Reader** | Reads both sides of every loaded sign and shows the text above it, through walls. Signs that look like they hold coordinates (`1200 64 -3400`, `X: 1200 Z: -3400`, `1200, -3400`) are outlined in orange, announced, and logged to `config/lumen/signs.csv`. |
 | **Logout Spots** | When a nearby player disappears from the tab list, marks where they logged out with a ghost box and a label showing how long ago. Logged to `config/lumen/logouts.csv`. |
 | **Sound Locator** | Marks where server-wide events (a wither spawning, the dragon dying, an end portal opening) and loud distant sounds came from, with a beam, a tracer and a label. Logged to `config/lumen/sounds.csv`. |
@@ -23,6 +23,7 @@ A clean, customizable Fabric client for **Minecraft 26.3**.
 | **HUD** | Watermark with FPS, an animated list of active modules, coordinates with Nether/Overworld conversion, and toggle notifications. |
 | **Click GUI** | Theme settings for the menu itself. |
 | **Auto Reconnect** | Adds a reconnect button to the disconnect screen and, by default, counts down and rejoins the last server. |
+| **Fake Name** | Shows a name you choose in place of yours, on your screen only: chat, the tab list, nametags, the scoreboard and signs. Click the Name field in its settings and type; Enter saves. Nothing is sent to the server, so other players still see your real name. |
 
 ### Player
 

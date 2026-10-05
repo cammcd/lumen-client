@@ -24,6 +24,7 @@ import dev.lumen.client.modules.Criticals;
 import dev.lumen.client.modules.CrystalAura;
 import dev.lumen.client.modules.ElytraPlus;
 import dev.lumen.client.modules.EntityEsp;
+import dev.lumen.client.modules.FakeName;
 import dev.lumen.client.modules.Freecam;
 import dev.lumen.client.modules.HudModule;
 import dev.lumen.client.modules.KillAura;
@@ -79,6 +80,7 @@ public final class ModuleManager {
 	public final AutoTrap autoTrap;
 	public final Surround surround;
 	public final AutoReconnect autoReconnect;
+	public final FakeName fakeName;
 	public final AutoTool autoTool;
 	public final ChestStealer chestStealer;
 	public final AntiAfk antiAfk;
@@ -107,6 +109,7 @@ public final class ModuleManager {
 		hud = register(new HudModule());
 		clickGui = register(new ClickGuiModule());
 		autoReconnect = register(new AutoReconnect());
+		fakeName = register(new FakeName());
 		// Criticals ticks before the attackers so it can release a hop before they ask for another.
 		criticals = register(new Criticals());
 		killAura = register(new KillAura());
