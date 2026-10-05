@@ -19,9 +19,35 @@ public final class FakeName extends Module {
 		super("Fake Name", "Shows a different name in place of yours on your screen: chat, tab list, nametags and scoreboard.", Category.CLIENT);
 	}
 
+	private String shownName = "";
+
 	@Override
 	public String hudInfo() {
 		return name.get();
+	}
+
+	@Override
+	protected void onEnable() {
+		shownName = name.get();
+		refreshChat();
+	}
+
+	@Override
+	protected void onDisable() {
+		refreshChat();
+	}
+
+	@Override
+	public void onTick() {
+		if (!name.get().equals(shownName)) {
+			shownName = name.get();
+			refreshChat();
+		}
+	}
+
+	/** Chat lines are laid out once, when they arrive; laying them out again updates the name in old ones too. */
+	private static void refreshChat() {
+		if (MC.gui != null && MC.gui.hud != null) MC.gui.hud.getChat().rescaleChat();
 	}
 
 	/** The text with your real name swapped for the fake one, or the same instance if nothing changes. */

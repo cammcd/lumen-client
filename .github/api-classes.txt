@@ -73,3 +73,4 @@ net.minecraft.util.StringDecomposer
 net.minecraft.util.FormattedCharSink
 net.minecraft.client.input.CharacterEvent
 net.minecraft.client.User
+net.minecraft.client.gui.components.ChatComponent
