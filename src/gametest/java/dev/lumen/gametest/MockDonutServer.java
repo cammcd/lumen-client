@@ -156,14 +156,14 @@ public final class MockDonutServer implements ModInitializer {
 		SimpleContainer items = filled(54);
 		items.setItem(22, lore(new ItemStack(offer.item(), amount),
 				small("Price: ") + money(offer.price()) + small(" each"), small("Total: ") + money(offer.price() * amount)));
-		items.setItem(18, named(Items.RED_STAINED_GLASS_PANE, 1, small("Set to 1")));
-		items.setItem(19, named(Items.RED_STAINED_GLASS_PANE, 1, small("Remove 10")));
-		items.setItem(20, named(Items.RED_STAINED_GLASS_PANE, 1, small("Remove 1")));
-		items.setItem(24, named(Items.LIME_STAINED_GLASS_PANE, 1, small("Add 1")));
-		items.setItem(25, named(Items.LIME_STAINED_GLASS_PANE, 1, small("Add 10")));
-		items.setItem(26, named(Items.LIME_STAINED_GLASS_PANE, 1, small("Set to 64")));
-		items.setItem(39, named(Items.LIME_STAINED_GLASS_PANE, 1, small("Confirm")));
-		items.setItem(41, named(Items.RED_STAINED_GLASS_PANE, 1, small("Cancel")));
+		items.setItem(18, named(pane("red"), 1, small("Set to 1")));
+		items.setItem(19, named(pane("red"), 1, small("Remove 10")));
+		items.setItem(20, named(pane("red"), 1, small("Remove 1")));
+		items.setItem(24, named(pane("lime"), 1, small("Add 1")));
+		items.setItem(25, named(pane("lime"), 1, small("Add 10")));
+		items.setItem(26, named(pane("lime"), 1, small("Set to 64")));
+		items.setItem(39, named(pane("lime"), 1, small("Confirm")));
+		items.setItem(41, named(pane("red"), 1, small("Cancel")));
 		open(player, small("Buying ") + name(offer.item()), 6, items, slot -> {
 			switch (slot) {
 				case 18 -> openAmount(player, offer, 1);
@@ -210,8 +210,8 @@ public final class MockDonutServer implements ModInitializer {
 	private static void openConfirm(ServerPlayer player, Listing listing, String query) {
 		SimpleContainer items = filled(27);
 		items.setItem(13, listingStack(listing));
-		items.setItem(11, named(Items.LIME_STAINED_GLASS_PANE, 1, small("Confirm")));
-		items.setItem(15, named(Items.RED_STAINED_GLASS_PANE, 1, small("Cancel")));
+		items.setItem(11, named(pane("lime"), 1, small("Confirm")));
+		items.setItem(15, named(pane("red"), 1, small("Cancel")));
 		open(player, small("Confirm purchase"), 3, items, slot -> {
 			if (slot == 11) {
 				if (LISTINGS.contains(listing) && pay(player, listing.price())) {
@@ -273,9 +273,18 @@ public final class MockDonutServer implements ModInitializer {
 		}
 	}
 
+	/** A stained glass pane by colour; 26.3 keeps the dyed variants in a collection, so look it up by id. */
+	private static Item pane(String color) {
+		String path = color + "_stained_glass_pane";
+		for (Item item : BuiltInRegistries.ITEM) {
+			if (BuiltInRegistries.ITEM.getKey(item).getPath().equals(path)) return item;
+		}
+		throw new IllegalStateException("No item named " + path);
+	}
+
 	private static SimpleContainer filled(int size) {
 		SimpleContainer items = new SimpleContainer(size);
-		for (int i = 0; i < size; i++) items.setItem(i, named(Items.GRAY_STAINED_GLASS_PANE, 1, " "));
+		for (int i = 0; i < size; i++) items.setItem(i, named(pane("gray"), 1, " "));
 		return items;
 	}
 

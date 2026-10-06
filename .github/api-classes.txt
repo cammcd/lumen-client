@@ -98,3 +98,5 @@ net.fabricmc.fabric.api.client.gametest.v1.context.TestServerContext
 net.minecraft.world.level.block.entity.EnderChestBlockEntity
 net.minecraft.world.phys.EntityHitResult
 net.minecraft.world.phys.HitResult
+net.minecraft.core.Registry
+net.minecraft.world.level.block.ColorCollection
