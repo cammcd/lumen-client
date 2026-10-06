@@ -239,7 +239,7 @@ public final class Printer extends Module implements WorldRenderable {
 			}
 		}
 		// Lowest first, so each block has something under or beside it; then nearest.
-		candidates.sort(Comparator.comparingInt(BlockPos::getY).thenComparingDouble(b -> eye.distanceToSqr(Vec3.atCenterOf(b))));
+		candidates.sort(Comparator.<BlockPos>comparingInt(b -> b.getY()).thenComparingDouble(b -> eye.distanceToSqr(Vec3.atCenterOf(b))));
 
 		int done = 0;
 		for (BlockPos abs : candidates) {
