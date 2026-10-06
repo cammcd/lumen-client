@@ -314,6 +314,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testFreecamSurvival(context, sp);
 		testFullbright(context, sp);
 		testPrinter(context, sp);
+		testPrinterBuying(context, sp);
 		testFakeName(context);
 	}
 
@@ -433,6 +434,137 @@ public final class LumenClientTest implements FabricClientGameTest {
 			int j1 = bitsPerEntry - endOffset;
 			longArray[endArrIndex] = longArray[endArrIndex] >>> j1 << j1 | ((long) value & maxEntryValue) >> endOffset;
 		}
+	}
+
+	/** A one-region schematic of the given blocks, keyed by position from its lowest corner. */
+	private static void writeSchematic(Path file, String name, BlockPos size,
+			java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> blocks) {
+		net.minecraft.nbt.CompoundTag regions = new net.minecraft.nbt.CompoundTag();
+		regions.put("Main", litematicRegion(new BlockPos(0, 0, 0), size, size.getX(), size.getY(), size.getZ(), blocks));
+		net.minecraft.nbt.CompoundTag meta = new net.minecraft.nbt.CompoundTag();
+		meta.putString("Name", name);
+		net.minecraft.nbt.CompoundTag root = new net.minecraft.nbt.CompoundTag();
+		root.putInt("MinecraftDataVersion", 4500);
+		root.putInt("Version", 7);
+		root.putInt("SubVersion", 1);
+		root.put("Metadata", meta);
+		root.put("Regions", regions);
+		try {
+			Files.createDirectories(file.getParent());
+			net.minecraft.nbt.NbtIo.writeCompressed(root, file);
+		} catch (java.io.IOException e) {
+			throw new AssertionError("Could not write the test schematic", e);
+		}
+	}
+
+	private static java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> buyExpected() {
+		java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> m = new java.util.LinkedHashMap<>();
+		var obsidian = net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState();
+		var glass = net.minecraft.world.level.block.Blocks.GLASS.defaultBlockState();
+		for (int x = 0; x < 4; x++) {
+			m.put(new BlockPos(x, 0, 0), obsidian);
+			m.put(new BlockPos(x, 0, 1), glass);
+		}
+		m.put(new BlockPos(0, 1, 1), glass);
+		m.put(new BlockPos(1, 1, 1), glass);
+		m.put(new BlockPos(3, 1, 0), net.minecraft.world.level.block.Blocks.OAK_LOG.defaultBlockState());
+		return m;
+	}
+
+	/**
+	 * Survival, empty inventory: the Printer has to buy every block. Obsidian is in the
+	 * stand-in /shop's Gear category; glass is not in the shop, so it comes from /ah, where
+	 * the cheapest way to cover 6 is 4 for $40 and then 8 for $480 (not the $3.2K stack, the
+	 * $1,000-each listing or the glass panes); oak logs cost more than the $100 limit and
+	 * are refused. Chest Stealer stays on and must leave the shop's menus alone.
+	 */
+	private void testPrinterBuying(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing the Printer buying blocks");
+		server.runOnServer(s -> MockDonutServer.reset());
+		command(server, "/fill 336 -60 -44 346 -54 -33 minecraft:air");
+		command(server, "/gamemode survival @a");
+		command(server, "/clear @a");
+		command(server, "/effect clear @a");
+		writeSchematic(FabricLoader.getInstance().getGameDir().resolve("schematics").resolve("lumen_buy.litematic"), "Lumen buy test",
+				new BlockPos(4, 2, 2), buyExpected());
+		command(server, "/tp @a 341.5 -60 -36.5 180 30");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		input.lookAt(180f, 30f);
+		context.waitTicks(2);
+
+		context.runOnClient(mc -> {
+			Lumen.modules().chestStealer.setEnabled(true);
+			Module printer = Lumen.modules().printer;
+			((dev.lumen.client.setting.TextSetting) setting(printer, "File")).set("lumen_buy");
+			((dev.lumen.client.setting.TextSetting) setting(printer, "Origin")).set("340 -60 -40");
+			((BoolSetting) setting(printer, "Buy missing")).set(true);
+			((dev.lumen.client.setting.TextSetting) setting(printer, "Max price each")).set("100");
+			((dev.lumen.client.setting.TextSetting) setting(printer, "Max spend")).set("5k");
+			printer.setEnabled(true);
+		});
+
+		boolean shotMenu = false;
+		boolean done = false;
+		for (int i = 0; i < 400 && !done; i++) {
+			context.waitTicks(3);
+			if (!shotMenu && context.computeOnClient(mc -> mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.ContainerScreen)) {
+				context.waitTicks(4);
+				context.takeScreenshot("lumen_35_printer_shop_menu");
+				shotMenu = true;
+			}
+			done = context.computeOnClient(mc -> {
+				var printer = Lumen.modules().printer;
+				return printer.correct() == 10 && !printer.buying()
+						&& printer.couldNotBuy().contains(net.minecraft.world.item.Items.OAK_LOG);
+			});
+		}
+		context.waitTicks(10);
+		context.takeScreenshot("lumen_36_printer_bought");
+
+		String built = context.computeOnClient(mc -> {
+			StringBuilder wrong = new StringBuilder();
+			for (var entry : buyExpected().entrySet()) {
+				var world = mc.level.getBlockState(new BlockPos(340, -60, -40).offset(entry.getKey()));
+				boolean log = entry.getValue().is(net.minecraft.world.level.block.Blocks.OAK_LOG);
+				// The oak log could not be bought, so its spot must still be empty.
+				boolean ok = log ? world.isAir() : dev.lumen.client.modules.Printer.matches(world, entry.getValue());
+				if (!ok) wrong.append(' ').append(entry.getKey().toShortString()).append(" is ").append(world).append(';');
+			}
+			return wrong.toString();
+		});
+		java.util.UUID uuid = context.computeOnClient(mc -> mc.player.getUUID());
+		double balance = server.computeOnServer(s -> MockDonutServer.balance(uuid));
+		List<String> purchases = server.computeOnServer(s -> MockDonutServer.purchases());
+		int clicks = server.computeOnServer(s -> MockDonutServer.clicks());
+		double spent = context.computeOnClient(mc -> Lumen.modules().printer.spent());
+		String carried = context.computeOnClient(mc -> count(mc.player, net.minecraft.world.item.Items.GLASS) + " glass, "
+				+ count(mc.player, net.minecraft.world.item.Items.GLASS_PANE) + " glass panes, "
+				+ count(mc.player, net.minecraft.world.item.Items.OBSIDIAN) + " obsidian");
+		boolean menuClosed = context.computeOnClient(mc -> mc.gui.screen() == null);
+		LOG.info("Printer buying: purchases {}, spent {}, balance {}, {} menu clicks, carrying {}, menu closed {}, wrong:{}",
+				purchases, spent, balance, clicks, carried, menuClosed, built.isEmpty() ? " none" : built);
+
+		context.runOnClient(mc -> {
+			Lumen.modules().printer.setEnabled(false);
+			Lumen.modules().chestStealer.setEnabled(false);
+			((BoolSetting) setting(Lumen.modules().printer, "Buy missing")).set(false);
+		});
+		command(server, "/gamemode creative @a");
+
+		if (!done) throw new AssertionError("The Printer did not finish buying and building; wrong:" + built);
+		if (!built.isEmpty()) throw new AssertionError("The bought blocks were not all placed:" + built);
+		List<String> sorted = new java.util.ArrayList<>(purchases);
+		java.util.Collections.sort(sorted);
+		if (!sorted.equals(List.of("ah 4 glass $40", "ah 8 glass $480", "shop 4 obsidian $240"))) {
+			throw new AssertionError("The Printer bought " + purchases);
+		}
+		if (Math.abs(balance - (MockDonutServer.START_BALANCE - 760)) > 0.001) throw new AssertionError("Balance is " + balance + ", expected 9240");
+		if (Math.abs(spent - 760) > 0.001) throw new AssertionError("The Printer counted " + spent + " spent, expected 760");
+		if (!carried.equals("6 glass, 0 glass panes, 0 obsidian")) throw new AssertionError("Left carrying " + carried);
+		if (!menuClosed) throw new AssertionError("The Printer left a shop menu open");
 	}
 
 	private void testPrinter(ClientGameTestContext context, TestSingleplayerContext sp) {

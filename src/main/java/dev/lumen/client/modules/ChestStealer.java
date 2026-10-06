@@ -4,12 +4,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.Container;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ShulkerBoxMenu;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
+import dev.lumen.client.Lumen;
 import dev.lumen.client.module.Category;
 import dev.lumen.client.module.Module;
 import dev.lumen.client.setting.BoolSetting;
@@ -23,6 +30,7 @@ public final class ChestStealer extends Module {
 	private final BoolSetting autoClose = add(new BoolSetting("Close when done", "Close the menu once it is empty or your inventory is full.", true));
 
 	private int menuId = -1;
+	private boolean fromContainer;
 	private int wait;
 	private int taken;
 	private final Set<Integer> tried = new HashSet<>();
@@ -60,7 +68,11 @@ public final class ChestStealer extends Module {
 			menuId = menu.containerId;
 			wait = openDelay.getInt();
 			tried.clear();
+			// Server menus like /shop and /ah are chests too, and clicking in them can buy
+			// things, so only menus opened from a container you are looking at are emptied.
+			fromContainer = lookingAtContainer();
 		}
+		if (!fromContainer || Lumen.modules().printer.buying()) return;
 		if (wait > 0) {
 			wait--;
 			return;
@@ -80,5 +92,14 @@ public final class ChestStealer extends Module {
 
 		if (autoClose.isOn()) MC.player.closeContainer();
 		else wait = 10;
+	}
+
+	private static boolean lookingAtContainer() {
+		HitResult hit = MC.hitResult;
+		if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK && MC.level != null) {
+			BlockEntity be = MC.level.getBlockEntity(block.getBlockPos());
+			return be instanceof Container || be instanceof EnderChestBlockEntity;
+		}
+		return hit instanceof EntityHitResult entity && entity.getEntity() instanceof Container;
 	}
 }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,7 +41,9 @@ import dev.lumen.client.module.Category;
 import dev.lumen.client.module.Module;
 import dev.lumen.client.render.EspBatch;
 import dev.lumen.client.render.WorldRenderable;
+import dev.lumen.client.schematic.Buyer;
 import dev.lumen.client.schematic.Schematic;
+import dev.lumen.client.schematic.ShopText;
 import dev.lumen.client.setting.BoolSetting;
 import dev.lumen.client.setting.ColorSetting;
 import dev.lumen.client.setting.NumberSetting;
@@ -81,6 +84,23 @@ public final class Printer extends Module implements WorldRenderable {
 			"Look the way a block must face for its click only, so stairs, furnaces and the like come out right.", true));
 	private final BoolSetting useInventory = add(new BoolSetting("Use inventory", "Move blocks from your inventory into the last hotbar slot.", true));
 	private final BoolSetting creative = add(new BoolSetting("Creative blocks", "In creative, take whatever block is needed.", true));
+	private final BoolSetting buy = add(new BoolSetting("Buy missing",
+			"When you run out of a block, buy more with /shop, then the auction house. Made for DonutSMP.", false));
+	private final BoolSetting buyShop = add(new BoolSetting("Use shop", "Look for the block in the server shop first.", true))
+			.visibleWhen(buy::isOn);
+	private final BoolSetting buyAuction = add(new BoolSetting("Use auction house",
+			"When the shop does not sell it, buy the auction listing that covers what is needed for the least money.", true))
+			.visibleWhen(buy::isOn);
+	private final TextSetting maxEach = add(new TextSetting("Max price each", "Most to pay per block, like 50, 2.5k or 1m.", "100", 16))
+			.visibleWhen(buy::isOn);
+	private final TextSetting maxSpend = add(new TextSetting("Max spend",
+			"Most to spend in total each time the Printer is turned on, like 50k or 2m.", "50k", 16))
+			.visibleWhen(buy::isOn);
+	private final TextSetting shopCommand = add(new TextSetting("Shop command", "The command that opens the server shop.", "shop", 32))
+			.visibleWhen(buy::isOn);
+	private final TextSetting auctionCommand = add(new TextSetting("Auction command",
+			"The command that searches the auction house. {item} becomes the block's name.", "ah {item}", 48))
+			.visibleWhen(buy::isOn);
 	private final BoolSetting finishOff = add(new BoolSetting("Turn off when done", "Stop once every block is in place.", true));
 	private final BoolSetting showMissing = add(new BoolSetting("Show missing", "Outline blocks still to place, and wrong blocks in red.", true));
 	private final ColorSetting missingColor = add(new ColorSetting("Missing color", "Outline of blocks still to place.", 0xFF5AC8FA))
@@ -101,6 +121,11 @@ public final class Printer extends Module implements WorldRenderable {
 	private int correct;
 	private List<Ghost> ghosts = List.of();
 	private final Set<Item> missingItems = new HashSet<>();
+	private final Buyer buyer = new Buyer();
+	private final Set<Item> wanted = new LinkedHashSet<>();
+	private final Set<Item> unbuyable = new HashSet<>();
+	private double spent;
+	private boolean warnedLimits;
 
 	public Printer() {
 		super("Printer", "Builds a Litematica schematic block by block, with the right facing.", Category.PLAYER);
@@ -124,20 +149,43 @@ public final class Printer extends Module implements WorldRenderable {
 		return correct;
 	}
 
+	/** Money spent buying blocks since the module was turned on. */
+	public double spent() {
+		return spent;
+	}
+
+	public boolean buying() {
+		return buyer.busy();
+	}
+
+	/** Blocks that could not be bought this run; used by the game test. */
+	public Set<Item> couldNotBuy() {
+		return Set.copyOf(unbuyable);
+	}
+
 	@Override
 	public String hudInfo() {
-		return schematic == null ? "" : correct + "/" + schematic.blocks().size();
+		if (schematic == null) return "";
+		if (buyer.busy()) return "buying " + new ItemStack(buyer.item()).getHoverName().getString();
+		return correct + "/" + schematic.blocks().size();
 	}
 
 	@Override
 	protected void onEnable() {
 		placed = 0;
 		missingItems.clear();
+		wanted.clear();
+		unbuyable.clear();
+		spent = 0;
+		warnedLimits = false;
+		buyer.forget();
 		if (!load()) setEnabled(false);
 	}
 
 	@Override
 	protected void onDisable() {
+		buyer.cancel();
+		wanted.clear();
 		schematic = null;
 		byPos.clear();
 		ghosts = List.of();
@@ -207,13 +255,24 @@ public final class Printer extends Module implements WorldRenderable {
 			updateStatus(p);
 			if (correct == schematic.blocks().size() && finishOff.isOn()) {
 				Notifications.notice("Build finished", schematic.name() + ": all " + correct + " blocks in place", 0xFF6CF0A0);
-				Finds.chat("Finished " + schematic.name() + ": all " + correct + " blocks in place.");
+				Finds.chat("Finished " + schematic.name() + ": all " + correct + " blocks in place."
+						+ (spent > 0 ? " Spent " + ShopText.format(spent) + " on blocks." : ""));
 				setEnabled(false);
 				return;
 			}
 		}
 
+		// Buying drives the server's menus, so nothing is placed until it is done.
+		if (buyer.busy()) {
+			buyer.tick();
+			if (!buyer.busy()) finishBuying(buyer.takeResult());
+			return;
+		}
 		if (MC.gui.screen() != null) return;
+		if (!wanted.isEmpty()) {
+			startBuying(p);
+			if (buyer.busy()) return;
+		}
 		if (timer > 0) {
 			timer--;
 			return;
@@ -259,7 +318,8 @@ public final class Printer extends Module implements WorldRenderable {
 		if (item == Items.AIR || !(item instanceof BlockItem)) return false;
 		int slot = ensureInHotbar(p, item);
 		if (slot < 0) {
-			if (missingItems.add(item)) Finds.chat("Printer needs " + new ItemStack(item).getHoverName().getString() + " in your inventory.");
+			if (canBuy(p) && !unbuyable.contains(item)) wanted.add(item);
+			else if (missingItems.add(item)) Finds.chat("Printer needs " + new ItemStack(item).getHoverName().getString() + " in your inventory.");
 			return false;
 		}
 
@@ -359,6 +419,64 @@ public final class Printer extends Module implements WorldRenderable {
 			}
 		}
 		return -1;
+	}
+
+	private boolean canBuy(LocalPlayer p) {
+		return buy.isOn() && !p.getAbilities().instabuild && (buyShop.isOn() || buyAuction.isOn());
+	}
+
+	private void startBuying(LocalPlayer p) {
+		Item item = wanted.iterator().next();
+		wanted.remove(item);
+		int need = needed(p, item);
+		if (need <= 0) {
+			// Carried but not where the Printer takes blocks from, so buying more would not help.
+			unbuyable.add(item);
+			if (missingItems.add(item)) Finds.chat("Printer needs " + new ItemStack(item).getHoverName().getString() + " in your hotbar.");
+			return;
+		}
+		double each = ShopText.money(maxEach.get());
+		double cap = ShopText.money(maxSpend.get());
+		if (Double.isNaN(each) || each <= 0 || Double.isNaN(cap) || cap <= 0) {
+			unbuyable.add(item);
+			if (!warnedLimits) fail("Set Max price each and Max spend in the Printer's settings, like 100 and 50k, to buy blocks.");
+			warnedLimits = true;
+			return;
+		}
+		String name = new ItemStack(item).getHoverName().getString();
+		Finds.chat("Buying " + need + " " + name + ", at most " + ShopText.format(each) + " each, "
+				+ ShopText.format(Math.max(0, cap - spent)) + " left to spend.");
+		buyer.start(item, need, new Buyer.Config(buyShop.isOn(), buyAuction.isOn(), shopCommand.get(), auctionCommand.get(), each, cap - spent));
+		if (!buyer.busy()) finishBuying(buyer.takeResult());
+	}
+
+	private void finishBuying(Buyer.Result r) {
+		if (r == null) return;
+		spent += r.spent();
+		String name = new ItemStack(r.item()).getHoverName().getString();
+		if (r.bought() > 0) {
+			Finds.chat("Bought " + r.bought() + " " + name + " for " + ShopText.format(r.spent()) + " (" + ShopText.format(spent) + " spent so far).");
+		}
+		if (r.problem() != null) {
+			unbuyable.add(r.item());
+			fail("Could not buy " + (r.bought() > 0 ? "enough " : "") + name + ": " + r.problem() + ".");
+		}
+	}
+
+	/** Blocks of this item the schematic still needs placed, less what is carried. */
+	private int needed(LocalPlayer p, Item item) {
+		int n = 0;
+		for (Schematic.Entry e : schematic.blocks()) {
+			if (e.state().getBlock().asItem() != item) continue;
+			BlockState world = MC.level.getBlockState(originPos.offset(e.pos()));
+			if (matches(world, e.state()) || !world.canBeReplaced()) continue;
+			n++;
+		}
+		Inventory inv = p.getInventory();
+		for (int i = 0; i < inv.getContainerSize(); i++) {
+			if (inv.getItem(i).is(item)) n -= inv.getItem(i).getCount();
+		}
+		return n;
 	}
 
 	/** Same block, and the same value for every property that placement decides. */

@@ -6,6 +6,9 @@
 	"license": "MIT",
 	"environment": "client",
 	"entrypoints": {
+		"main": [
+			"dev.lumen.gametest.MockDonutServer"
+		],
 		"fabric-client-gametest": [
 			"dev.lumen.gametest.LumenClientTest"
 		]
