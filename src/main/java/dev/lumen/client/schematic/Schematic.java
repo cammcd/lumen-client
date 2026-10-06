@@ -106,9 +106,12 @@ public final class Schematic {
 			BlockState[] states = new BlockState[palette.size()];
 			for (int i = 0; i < states.length; i++) {
 				CompoundTag entry = palette.getCompoundOrEmpty(i);
-				// Some tools write the palette as plain strings like "minecraft:carrots[age=7]".
-				String text = entry.isEmpty() ? palette.getStringOr(i, "") : entry.getStringOr("Name", "");
-				BlockState state = readState(text, entry.getCompoundOrEmpty("Properties"));
+				// Litematica writes Name and Properties; this game's own writer now uses id and
+				// properties; some tools write plain strings like "minecraft:carrots[age=7]".
+				String text = entry.isEmpty() ? palette.getStringOr(i, "") : entry.getStringOr("Name", entry.getStringOr("id", ""));
+				CompoundTag properties = entry.getCompoundOrEmpty("Properties");
+				if (properties.isEmpty()) properties = entry.getCompoundOrEmpty("properties");
+				BlockState state = readState(text, properties);
 				if (state == null) {
 					unknown.add(id(text));
 					state = Blocks.AIR.defaultBlockState();
@@ -145,7 +148,8 @@ public final class Schematic {
 
 	/**
 	 * A block state from its id and properties, read by hand rather than through the game's
-	 * NBT reader so that the forms other tools write work too: a separate Properties tag or
+	 * NBT reader, which since 26.x only takes its own "id" key and so turned every block of a
+	 * Litematica file into air. The forms other tools write work too: a separate Properties tag or
 	 * "id[key=value,...]", with or without "minecraft:", in any case. Properties this version
 	 * does not have are ignored. Null if the block itself is unknown.
 	 */
