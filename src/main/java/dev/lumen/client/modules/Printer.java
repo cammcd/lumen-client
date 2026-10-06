@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,6 +28,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -65,6 +68,8 @@ public final class Printer extends Module implements WorldRenderable {
 			BlockStateProperties.SLAB_TYPE, BlockStateProperties.ATTACH_FACE, BlockStateProperties.ROTATION_16,
 			BlockStateProperties.ORIENTATION, BlockStateProperties.DOOR_HINGE);
 	private static final int SPARE_SLOT = 8;
+	/** What a hoe turns into farmland (coarse dirt goes to dirt first, then farmland). */
+	private static final Set<Block> TILLABLE = Set.of(Blocks.DIRT, Blocks.GRASS_BLOCK, Blocks.DIRT_PATH, Blocks.COARSE_DIRT);
 	private static final int MAX_GHOSTS = 2500;
 
 	private record Plan(BlockHitResult hit, float yaw, float pitch, boolean turn) {
@@ -127,6 +132,10 @@ public final class Printer extends Module implements WorldRenderable {
 	private final Set<Item> unbuyable = new HashSet<>();
 	private double spent;
 	private boolean warnedLimits;
+	private boolean warnedHoe;
+	private int ticks;
+	/** When each spot was last hoed: the server answers a hoe click, the client does not predict it. */
+	private final Map<BlockPos, Integer> tilledAt = new HashMap<>();
 
 	public Printer() {
 		super("Printer", "Builds a Litematica schematic block by block, with the right facing.", Category.PLAYER);
@@ -184,6 +193,8 @@ public final class Printer extends Module implements WorldRenderable {
 		unbuyable.clear();
 		spent = 0;
 		warnedLimits = false;
+		warnedHoe = false;
+		tilledAt.clear();
 		buyer.forget();
 		if (!load()) setEnabled(false);
 	}
@@ -257,9 +268,19 @@ public final class Printer extends Module implements WorldRenderable {
 		return true;
 	}
 
-	/** Water, lava, fire and the like have no item to place them with. */
+	/** Water, lava, fire and the like have no item to place them with. Farmland is made with a hoe. */
 	private static boolean placeable(BlockState state) {
-		return state.getBlock().asItem() instanceof BlockItem;
+		return state.is(Blocks.FARMLAND) || state.getBlock().asItem() instanceof BlockItem;
+	}
+
+	/** In survival there is no farmland item, so it is made as by hand: dirt, then a hoe. */
+	private boolean tillsFarmland(LocalPlayer p) {
+		return !(creative.isOn() && p.getAbilities().instabuild && Blocks.FARMLAND.asItem() instanceof BlockItem);
+	}
+
+	/** The item a block is placed with: dirt for farmland that will be hoed. */
+	private Item sourceItem(LocalPlayer p, BlockState target) {
+		return target.is(Blocks.FARMLAND) && tillsFarmland(p) ? Items.DIRT : target.getBlock().asItem();
 	}
 
 	private static void fail(String message) {
@@ -269,6 +290,7 @@ public final class Printer extends Module implements WorldRenderable {
 
 	@Override
 	public void onTick() {
+		ticks++;
 		LocalPlayer p = MC.player;
 		if (p == null || MC.level == null || MC.gameMode == null) return;
 		if (schematic == null) return;
@@ -341,6 +363,11 @@ public final class Printer extends Module implements WorldRenderable {
 	private boolean tryPlace(LocalPlayer p, BlockPos abs, BlockState target) {
 		BlockState world = MC.level.getBlockState(abs);
 		if (matches(world, target)) return false;
+		if (target.is(Blocks.FARMLAND) && tillsFarmland(p)) {
+			if (TILLABLE.contains(world.getBlock())) return till(p, abs);
+			// Dirt goes down first; the next round hoes it.
+			target = Blocks.DIRT.defaultBlockState();
+		}
 		// The right block facing the wrong way, or something else in the way, is left alone.
 		if (world.is(target.getBlock()) || !world.canBeReplaced()) return false;
 
@@ -373,6 +400,55 @@ public final class Printer extends Module implements WorldRenderable {
 		return true;
 	}
 
+	/** Hoes the block from above, the way farmland is made by hand. */
+	private boolean till(LocalPlayer p, BlockPos abs) {
+		Integer last = tilledAt.get(abs);
+		if (last != null && ticks - last < 20) return false;
+		if (!MC.level.getBlockState(abs.above()).isAir()) return false;
+		Vec3 hitVec = new Vec3(abs.getX() + 0.5, abs.getY() + 1.0, abs.getZ() + 0.5);
+		if (p.getEyePosition().distanceTo(hitVec) > reach.get()) return false;
+		int slot = hoeSlot(p);
+		if (slot < 0) {
+			if (!warnedHoe) Finds.chat("Printer needs a hoe in your inventory to turn dirt into farmland.");
+			warnedHoe = true;
+			return false;
+		}
+		Placement.click(slot, InteractionHand.MAIN_HAND, new BlockHitResult(hitVec, Direction.UP, abs, false));
+		tilledAt.put(abs, ticks);
+		placed++;
+		return true;
+	}
+
+	private int hoeSlot(LocalPlayer p) {
+		int slot = Placement.hotbarSlot(Printer::isHoe);
+		if (slot >= 0) return slot;
+		if (useInventory.isOn() && p.containerMenu == p.inventoryMenu) {
+			Inventory inv = p.getInventory();
+			for (int i = 9; i < 36; i++) {
+				if (!isHoe(inv.getItem(i))) continue;
+				MC.gameMode.handleContainerInput(p.inventoryMenu.containerId, i, SPARE_SLOT, ContainerInput.SWAP, p);
+				return isHoe(inv.getItem(SPARE_SLOT)) ? SPARE_SLOT : -1;
+			}
+		}
+		return -1;
+	}
+
+	private static boolean isHoe(ItemStack stack) {
+		return !stack.isEmpty() && BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath().endsWith("_hoe");
+	}
+
+	/**
+	 * A block that can be clicked to place against: anything solid that does not open or
+	 * toggle. Unlike the combat modules' check it need not be a full block, so crops go on
+	 * farmland and blocks on slabs; the placement is simulated before any click anyway.
+	 */
+	private static boolean canClick(BlockPos pos) {
+		BlockState state = MC.level.getBlockState(pos);
+		if (state.canBeReplaced() || state.hasBlockEntity()) return false;
+		if (state.getCollisionShape(MC.level, pos).isEmpty()) return false;
+		return Placement.isSupportBlock(state);
+	}
+
 	/** The click (and, if needed, look direction) that the game says gives exactly the target's placed properties. */
 	private Plan plan(LocalPlayer p, BlockPos abs, BlockState target, ItemStack stack) {
 		Vec3 eye = p.getEyePosition();
@@ -388,7 +464,7 @@ public final class Printer extends Module implements WorldRenderable {
 			float[] look = looks.get(i);
 			for (Direction dir : Direction.values()) {
 				BlockPos neighbour = abs.relative(dir);
-				if (!Placement.isSupport(neighbour)) continue;
+				if (!canClick(neighbour)) continue;
 				Direction face = dir.getOpposite();
 				double[] heights = face.getAxis().isVertical() ? new double[] {0.5} : new double[] {0.25, 0.75};
 				for (double h : heights) {
@@ -497,7 +573,7 @@ public final class Printer extends Module implements WorldRenderable {
 	private int needed(LocalPlayer p, Item item) {
 		int n = 0;
 		for (Schematic.Entry e : schematic.blocks()) {
-			if (e.state().getBlock().asItem() != item) continue;
+			if (sourceItem(p, e.state()) != item) continue;
 			BlockState world = MC.level.getBlockState(originPos.offset(e.pos()));
 			if (matches(world, e.state()) || !world.canBeReplaced()) continue;
 			n++;

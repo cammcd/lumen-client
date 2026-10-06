@@ -316,6 +316,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testPrinter(context, sp);
 		testSchematicForms(context);
 		testPrinterBuying(context, sp);
+		testPrinterFarmland(context, sp);
 		testFakeName(context);
 	}
 
@@ -537,6 +538,75 @@ public final class LumenClientTest implements FabricClientGameTest {
 		context.waitTicks(2);
 		LOG.info("Schematic forms: Printer stayed on for a schematic with no known blocks: {}", stayedOn);
 		if (stayedOn) throw new AssertionError("The Printer turned on for a schematic with no blocks it knows");
+	}
+
+	private static java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> farmExpected() {
+		java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> m = new java.util.LinkedHashMap<>();
+		for (int x = 0; x < 3; x++) {
+			m.put(new BlockPos(x, 0, 0), net.minecraft.world.level.block.Blocks.FARMLAND.defaultBlockState());
+			m.put(new BlockPos(x, 1, 0), net.minecraft.world.level.block.Blocks.CARROTS.defaultBlockState());
+		}
+		return m;
+	}
+
+	/**
+	 * Survival has no farmland item, so the Printer makes it by hand: two spots are grass and
+	 * are hoed where they are; the third is a hole, so dirt from the inventory goes in first
+	 * and is then hoed. Carrots go on top, on farmland, which is not a full block.
+	 */
+	private void testPrinterFarmland(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing the Printer making farmland");
+		command(server, "/fill 357 -60 -44 365 -55 -34 minecraft:air");
+		command(server, "/fill 357 -61 -44 365 -61 -34 minecraft:grass_block");
+		command(server, "/setblock 362 -61 -40 minecraft:air");
+		command(server, "/gamemode survival @a");
+		command(server, "/clear @a");
+		command(server, "/item replace entity @a hotbar.0 with minecraft:iron_hoe");
+		command(server, "/item replace entity @a hotbar.2 with minecraft:carrot 8");
+		command(server, "/item replace entity @a inventory.0 with minecraft:dirt 4");
+		writeSchematic(FabricLoader.getInstance().getGameDir().resolve("schematics").resolve("lumen_farm.litematic"), "Lumen farm test",
+				new BlockPos(3, 2, 1), farmExpected());
+		command(server, "/tp @a 361.5 -60 -37.5 180 45");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		input.lookAt(180f, 45f);
+		context.waitTicks(2);
+
+		context.runOnClient(mc -> {
+			mc.player.getInventory().setSelectedSlot(0);
+			Module printer = Lumen.modules().printer;
+			((dev.lumen.client.setting.TextSetting) setting(printer, "File")).set("lumen_farm");
+			((dev.lumen.client.setting.TextSetting) setting(printer, "Origin")).set("360 -61 -40");
+			printer.setEnabled(true);
+		});
+		for (int i = 0; i < 100; i++) {
+			context.waitTicks(4);
+			if (!context.computeOnClient(mc -> Lumen.modules().printer.isEnabled())) break;
+		}
+		context.waitTicks(5);
+		context.takeScreenshot("lumen_37_printer_farmland");
+
+		String built = context.computeOnClient(mc -> {
+			StringBuilder wrong = new StringBuilder();
+			for (var entry : farmExpected().entrySet()) {
+				var world = mc.level.getBlockState(new BlockPos(360, -61, -40).offset(entry.getKey()));
+				if (!world.is(entry.getValue().getBlock())) wrong.append(' ').append(entry.getKey().toShortString()).append(" is ").append(world).append(';');
+			}
+			return wrong.toString();
+		});
+		String carried = context.computeOnClient(mc -> count(mc.player, net.minecraft.world.item.Items.DIRT) + " dirt, "
+				+ count(mc.player, net.minecraft.world.item.Items.CARROT) + " carrots, "
+				+ count(mc.player, net.minecraft.world.item.Items.IRON_HOE) + " hoe");
+		boolean finished = context.computeOnClient(mc -> !Lumen.modules().printer.isEnabled());
+		LOG.info("Printer farmland: finished {}, carrying {}, wrong:{}", finished, carried, built.isEmpty() ? " none" : built);
+		context.runOnClient(mc -> Lumen.modules().printer.setEnabled(false));
+		command(server, "/gamemode creative @a");
+
+		if (!built.isEmpty()) throw new AssertionError("The farm was not built:" + built);
+		if (!finished) throw new AssertionError("The Printer did not finish the farm");
+		if (!carried.equals("3 dirt, 5 carrots, 1 hoe")) throw new AssertionError("Left carrying " + carried);
 	}
 
 	/** A one-region schematic of the given blocks, keyed by position from its lowest corner. */
