@@ -74,3 +74,12 @@ net.minecraft.util.FormattedCharSink
 net.minecraft.client.input.CharacterEvent
 net.minecraft.client.User
 net.minecraft.client.gui.components.ChatComponent
+net.minecraft.nbt.NbtIo
+net.minecraft.nbt.NbtAccounter
+net.minecraft.nbt.CompoundTag
+net.minecraft.nbt.ListTag
+net.minecraft.nbt.NbtUtils
+net.minecraft.nbt.LongArrayTag
+net.minecraft.world.item.context.BlockPlaceContext
+net.minecraft.network.protocol.game.ServerboundMovePlayerPacket$Rot
+net.minecraft.world.level.block.state.properties.BlockStateProperties

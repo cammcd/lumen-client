@@ -31,6 +31,7 @@ import dev.lumen.client.modules.HudModule;
 import dev.lumen.client.modules.KillAura;
 import dev.lumen.client.modules.LogoutSpots;
 import dev.lumen.client.modules.Nametags;
+import dev.lumen.client.modules.Printer;
 import dev.lumen.client.modules.NewChunks;
 import dev.lumen.client.modules.Radar;
 import dev.lumen.client.modules.SafeWalk;
@@ -92,6 +93,7 @@ public final class ModuleManager {
 	public final SafeWalk safeWalk;
 	public final ElytraPlus elytraPlus;
 	public final TrailFollower trailFollower;
+	public final Printer printer;
 
 	public ModuleManager() {
 		storageEsp = register(new StorageEsp());
@@ -137,6 +139,7 @@ public final class ModuleManager {
 		safeWalk = register(new SafeWalk());
 		elytraPlus = register(new ElytraPlus());
 		trailFollower = register(new TrailFollower());
+		printer = register(new Printer());
 	}
 
 	private <M extends Module> M register(M module) {

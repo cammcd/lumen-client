@@ -313,7 +313,184 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testUtility(context, sp);
 		testFreecamSurvival(context, sp);
 		testFullbright(context, sp);
+		testPrinter(context, sp);
 		testFakeName(context);
+	}
+
+	// The test schematic, by position relative to its lowest corner.
+	private static java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> printerExpected() {
+		java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> m = new java.util.LinkedHashMap<>();
+		var stone = net.minecraft.world.level.block.Blocks.STONE.defaultBlockState();
+		var glass = net.minecraft.world.level.block.Blocks.GLASS.defaultBlockState();
+		for (int x = 0; x < 3; x++) {
+			for (int z = 0; z < 3; z++) m.put(new BlockPos(x, 0, z), stone);
+		}
+		m.put(new BlockPos(1, 0, 1), net.minecraft.world.level.block.Blocks.OAK_LOG.defaultBlockState()
+				.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.AXIS, net.minecraft.core.Direction.Axis.X));
+		m.put(new BlockPos(0, 1, 0), net.minecraft.world.level.block.Blocks.FURNACE.defaultBlockState()
+				.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, net.minecraft.core.Direction.WEST));
+		m.put(new BlockPos(2, 1, 0), net.minecraft.world.level.block.Blocks.OAK_STAIRS.defaultBlockState()
+				.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, net.minecraft.core.Direction.EAST)
+				.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF, net.minecraft.world.level.block.state.properties.Half.BOTTOM));
+		m.put(new BlockPos(1, 1, 1), glass);
+		m.put(new BlockPos(2, 1, 1), glass);
+		m.put(new BlockPos(1, 1, 2), glass);
+		m.put(new BlockPos(0, 1, 2), net.minecraft.world.level.block.Blocks.OAK_SLAB.defaultBlockState()
+				.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.SLAB_TYPE, net.minecraft.world.level.block.state.properties.SlabType.TOP));
+		m.put(new BlockPos(2, 2, 1), glass);
+		m.put(new BlockPos(1, 2, 1), net.minecraft.world.level.block.Blocks.OAK_STAIRS.defaultBlockState()
+				.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, net.minecraft.core.Direction.NORTH)
+				.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF, net.minecraft.world.level.block.state.properties.Half.TOP));
+		var gold = net.minecraft.world.level.block.Blocks.GOLD_BLOCK.defaultBlockState();
+		m.put(new BlockPos(0, 0, 5), gold);
+		m.put(new BlockPos(1, 0, 5), gold);
+		return m;
+	}
+
+	/**
+	 * Writes the test schematic exactly as Litematica would: gzipped NBT, regions with a
+	 * Position and Size, a palette with air first, and indices packed by a copy of
+	 * Litematica's LitematicaBitArray.setAt. The "Side" region has a negative x Size,
+	 * as Litematica saves a selection made from right to left.
+	 */
+	private static void writeTestSchematic(Path file) {
+		var all = printerExpected();
+		java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> main = new java.util.HashMap<>();
+		java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> side = new java.util.HashMap<>();
+		all.forEach((pos, state) -> {
+			if (pos.getZ() < 5) main.put(pos, state);
+			else side.put(pos.offset(0, 0, -5), state);
+		});
+		net.minecraft.nbt.CompoundTag regions = new net.minecraft.nbt.CompoundTag();
+		regions.put("Main", litematicRegion(new BlockPos(0, 0, 0), new BlockPos(3, 3, 3), 3, 3, 3, main));
+		regions.put("Side", litematicRegion(new BlockPos(1, 0, 5), new BlockPos(-2, 1, 1), 2, 1, 1, side));
+		net.minecraft.nbt.CompoundTag meta = new net.minecraft.nbt.CompoundTag();
+		meta.putString("Name", "Lumen test");
+		net.minecraft.nbt.CompoundTag root = new net.minecraft.nbt.CompoundTag();
+		root.putInt("MinecraftDataVersion", 4500);
+		root.putInt("Version", 7);
+		root.putInt("SubVersion", 1);
+		root.put("Metadata", meta);
+		root.put("Regions", regions);
+		try {
+			Files.createDirectories(file.getParent());
+			net.minecraft.nbt.NbtIo.writeCompressed(root, file);
+		} catch (java.io.IOException e) {
+			throw new AssertionError("Could not write the test schematic", e);
+		}
+	}
+
+	/** One Litematica region; blocks are keyed by position from the region's lowest corner. */
+	private static net.minecraft.nbt.CompoundTag litematicRegion(BlockPos position, BlockPos size, int sx, int sy, int sz,
+			java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> blocks) {
+		var air = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+		List<net.minecraft.world.level.block.state.BlockState> palette = new java.util.ArrayList<>();
+		palette.add(air);
+		for (var state : blocks.values()) {
+			if (!palette.contains(state)) palette.add(state);
+		}
+		int bits = Math.max(2, Integer.SIZE - Integer.numberOfLeadingZeros(palette.size() - 1));
+		long volume = (long) sx * sy * sz;
+		long[] data = new long[(int) ((volume * bits + 63) / 64)];
+		for (int y = 0; y < sy; y++) {
+			for (int z = 0; z < sz; z++) {
+				for (int x = 0; x < sx; x++) {
+					var state = blocks.getOrDefault(new BlockPos(x, y, z), air);
+					litematicaSetAt(data, bits, (long) y * sx * sz + (long) z * sx + x, palette.indexOf(state));
+				}
+			}
+		}
+		net.minecraft.nbt.ListTag paletteTag = new net.minecraft.nbt.ListTag();
+		for (var state : palette) paletteTag.add(net.minecraft.nbt.NbtUtils.writeBlockState(state));
+		net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+		tag.put("Position", posTag(position));
+		tag.put("Size", posTag(size));
+		tag.put("BlockStatePalette", paletteTag);
+		tag.put("BlockStates", new net.minecraft.nbt.LongArrayTag(data));
+		tag.put("TileEntities", new net.minecraft.nbt.ListTag());
+		tag.put("Entities", new net.minecraft.nbt.ListTag());
+		return tag;
+	}
+
+	private static net.minecraft.nbt.CompoundTag posTag(BlockPos pos) {
+		net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+		tag.putInt("x", pos.getX());
+		tag.putInt("y", pos.getY());
+		tag.putInt("z", pos.getZ());
+		return tag;
+	}
+
+	/** Copied from Litematica's LitematicaBitArray.setAt. */
+	private static void litematicaSetAt(long[] longArray, int bitsPerEntry, long index, int value) {
+		long maxEntryValue = (1L << bitsPerEntry) - 1L;
+		long startOffset = index * (long) bitsPerEntry;
+		int startArrIndex = (int) (startOffset >> 6);
+		int endArrIndex = (int) (((index + 1L) * (long) bitsPerEntry - 1L) >> 6);
+		int startBitOffset = (int) (startOffset & 0x3F);
+		longArray[startArrIndex] = longArray[startArrIndex] & ~(maxEntryValue << startBitOffset) | ((long) value & maxEntryValue) << startBitOffset;
+		if (startArrIndex != endArrIndex) {
+			int endOffset = 64 - startBitOffset;
+			int j1 = bitsPerEntry - endOffset;
+			longArray[endArrIndex] = longArray[endArrIndex] >>> j1 << j1 | ((long) value & maxEntryValue) >> endOffset;
+		}
+	}
+
+	private void testPrinter(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing the Printer");
+		command(server, "/gamemode creative @a");
+		command(server, "/clear @a");
+		writeTestSchematic(FabricLoader.getInstance().getGameDir().resolve("schematics").resolve("lumen_test.litematic"));
+
+		// The player stands in the gap between the two regions, facing north toward the build.
+		command(server, "/tp @a 321.5 -60 -36.5 180 30");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		input.lookAt(180f, 30f);
+		context.waitTicks(2);
+
+		context.runOnClient(mc -> {
+			Module printer = Lumen.modules().printer;
+			((dev.lumen.client.setting.TextSetting) setting(printer, "File")).set("lumen_test");
+			((dev.lumen.client.setting.TextSetting) setting(printer, "Origin")).set("320 -60 -40");
+			printer.setEnabled(true);
+		});
+		context.waitTicks(2);
+
+		// First, the reader must have decoded exactly what was written.
+		String decoded = context.computeOnClient(mc -> {
+			var schematic = Lumen.modules().printer.schematic();
+			if (schematic == null) return "not loaded";
+			java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> got = new java.util.HashMap<>();
+			for (var e : schematic.blocks()) got.put(e.pos(), e.state());
+			return got.equals(printerExpected()) ? "ok" : "got " + got;
+		});
+		LOG.info("Printer: schematic decoded {}", decoded);
+		if (!decoded.equals("ok")) throw new AssertionError("The schematic did not decode as written: " + decoded);
+
+		context.waitTicks(4);
+		context.takeScreenshot("lumen_33_printer");
+		for (int i = 0; i < 60; i++) {
+			boolean running = context.computeOnClient(mc -> Lumen.modules().printer.isEnabled());
+			if (!running) break;
+			context.waitTicks(5);
+		}
+		context.takeScreenshot("lumen_34_printer_done");
+
+		String result = context.computeOnClient(mc -> {
+			StringBuilder wrong = new StringBuilder();
+			int ok = 0;
+			for (var entry : printerExpected().entrySet()) {
+				var world = mc.level.getBlockState(new BlockPos(320, -60, -40).offset(entry.getKey()));
+				if (dev.lumen.client.modules.Printer.matches(world, entry.getValue())) ok++;
+				else wrong.append(' ').append(entry.getKey().toShortString()).append(" is ").append(world).append(';');
+			}
+			return ok + " of " + printerExpected().size() + " right" + (wrong.isEmpty() ? "" : ":" + wrong);
+		});
+		int placed = context.computeOnClient(mc -> Lumen.modules().printer.placed());
+		LOG.info("Printer: {} ({} placements)", result, placed);
+		if (!result.startsWith(printerExpected().size() + " of")) throw new AssertionError("Printer built " + result);
 	}
 
 	/**
