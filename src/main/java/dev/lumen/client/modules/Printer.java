@@ -119,6 +119,7 @@ public final class Printer extends Module implements WorldRenderable {
 	private int statusTimer;
 	private int placed;
 	private int correct;
+	private int total;
 	private List<Ghost> ghosts = List.of();
 	private final Set<Item> missingItems = new HashSet<>();
 	private final Buyer buyer = new Buyer();
@@ -144,6 +145,11 @@ public final class Printer extends Module implements WorldRenderable {
 		return placed;
 	}
 
+	/** Blocks the Printer can place, which it counts toward finishing. */
+	public int total() {
+		return total;
+	}
+
 	/** Blocks that match the schematic, as of the last check. */
 	public int correct() {
 		return correct;
@@ -167,7 +173,7 @@ public final class Printer extends Module implements WorldRenderable {
 	public String hudInfo() {
 		if (schematic == null) return "";
 		if (buyer.busy()) return "buying " + new ItemStack(buyer.item()).getHoverName().getString();
-		return correct + "/" + schematic.blocks().size();
+		return correct + "/" + total;
 	}
 
 	@Override
@@ -220,16 +226,40 @@ public final class Printer extends Module implements WorldRenderable {
 		loadedFile = file.get();
 		loadedOrigin = origin.get();
 		byPos.clear();
-		for (Schematic.Entry e : schematic.blocks()) byPos.put(e.pos(), e.state());
+		Set<String> byHand = new java.util.TreeSet<>();
+		total = 0;
+		for (Schematic.Entry e : schematic.blocks()) {
+			byPos.put(e.pos(), e.state());
+			if (placeable(e.state())) total++;
+			else byHand.add(e.state().getBlock().getName().getString());
+		}
 		statusTimer = 0;
+		correct = 0;
+
+		List<String> unknown = schematic.unknownBlocks();
+		if (!unknown.isEmpty()) {
+			Finds.chat(unknown.size() + " block types in " + schematic.name() + " are not in this version of the game and are skipped: "
+					+ String.join(", ", unknown.subList(0, Math.min(8, unknown.size()))) + (unknown.size() > 8 ? ", ..." : ""));
+		}
+		if (total == 0) {
+			fail(schematic.name() + " has no blocks the Printer can place" + (unknown.isEmpty() ? "." : "; see chat for the block types it did not know."));
+			schematic = null;
+			return false;
+		}
+		if (!byHand.isEmpty()) Finds.chat("Place these by hand, they have no item to place: " + String.join(", ", byHand) + ".");
 
 		BlockPos s = schematic.size();
-		String detail = schematic.name() + ": " + schematic.blocks().size() + " blocks, " + s.getX() + "x" + s.getY() + "x" + s.getZ()
+		String detail = schematic.name() + ": " + total + " blocks, " + s.getX() + "x" + s.getY() + "x" + s.getZ()
 				+ ", from " + originPos.getX() + " " + originPos.getY() + " " + originPos.getZ();
-		if (schematic.unknownBlocks() > 0) detail += " (" + schematic.unknownBlocks() + " unknown block types skipped)";
+		if (!unknown.isEmpty()) detail += " (" + unknown.size() + " unknown block types skipped)";
 		Notifications.notice("Printing", detail, 0xFF5AC8FA);
 		Finds.chat("Printing " + detail);
 		return true;
+	}
+
+	/** Water, lava, fire and the like have no item to place them with. */
+	private static boolean placeable(BlockState state) {
+		return state.getBlock().asItem() instanceof BlockItem;
 	}
 
 	private static void fail(String message) {
@@ -253,7 +283,7 @@ public final class Printer extends Module implements WorldRenderable {
 		if (--statusTimer <= 0) {
 			statusTimer = 10;
 			updateStatus(p);
-			if (correct == schematic.blocks().size() && finishOff.isOn()) {
+			if (correct == total && finishOff.isOn()) {
 				Notifications.notice("Build finished", schematic.name() + ": all " + correct + " blocks in place", 0xFF6CF0A0);
 				Finds.chat("Finished " + schematic.name() + ": all " + correct + " blocks in place."
 						+ (spent > 0 ? " Spent " + ShopText.format(spent) + " on blocks." : ""));
@@ -501,7 +531,7 @@ public final class Printer extends Module implements WorldRenderable {
 			BlockPos abs = originPos.offset(e.pos());
 			BlockState world = MC.level.getBlockState(abs);
 			if (matches(world, e.state())) {
-				ok++;
+				if (placeable(e.state())) ok++;
 				continue;
 			}
 			if (list.size() < MAX_GHOSTS && here.distanceToSqr(Vec3.atCenterOf(abs)) <= rangeSq) {

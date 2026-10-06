@@ -100,3 +100,5 @@ net.minecraft.world.phys.EntityHitResult
 net.minecraft.world.phys.HitResult
 net.minecraft.core.Registry
 net.minecraft.world.level.block.ColorCollection
+net.minecraft.world.level.block.state.properties.Property
+net.minecraft.world.level.block.state.StateDefinition

@@ -314,6 +314,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testFreecamSurvival(context, sp);
 		testFullbright(context, sp);
 		testPrinter(context, sp);
+		testSchematicForms(context);
 		testPrinterBuying(context, sp);
 		testFakeName(context);
 	}
@@ -434,6 +435,108 @@ public final class LumenClientTest implements FabricClientGameTest {
 			int j1 = bitsPerEntry - endOffset;
 			longArray[endArrIndex] = longArray[endArrIndex] >>> j1 << j1 | ((long) value & maxEntryValue) >> endOffset;
 		}
+	}
+
+	private static net.minecraft.nbt.CompoundTag paletteEntry(String name, String... properties) {
+		net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+		tag.putString("Name", name);
+		if (properties.length > 0) {
+			net.minecraft.nbt.CompoundTag props = new net.minecraft.nbt.CompoundTag();
+			for (int i = 0; i + 1 < properties.length; i += 2) props.putString(properties[i], properties[i + 1]);
+			tag.put("Properties", props);
+		}
+		return tag;
+	}
+
+	/** A one-region schematic one block deep, with palette index x + 1 at each x. */
+	private static void writeRowSchematic(Path file, net.minecraft.nbt.ListTag palette) {
+		int n = palette.size() - 1;
+		int bits = Math.max(2, Integer.SIZE - Integer.numberOfLeadingZeros(palette.size() - 1));
+		long[] data = new long[(n * bits + 63) / 64];
+		for (int x = 0; x < n; x++) litematicaSetAt(data, bits, x, x + 1);
+		net.minecraft.nbt.CompoundTag region = new net.minecraft.nbt.CompoundTag();
+		region.put("Position", posTag(new BlockPos(0, 0, 0)));
+		region.put("Size", posTag(new BlockPos(n, 1, 1)));
+		region.put("BlockStatePalette", palette);
+		region.put("BlockStates", new net.minecraft.nbt.LongArrayTag(data));
+		region.put("TileEntities", new net.minecraft.nbt.ListTag());
+		region.put("Entities", new net.minecraft.nbt.ListTag());
+		net.minecraft.nbt.CompoundTag regions = new net.minecraft.nbt.CompoundTag();
+		regions.put("Main", region);
+		net.minecraft.nbt.CompoundTag root = new net.minecraft.nbt.CompoundTag();
+		root.putInt("MinecraftDataVersion", 3955);
+		root.putInt("Version", 6);
+		root.put("Regions", regions);
+		try {
+			Files.createDirectories(file.getParent());
+			net.minecraft.nbt.NbtIo.writeCompressed(root, file);
+		} catch (java.io.IOException e) {
+			throw new AssertionError("Could not write the test schematic", e);
+		}
+	}
+
+	/**
+	 * Schematics from other tools and older versions write their palettes differently from
+	 * this game's own writer. Every form must decode, unknown blocks must be named, and a
+	 * schematic with no known blocks must not be "finished" with nothing built.
+	 */
+	private void testSchematicForms(ClientGameTestContext context) {
+		LOG.info("Testing schematic palette forms");
+		Path dir = FabricLoader.getInstance().getGameDir().resolve("schematics");
+		net.minecraft.nbt.ListTag palette = new net.minecraft.nbt.ListTag();
+		palette.add(paletteEntry("minecraft:air"));
+		palette.add(paletteEntry("minecraft:oak_stairs", "facing", "south", "half", "top"));
+		palette.add(paletteEntry("minecraft:oak_log[axis=z]"));
+		palette.add(paletteEntry(" Cobblestone "));
+		palette.add(paletteEntry("minecraft:grass"));
+		palette.add(paletteEntry("examplemod:widget"));
+		palette.add(paletteEntry("minecraft:water", "level", "0"));
+		palette.add(paletteEntry("minecraft:carrots", "age", "7"));
+		Path forms = dir.resolve("lumen_forms.litematic");
+		writeRowSchematic(forms, palette);
+
+		String decoded = context.computeOnClient(mc -> {
+			dev.lumen.client.schematic.Schematic schematic;
+			try {
+				schematic = dev.lumen.client.schematic.Schematic.load(forms);
+			} catch (java.io.IOException e) {
+				return "failed: " + e.getMessage();
+			}
+			java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> want = new java.util.HashMap<>();
+			want.put(new BlockPos(0, 0, 0), net.minecraft.world.level.block.Blocks.OAK_STAIRS.defaultBlockState()
+					.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING, net.minecraft.core.Direction.SOUTH)
+					.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.HALF, net.minecraft.world.level.block.state.properties.Half.TOP));
+			want.put(new BlockPos(1, 0, 0), net.minecraft.world.level.block.Blocks.OAK_LOG.defaultBlockState()
+					.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.AXIS, net.minecraft.core.Direction.Axis.Z));
+			want.put(new BlockPos(2, 0, 0), net.minecraft.world.level.block.Blocks.COBBLESTONE.defaultBlockState());
+			want.put(new BlockPos(3, 0, 0), net.minecraft.world.level.block.Blocks.SHORT_GRASS.defaultBlockState());
+			want.put(new BlockPos(5, 0, 0), net.minecraft.world.level.block.Blocks.WATER.defaultBlockState());
+			want.put(new BlockPos(6, 0, 0), net.minecraft.world.level.block.Blocks.CARROTS.defaultBlockState()
+					.setValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.AGE_7, 7));
+			java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> got = new java.util.HashMap<>();
+			for (var e : schematic.blocks()) got.put(e.pos(), e.state());
+			if (!got.equals(want)) return "got " + got;
+			if (!schematic.unknownBlocks().equals(List.of("examplemod:widget"))) return "unknown " + schematic.unknownBlocks();
+			return "ok";
+		});
+		LOG.info("Schematic forms: decoded {}", decoded);
+		if (!decoded.equals("ok")) throw new AssertionError("Palette forms did not decode: " + decoded);
+
+		net.minecraft.nbt.ListTag unknownPalette = new net.minecraft.nbt.ListTag();
+		unknownPalette.add(paletteEntry("minecraft:air"));
+		unknownPalette.add(paletteEntry("examplemod:frame"));
+		unknownPalette.add(paletteEntry("examplemod:gear"));
+		writeRowSchematic(dir.resolve("lumen_unknown.litematic"), unknownPalette);
+		boolean stayedOn = context.computeOnClient(mc -> {
+			Module printer = Lumen.modules().printer;
+			((dev.lumen.client.setting.TextSetting) setting(printer, "File")).set("lumen_unknown");
+			((dev.lumen.client.setting.TextSetting) setting(printer, "Origin")).set("0 -60 0");
+			printer.setEnabled(true);
+			return printer.isEnabled();
+		});
+		context.waitTicks(2);
+		LOG.info("Schematic forms: Printer stayed on for a schematic with no known blocks: {}", stayedOn);
+		if (stayedOn) throw new AssertionError("The Printer turned on for a schematic with no blocks it knows");
 	}
 
 	/** A one-region schematic of the given blocks, keyed by position from its lowest corner. */

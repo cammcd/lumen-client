@@ -4,7 +4,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -12,9 +18,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
 /**
  * A Litematica schematic (.litematic): gzipped NBT with one or more regions, each a
@@ -27,12 +34,19 @@ public final class Schematic {
 	public record Entry(BlockPos pos, BlockState state) {
 	}
 
+	/** Blocks renamed since older schematics were saved: old id to the id this version uses. */
+	private static final Map<String, String> RENAMED = Map.of(
+			"minecraft:grass", "minecraft:short_grass",
+			"minecraft:grass_path", "minecraft:dirt_path",
+			"minecraft:chain", "minecraft:iron_chain");
+	private static Map<String, Block> byId;
+
 	private final String name;
 	private final List<Entry> blocks;
 	private final BlockPos size;
-	private final int unknown;
+	private final List<String> unknown;
 
-	private Schematic(String name, List<Entry> blocks, BlockPos size, int unknown) {
+	private Schematic(String name, List<Entry> blocks, BlockPos size, List<String> unknown) {
 		this.name = name;
 		this.blocks = blocks;
 		this.size = size;
@@ -52,8 +66,8 @@ public final class Schematic {
 		return size;
 	}
 
-	/** Palette entries whose block this version of the game does not know; they are left out. */
-	public int unknownBlocks() {
+	/** Block ids this version of the game does not know; those blocks are left out. */
+	public List<String> unknownBlocks() {
 		return unknown;
 	}
 
@@ -63,7 +77,7 @@ public final class Schematic {
 		if (regions.isEmpty()) throw new IOException("no regions; is this a .litematic file?");
 
 		List<Entry> raw = new ArrayList<>();
-		int unknown = 0;
+		Set<String> unknown = new LinkedHashSet<>();
 		int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
 		int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
 
@@ -92,9 +106,13 @@ public final class Schematic {
 			BlockState[] states = new BlockState[palette.size()];
 			for (int i = 0; i < states.length; i++) {
 				CompoundTag entry = palette.getCompoundOrEmpty(i);
-				BlockState state = NbtUtils.readBlockState(BuiltInRegistries.BLOCK, entry);
-				String named = entry.getStringOr("Name", "minecraft:air");
-				if (state.isAir() && !named.endsWith("air")) unknown++;
+				// Some tools write the palette as plain strings like "minecraft:carrots[age=7]".
+				String text = entry.isEmpty() ? palette.getStringOr(i, "") : entry.getStringOr("Name", "");
+				BlockState state = readState(text, entry.getCompoundOrEmpty("Properties"));
+				if (state == null) {
+					unknown.add(id(text));
+					state = Blocks.AIR.defaultBlockState();
+				}
 				states[i] = state;
 			}
 
@@ -122,7 +140,62 @@ public final class Schematic {
 
 		String name = file.getFileName().toString().replaceFirst("\\.litematic$", "");
 		BlockPos size = new BlockPos(maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1);
-		return new Schematic(name, List.copyOf(blocks), size, unknown);
+		return new Schematic(name, List.copyOf(blocks), size, List.copyOf(unknown));
+	}
+
+	/**
+	 * A block state from its id and properties, read by hand rather than through the game's
+	 * NBT reader so that the forms other tools write work too: a separate Properties tag or
+	 * "id[key=value,...]", with or without "minecraft:", in any case. Properties this version
+	 * does not have are ignored. Null if the block itself is unknown.
+	 */
+	public static BlockState readState(String text, CompoundTag properties) {
+		String id = id(text);
+		if (id.isEmpty()) return Blocks.AIR.defaultBlockState();
+		Block block = block(id);
+		if (block == null) return null;
+		Map<String, String> values = new LinkedHashMap<>();
+		int bracket = text.indexOf('[');
+		if (bracket >= 0) {
+			String inner = text.substring(bracket + 1).replace("]", "");
+			for (String pair : inner.split(",")) {
+				int eq = pair.indexOf('=');
+				if (eq > 0) values.put(pair.substring(0, eq).trim().toLowerCase(Locale.ROOT), pair.substring(eq + 1).trim().toLowerCase(Locale.ROOT));
+			}
+		}
+		for (String key : properties.keySet()) {
+			values.put(key.toLowerCase(Locale.ROOT), properties.getStringOr(key, "").trim().toLowerCase(Locale.ROOT));
+		}
+		BlockState state = block.defaultBlockState();
+		for (Map.Entry<String, String> v : values.entrySet()) {
+			Property<?> property = block.getStateDefinition().getProperty(v.getKey());
+			if (property != null) state = with(state, property, v.getValue());
+		}
+		return state;
+	}
+
+	private static <T extends Comparable<T>> BlockState with(BlockState state, Property<T> property, String value) {
+		return property.getValue(value).map(v -> state.setValue(property, v)).orElse(state);
+	}
+
+	/** "minecraft:oak_log" from " Oak_Log", "oak_log[axis=x]" and the like. */
+	private static String id(String text) {
+		String id = text.trim().toLowerCase(Locale.ROOT);
+		int bracket = id.indexOf('[');
+		if (bracket >= 0) id = id.substring(0, bracket).trim();
+		if (id.isEmpty()) return "";
+		return id.contains(":") ? id : "minecraft:" + id;
+	}
+
+	private static Block block(String id) {
+		if (byId == null) {
+			Map<String, Block> map = new HashMap<>();
+			for (Block block : BuiltInRegistries.BLOCK) map.put(BuiltInRegistries.BLOCK.getKey(block).toString(), block);
+			byId = map;
+		}
+		Block block = byId.get(id);
+		if (block == null && RENAMED.containsKey(id)) block = byId.get(RENAMED.get(id));
+		return block;
 	}
 
 	private static int endOffset(int size) {

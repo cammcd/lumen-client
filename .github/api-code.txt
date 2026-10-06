@@ -1,3 +1,4 @@
 net.minecraft.client.Minecraft
 net.minecraft.client.multiplayer.MultiPlayerGameMode
 net.minecraft.client.player.LocalPlayer
+net.minecraft.nbt.NbtUtils
