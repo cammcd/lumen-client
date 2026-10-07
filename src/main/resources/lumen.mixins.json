@@ -12,6 +12,7 @@
 		"LocalPlayerAccessor",
 		"LocalPlayerMixin",
 		"MinecraftAccessor",
+		"MinecraftMixin",
 		"MouseHandlerMixin",
 		"PlayerMixin",
 		"StringDecomposerMixin"

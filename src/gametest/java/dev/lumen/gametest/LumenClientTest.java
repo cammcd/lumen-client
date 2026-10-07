@@ -641,7 +641,9 @@ public final class LumenClientTest implements FabricClientGameTest {
 		command(server, "/setblock 381 -60 -37 minecraft:stone");
 		command(server, "/gamemode survival @a");
 		command(server, "/clear @a");
-		command(server, "/item replace entity @a hotbar.0 with minecraft:diamond_pickaxe");
+		// A wooden pickaxe takes about 30 ticks per cobblestone, so mining has to carry on across ticks.
+		command(server, "/effect clear @a");
+		command(server, "/item replace entity @a hotbar.0 with minecraft:wooden_pickaxe");
 		command(server, "/item replace entity @a hotbar.1 with minecraft:diamond_axe");
 		command(server, "/item replace entity @a hotbar.2 with minecraft:stone 8");
 		command(server, "/item replace entity @a hotbar.3 with minecraft:water_bucket");
@@ -692,8 +694,9 @@ public final class LumenClientTest implements FabricClientGameTest {
 				+ count(mc.player, net.minecraft.world.item.Items.WATER_BUCKET) + " water bucket, "
 				+ count(mc.player, net.minecraft.world.item.Items.STONE) + " stone");
 		boolean finished = context.computeOnClient(mc -> !Lumen.modules().printer.isEnabled());
-		LOG.info("Printer break and water: finished {}, mining seen {}, carrying {}, wrong:{}", finished, shot, carried,
-				result.isEmpty() ? " none" : result);
+		int mined = context.computeOnClient(mc -> Lumen.modules().printer.mined());
+		LOG.info("Printer break and water: finished {}, mined {}, mining seen in progress {}, carrying {}, wrong:{}", finished, mined, shot,
+				carried, result.isEmpty() ? " none" : result);
 		context.runOnClient(mc -> {
 			Lumen.modules().printer.setEnabled(false);
 			((BoolSetting) setting(Lumen.modules().printer, "Clear inside")).set(false);
@@ -703,6 +706,8 @@ public final class LumenClientTest implements FabricClientGameTest {
 		if (!result.isEmpty()) throw new AssertionError("The pool was not built right:" + result);
 		if (!finished) throw new AssertionError("The Printer did not finish the pool");
 		if (!carried.startsWith("1 bucket, 0 water bucket")) throw new AssertionError("Left carrying " + carried);
+		if (mined != 3) throw new AssertionError("The Printer mined " + mined + " blocks, expected the plank and two cobblestones");
+		if (!shot) throw new AssertionError("Mining was never seen in progress, so it did not carry on across ticks");
 	}
 
 	/** A one-region schematic of the given blocks, keyed by position from its lowest corner. */

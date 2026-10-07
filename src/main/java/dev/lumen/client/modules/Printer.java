@@ -20,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.network.protocol.game.ServerboundPunchPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
@@ -151,6 +152,9 @@ public final class Printer extends Module implements WorldRenderable {
 	/** How often each spot was mined; one the server keeps putting back is left alone. */
 	private final Map<BlockPos, Integer> breakTries = new HashMap<>();
 	private boolean warnedProtected;
+	private int mined;
+	/** When water was last poured at each spot: the server places it, the client does not predict it. */
+	private final Map<BlockPos, Integer> pouredAt = new HashMap<>();
 
 	public Printer() {
 		super("Printer", "Builds a Litematica schematic block by block, with the right facing.", Category.PLAYER);
@@ -177,6 +181,16 @@ public final class Printer extends Module implements WorldRenderable {
 	/** Blocks that match the schematic, as of the last check. */
 	public int correct() {
 		return correct;
+	}
+
+	/** True while a block is being mined; vanilla is kept from cancelling it meanwhile. */
+	public boolean isMining() {
+		return isEnabled() && mining != null;
+	}
+
+	/** Blocks mined since the module was turned on; used by the game test. */
+	public int mined() {
+		return mined;
 	}
 
 	/** Money spent buying blocks since the module was turned on. */
@@ -213,6 +227,8 @@ public final class Printer extends Module implements WorldRenderable {
 		breakTries.clear();
 		warnedProtected = false;
 		mining = null;
+		mined = 0;
+		pouredAt.clear();
 		buyer.forget();
 		if (!load()) setEnabled(false);
 	}
@@ -472,11 +488,15 @@ public final class Printer extends Module implements WorldRenderable {
 		boolean gone = state.isAir() || state.is(Blocks.WATER) || state.is(Blocks.LAVA);
 		boolean outOfReach = p.getEyePosition().distanceTo(Vec3.atCenterOf(mining)) > reach.get() + 1.5;
 		if (gone || outOfReach || ++miningTicks > 400) {
+			if (gone) mined++;
 			stopMining(p);
 			return;
 		}
+		// As vanilla's continueAttack does for each tick of mining.
+		var animation = p.getMainHandItem().getAttackAnimation();
 		if (MC.gameMode.continueDestroyBlock(mining, miningFace)) {
-			p.swing(InteractionHand.MAIN_HAND, p.getMainHandItem().getAttackAnimation(), false);
+			p.swing(InteractionHand.MAIN_HAND, animation, false);
+			p.connection.send(ServerboundPunchPacket.INSTANCE);
 		}
 	}
 
@@ -523,6 +543,8 @@ public final class Printer extends Module implements WorldRenderable {
 	 */
 	private boolean pourWater(LocalPlayer p, BlockPos abs) {
 		if (!MC.level.getBlockState(abs).canBeReplaced()) return false;
+		Integer last = pouredAt.get(abs);
+		if (last != null && ticks - last < 20) return false;
 		int slot = ensureInHotbar(p, Items.WATER_BUCKET);
 		if (slot < 0) {
 			if (canBuy(p) && !unbuyable.contains(Items.WATER_BUCKET)) wanted.add(Items.WATER_BUCKET);
@@ -541,6 +563,7 @@ public final class Printer extends Module implements WorldRenderable {
 				BlockHitResult seen = MC.level.clip(new ClipContext(eye, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, p));
 				if (seen.getType() != HitResult.Type.BLOCK || !seen.getBlockPos().equals(neighbour) || seen.getDirection() != face) continue;
 				useAt(p, slot, CombatModule.rotationsTo(point));
+				pouredAt.put(abs, ticks);
 				placed++;
 				return true;
 			}
