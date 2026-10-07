@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.player.LocalPlayer;
 
+import dev.lumen.client.Lumen;
 import dev.lumen.client.modules.Freecam;
 
 /** Keeps the player still while Freecam is using the movement keys. */
@@ -49,6 +50,12 @@ public abstract class LocalPlayerMixin {
 		self.zza = 0f;
 		self.setJumping(false);
 		ci.cancel();
+	}
+
+	/** The Printer walking around a build steers here, after the keys are read. Freecam cancels this method first. */
+	@Inject(method = "applyInput()V", at = @At("RETURN"))
+	private void lumen$printerWalk(CallbackInfo ci) {
+		if (Lumen.modules() != null) Lumen.modules().printer.applyWalk((LocalPlayer) (Object) this);
 	}
 
 	/** Holding sneak lowers the camera; the body should not crouch. */

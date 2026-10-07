@@ -318,6 +318,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testPrinterBuying(context, sp);
 		testPrinterFarmland(context, sp);
 		testPrinterBreakWater(context, sp);
+		testPrinterWalking(context, sp);
 		testFakeName(context);
 	}
 
@@ -708,6 +709,83 @@ public final class LumenClientTest implements FabricClientGameTest {
 		if (!carried.startsWith("1 bucket, 0 water bucket")) throw new AssertionError("Left carrying " + carried);
 		if (mined != 3) throw new AssertionError("The Printer mined " + mined + " blocks, expected the plank and two cobblestones");
 		if (!shot) throw new AssertionError("Mining was never seen in progress, so it did not carry on across ticks");
+	}
+
+	private static java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> walkExpected() {
+		java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> m = new java.util.LinkedHashMap<>();
+		var stone = net.minecraft.world.level.block.Blocks.STONE.defaultBlockState();
+		for (int x = 0; x < 3; x++) m.put(new BlockPos(x, 0, 0), stone);
+		for (int x = 11; x < 14; x++) m.put(new BlockPos(x, 0, 0), stone);
+		return m;
+	}
+
+	/**
+	 * The build is two rows of stone nine blocks apart, fifteen blocks away behind a wall
+	 * with a one-block gap. The Printer has to find the gap, walk to the first row, build
+	 * it, walk on to the second and build that, then finish on its own.
+	 */
+	private void testPrinterWalking(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing the Printer walking around a build");
+		command(server, "/fill 393 -60 -52 420 -55 -25 minecraft:air");
+		command(server, "/fill 393 -61 -52 420 -61 -25 minecraft:grass_block");
+		command(server, "/fill 393 -60 -38 420 -59 -38 minecraft:cobblestone");
+		command(server, "/fill 409 -60 -38 409 -59 -38 minecraft:air");
+		command(server, "/gamemode survival @a");
+		command(server, "/clear @a");
+		command(server, "/item replace entity @a hotbar.0 with minecraft:stone 6");
+		writeSchematic(FabricLoader.getInstance().getGameDir().resolve("schematics").resolve("lumen_walk.litematic"), "Lumen walk test",
+				new BlockPos(14, 1, 1), walkExpected());
+		command(server, "/tp @a 402.5 -60 -30.5 180 20");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		input.lookAt(180f, 20f);
+		context.waitTicks(2);
+		Vec3 startPos = context.computeOnClient(mc -> mc.player.position());
+		float startHealth = context.computeOnClient(mc -> mc.player.getHealth());
+
+		context.runOnClient(mc -> {
+			Module printer = Lumen.modules().printer;
+			((dev.lumen.client.setting.TextSetting) setting(printer, "File")).set("lumen_walk");
+			((dev.lumen.client.setting.TextSetting) setting(printer, "Origin")).set("400 -60 -45");
+			printer.setEnabled(true);
+		});
+		boolean shot = false;
+		boolean throughGap = false;
+		for (int i = 0; i < 300; i++) {
+			context.waitTicks(4);
+			if (!shot && context.computeOnClient(mc -> Lumen.modules().printer.walking())) {
+				context.waitTicks(10);
+				context.takeScreenshot("lumen_40_printer_walking");
+				shot = true;
+			}
+			if (!throughGap) throughGap = context.computeOnClient(mc -> mc.player.getZ() < -38.5);
+			if (!context.computeOnClient(mc -> Lumen.modules().printer.isEnabled())) break;
+		}
+		context.waitTicks(5);
+		context.takeScreenshot("lumen_41_printer_walked");
+
+		String built = context.computeOnClient(mc -> {
+			StringBuilder wrong = new StringBuilder();
+			for (var entry : walkExpected().entrySet()) {
+				var world = mc.level.getBlockState(new BlockPos(400, -60, -45).offset(entry.getKey()));
+				if (!world.is(entry.getValue().getBlock())) wrong.append(' ').append(entry.getKey().toShortString()).append(" is ").append(world).append(';');
+			}
+			return wrong.toString();
+		});
+		boolean finished = context.computeOnClient(mc -> !Lumen.modules().printer.isEnabled());
+		Vec3 endPos = context.computeOnClient(mc -> mc.player.position());
+		float health = context.computeOnClient(mc -> mc.player.getHealth());
+		LOG.info("Printer walking: finished {}, walked from {} to {}, through the gap {}, health {}, wrong:{}", finished, startPos, endPos,
+				throughGap, health, built.isEmpty() ? " none" : built);
+		context.runOnClient(mc -> Lumen.modules().printer.setEnabled(false));
+		command(server, "/gamemode creative @a");
+
+		if (!built.isEmpty()) throw new AssertionError("The walked build was not finished:" + built);
+		if (!finished) throw new AssertionError("The Printer did not finish after walking");
+		if (!throughGap) throw new AssertionError("The player never got past the wall");
+		if (health < startHealth) throw new AssertionError("The player was hurt while walking: health " + startHealth + " to " + health);
 	}
 
 	/** A one-region schematic of the given blocks, keyed by position from its lowest corner. */

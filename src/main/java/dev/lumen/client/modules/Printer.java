@@ -51,6 +51,7 @@ import dev.lumen.client.render.WorldRenderable;
 import dev.lumen.client.schematic.Buyer;
 import dev.lumen.client.schematic.Schematic;
 import dev.lumen.client.schematic.ShopText;
+import dev.lumen.client.schematic.Walker;
 import dev.lumen.client.setting.BoolSetting;
 import dev.lumen.client.setting.ColorSetting;
 import dev.lumen.client.setting.NumberSetting;
@@ -89,6 +90,8 @@ public final class Printer extends Module implements WorldRenderable {
 	private final NumberSetting perTick = add(new NumberSetting("Blocks per tick", "Most blocks placed in one tick.", 2, 1, 8, 1));
 	private final NumberSetting delay = add(new NumberSetting("Delay", "Ticks to wait between rounds of placing.", 0, 0, 10, 1, "t"));
 	private final NumberSetting reach = add(new NumberSetting("Reach", "How far away blocks are placed.", 4.5, 2, 5.5, 0.1, "m"));
+	private final BoolSetting walk = add(new BoolSetting("Walk to blocks",
+			"Walk around the build to the blocks still to do, lowest layer first. It never turns your view; pressing a movement key takes over while you hold it.", true));
 	private final BoolSetting rotate = add(new BoolSetting("Turn for facing",
 			"Look the way a block must face for its click only, so stairs, furnaces and the like come out right.", true));
 	private final BoolSetting useInventory = add(new BoolSetting("Use inventory", "Move blocks from your inventory into the last hotbar slot.", true));
@@ -153,6 +156,16 @@ public final class Printer extends Module implements WorldRenderable {
 	private final Map<BlockPos, Integer> breakTries = new HashMap<>();
 	private boolean warnedProtected;
 	private int mined;
+	private final Walker walker = new Walker();
+	/** Blocks still to do that can be done: an item for them is carried or can be bought, or what is in the way can be mined. */
+	private final Set<BlockPos> pending = new HashSet<>();
+	/** Spots given up on for a while: nothing could be done there from where the walk ended. */
+	private final Map<BlockPos, Integer> walkSkip = new HashMap<>();
+	private BlockPos walkTarget;
+	private int walkTimer;
+	private int walkFails;
+	private int lastProgress;
+	private int lastProgressTick;
 	/** When water was last poured at each spot: the server places it, the client does not predict it. */
 	private final Map<BlockPos, Integer> pouredAt = new HashMap<>();
 
@@ -229,12 +242,21 @@ public final class Printer extends Module implements WorldRenderable {
 		mining = null;
 		mined = 0;
 		pouredAt.clear();
+		walker.stop();
+		pending.clear();
+		walkSkip.clear();
+		walkTarget = null;
+		walkTimer = 0;
+		walkFails = 0;
+		lastProgress = 0;
+		lastProgressTick = ticks;
 		buyer.forget();
 		if (!load()) setEnabled(false);
 	}
 
 	@Override
 	protected void onDisable() {
+		walker.stop();
 		if (mining != null && MC.player != null) stopMining(MC.player);
 		buyer.cancel();
 		wanted.clear();
@@ -361,6 +383,7 @@ public final class Printer extends Module implements WorldRenderable {
 			}
 		}
 
+		updateWalking(p);
 		// Buying drives the server's menus, so nothing is placed until it is done.
 		if (buyer.busy()) {
 			buyer.tick();
@@ -433,6 +456,112 @@ public final class Printer extends Module implements WorldRenderable {
 			}
 		}
 		return done;
+	}
+
+	// ---- walking ----
+
+	/** Moves this tick's walking into the player; called from LocalPlayer.applyInput. */
+	public void applyWalk(LocalPlayer p) {
+		if (isEnabled() && walk.isOn() && walker.walking() && !userMoving()) walker.apply(p);
+	}
+
+	public boolean walking() {
+		return walker.walking();
+	}
+
+	private static boolean userMoving() {
+		return MC.options.keyUp.isDown() || MC.options.keyDown.isDown() || MC.options.keyLeft.isDown()
+				|| MC.options.keyRight.isDown() || MC.options.keyJump.isDown();
+	}
+
+	private void updateWalking(LocalPlayer p) {
+		if (!walk.isOn() || buyer.busy() || mining != null || MC.gui.screen() != null || userMoving()) {
+			walker.stop();
+			return;
+		}
+		int progress = placed + mined;
+		if (progress != lastProgress) {
+			lastProgress = progress;
+			lastProgressTick = ticks;
+		}
+		if (walker.walking()) {
+			// Done from where the walk got to: choose again.
+			if (walkTarget != null && !pending.contains(walkTarget)) {
+				walker.stop();
+				return;
+			}
+			if (!walker.tick()) {
+				walker.stop();
+				walkTimer = 0;
+				if (++walkFails >= 3 && walkTarget != null) {
+					walkSkip.put(walkTarget, ticks);
+					walkFails = 0;
+				}
+			}
+			return;
+		}
+		if (--walkTimer > 0) return;
+		walkTimer = 10;
+
+		Vec3 eye = p.getEyePosition();
+		double r = reach.get();
+		boolean inReach = false;
+		for (BlockPos pos : pending) {
+			if (!skipped(pos) && eye.distanceTo(Vec3.atCenterOf(pos)) <= r) {
+				inReach = true;
+				break;
+			}
+		}
+		if (inReach) {
+			if (ticks - lastProgressTick < 60) return;
+			// Three seconds with nothing done: these cannot be done from here, so try others for a while.
+			for (BlockPos pos : pending) {
+				if (eye.distanceTo(Vec3.atCenterOf(pos)) <= r) walkSkip.put(pos, ticks);
+			}
+			lastProgressTick = ticks;
+		}
+
+		BlockPos target = null;
+		double targetDist = 0;
+		for (BlockPos pos : pending) {
+			if (skipped(pos)) continue;
+			double d = p.distanceToSqr(Vec3.atCenterOf(pos));
+			if (target == null || pos.getY() < target.getY() || pos.getY() == target.getY() && d < targetDist) {
+				target = pos;
+				targetDist = d;
+			}
+		}
+		if (target == null) return;
+		Vec3 center = Vec3.atCenterOf(target);
+		double near = Math.max(1.5, r - 0.7);
+		// Stand within reach, but never where a block still has to go, or on one about to be mined.
+		boolean found = walker.walkTo(n -> !pending.contains(n) && !pending.contains(n.above()) && !pending.contains(n.below())
+				&& new Vec3(n.getX() + 0.5, n.getY() + 1.62, n.getZ() + 0.5).distanceTo(center) <= near, center);
+		if (found) {
+			walkTarget = target;
+			walkFails = 0;
+		} else {
+			walkSkip.put(target, ticks);
+		}
+	}
+
+	private boolean skipped(BlockPos pos) {
+		Integer at = walkSkip.get(pos);
+		return at != null && ticks - at < 600;
+	}
+
+	/** Whether the Printer can get this block done, so it is worth walking to. */
+	private boolean doable(LocalPlayer p, BlockPos abs, BlockState target, BlockState world, Map<Item, Integer> carried, boolean hoe) {
+		boolean tillable = target.is(Blocks.FARMLAND) && tillsFarmland(p) && TILLABLE.contains(world.getBlock());
+		if (tillable) return hoe;
+		if (!world.canBeReplaced()) {
+			// Something is in the way: only worth the walk if it will be mined.
+			if (!breakWrong.isOn() || world.hasBlockEntity() || world.getDestroySpeed(MC.level, abs) < 0) return false;
+		}
+		if (creative.isOn() && p.getAbilities().instabuild) return true;
+		Item item = sourceItem(p, target);
+		if (carried.getOrDefault(item, 0) > 0) return true;
+		return canBuy(p) && !unbuyable.contains(item);
 	}
 
 	// ---- breaking ----
@@ -858,6 +987,16 @@ public final class Printer extends Module implements WorldRenderable {
 	private void updateStatus(LocalPlayer p) {
 		int ok = 0;
 		List<Ghost> list = new ArrayList<>();
+		Map<Item, Integer> carried = new HashMap<>();
+		boolean hoe = false;
+		Inventory inv = p.getInventory();
+		for (int i = 0; i < inv.getContainerSize(); i++) {
+			ItemStack stack = inv.getItem(i);
+			if (stack.isEmpty()) continue;
+			carried.merge(stack.getItem(), stack.getCount(), Integer::sum);
+			if (isHoe(stack)) hoe = true;
+		}
+		pending.clear();
 		double rangeSq = showRange.get() * showRange.get();
 		Vec3 here = p.position();
 		for (Map.Entry<BlockPos, BlockState> e : byPos.entrySet()) {
@@ -867,6 +1006,7 @@ public final class Printer extends Module implements WorldRenderable {
 				if (placeable(e.getValue())) ok++;
 				continue;
 			}
+			if (placeable(e.getValue()) && doable(p, abs, e.getValue(), world, carried, hoe)) pending.add(abs);
 			if (list.size() < MAX_GHOSTS && here.distanceToSqr(Vec3.atCenterOf(abs)) <= rangeSq) {
 				list.add(new Ghost(abs, !world.canBeReplaced()));
 			}
@@ -877,6 +1017,11 @@ public final class Printer extends Module implements WorldRenderable {
 
 	@Override
 	public void renderWorld(EspBatch batch, Vec3 cam) {
+		// The walking route, as small marks on the ground.
+		for (BlockPos node : walker.route()) {
+			AABB mark = new AABB(node.getX() + 0.4, node.getY() + 0.02, node.getZ() + 0.4, node.getX() + 0.6, node.getY() + 0.12, node.getZ() + 0.6);
+			batch.fill(mark, ColorUtil.fade(missingColor.color(), 0.7f), false);
+		}
 		if (!showMissing.isOn() || ghosts.isEmpty()) return;
 		int missing = missingColor.color();
 		int wrong = wrongColor.color();
