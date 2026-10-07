@@ -21,6 +21,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.BlockItem;
@@ -28,6 +29,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,6 +37,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.loader.api.FabricLoader;
@@ -89,6 +92,11 @@ public final class Printer extends Module implements WorldRenderable {
 			"Look the way a block must face for its click only, so stairs, furnaces and the like come out right.", true));
 	private final BoolSetting useInventory = add(new BoolSetting("Use inventory", "Move blocks from your inventory into the last hotbar slot.", true));
 	private final BoolSetting creative = add(new BoolSetting("Creative blocks", "In creative, take whatever block is needed.", true));
+	private final BoolSetting breakWrong = add(new BoolSetting("Break wrong blocks",
+			"Mine blocks that differ from the schematic, then place the right one. Containers and anything else holding items are never broken.", true));
+	private final BoolSetting clearInside = add(new BoolSetting("Clear inside",
+			"Also mine whatever is inside the schematic's area where it has air, such as terrain.", false));
+	private final BoolSetting placeWater = add(new BoolSetting("Place water", "Pour water sources from water buckets in your inventory.", true));
 	private final BoolSetting buy = add(new BoolSetting("Buy missing",
 			"When you run out of a block, buy more with /shop, then the auction house. Made for DonutSMP.", false));
 	private final BoolSetting buyShop = add(new BoolSetting("Use shop", "Look for the block in the server shop first.", true))
@@ -136,6 +144,13 @@ public final class Printer extends Module implements WorldRenderable {
 	private int ticks;
 	/** When each spot was last hoed: the server answers a hoe click, the client does not predict it. */
 	private final Map<BlockPos, Integer> tilledAt = new HashMap<>();
+	private BlockPos mining;
+	private Direction miningFace;
+	private int miningTicks;
+	private int miningSlot = -1;
+	/** How often each spot was mined; one the server keeps putting back is left alone. */
+	private final Map<BlockPos, Integer> breakTries = new HashMap<>();
+	private boolean warnedProtected;
 
 	public Printer() {
 		super("Printer", "Builds a Litematica schematic block by block, with the right facing.", Category.PLAYER);
@@ -195,12 +210,16 @@ public final class Printer extends Module implements WorldRenderable {
 		warnedLimits = false;
 		warnedHoe = false;
 		tilledAt.clear();
+		breakTries.clear();
+		warnedProtected = false;
+		mining = null;
 		buyer.forget();
 		if (!load()) setEnabled(false);
 	}
 
 	@Override
 	protected void onDisable() {
+		if (mining != null && MC.player != null) stopMining(MC.player);
 		buyer.cancel();
 		wanted.clear();
 		schematic = null;
@@ -240,6 +259,7 @@ public final class Printer extends Module implements WorldRenderable {
 		Set<String> byHand = new java.util.TreeSet<>();
 		total = 0;
 		for (Schematic.Entry e : schematic.blocks()) {
+			if (isFlowing(e.state())) continue;
 			byPos.put(e.pos(), e.state());
 			if (placeable(e.state())) total++;
 			else byHand.add(e.state().getBlock().getName().getString());
@@ -268,9 +288,19 @@ public final class Printer extends Module implements WorldRenderable {
 		return true;
 	}
 
-	/** Water, lava, fire and the like have no item to place them with. Farmland is made with a hoe. */
-	private static boolean placeable(BlockState state) {
+	/** Lava, fire and the like have no item to place them with. Farmland is made with a hoe, water poured from a bucket. */
+	private boolean placeable(BlockState state) {
+		if (isWaterSource(state)) return placeWater.isOn();
 		return state.is(Blocks.FARMLAND) || state.getBlock().asItem() instanceof BlockItem;
+	}
+
+	private static boolean isWaterSource(BlockState state) {
+		return state.is(Blocks.WATER) && state.getFluidState().isSource();
+	}
+
+	/** Water or lava that is not a source: it flows into place by itself and is never placed. */
+	private static boolean isFlowing(BlockState state) {
+		return (state.is(Blocks.WATER) || state.is(Blocks.LAVA)) && !state.getFluidState().isSource();
 	}
 
 	/** In survival there is no farmland item, so it is made as by hand: dirt, then a hoe. */
@@ -280,6 +310,7 @@ public final class Printer extends Module implements WorldRenderable {
 
 	/** The item a block is placed with: dirt for farmland that will be hoed. */
 	private Item sourceItem(LocalPlayer p, BlockState target) {
+		if (isWaterSource(target)) return Items.WATER_BUCKET;
 		return target.is(Blocks.FARMLAND) && tillsFarmland(p) ? Items.DIRT : target.getBlock().asItem();
 	}
 
@@ -325,6 +356,10 @@ public final class Printer extends Module implements WorldRenderable {
 			startBuying(p);
 			if (buyer.busy()) return;
 		}
+		if (mining != null) {
+			mine(p);
+			return;
+		}
 		if (timer > 0) {
 			timer--;
 			return;
@@ -337,27 +372,225 @@ public final class Printer extends Module implements WorldRenderable {
 		double r = reach.get();
 		int ri = (int) Math.ceil(r) + 1;
 		BlockPos center = BlockPos.containing(eye);
+		BlockPos size = schematic.size();
 
 		List<BlockPos> candidates = new ArrayList<>();
 		for (int dx = -ri; dx <= ri; dx++) {
 			for (int dy = -ri; dy <= ri; dy++) {
 				for (int dz = -ri; dz <= ri; dz++) {
 					BlockPos abs = center.offset(dx, dy, dz);
-					if (!byPos.containsKey(abs.subtract(originPos))) continue;
+					BlockPos rel = abs.subtract(originPos);
+					boolean inBox = rel.getX() >= 0 && rel.getY() >= 0 && rel.getZ() >= 0
+							&& rel.getX() < size.getX() && rel.getY() < size.getY() && rel.getZ() < size.getZ();
+					if (!byPos.containsKey(rel) && !(clearInside.isOn() && inBox)) continue;
 					if (eye.distanceTo(Vec3.atCenterOf(abs)) > r + 0.87) continue;
 					candidates.add(abs);
 				}
 			}
 		}
+
+		// Mine first, highest first, so nothing falls into a spot already cleared.
+		if (breakWrong.isOn() || clearInside.isOn()) {
+			candidates.sort(Comparator.<BlockPos>comparingInt(b -> -b.getY()).thenComparingDouble(b -> eye.distanceToSqr(Vec3.atCenterOf(b))));
+			for (BlockPos abs : candidates) {
+				if (needsBreaking(p, abs)) {
+					startMining(p, abs);
+					return 1;
+				}
+			}
+		}
+
 		// Lowest first, so each block has something under or beside it; then nearest.
 		candidates.sort(Comparator.<BlockPos>comparingInt(b -> b.getY()).thenComparingDouble(b -> eye.distanceToSqr(Vec3.atCenterOf(b))));
-
 		int done = 0;
 		for (BlockPos abs : candidates) {
-			if (tryPlace(p, abs, byPos.get(abs.subtract(originPos)))) done++;
+			BlockState target = byPos.get(abs.subtract(originPos));
+			if (target == null || isWaterSource(target)) continue;
+			if (tryPlace(p, abs, target)) done++;
 			if (done >= perTick.getInt()) break;
 		}
+		// Water last, once nothing else here can be placed, so it does not run over spots still to fill.
+		if (done == 0 && placeWater.isOn()) {
+			for (BlockPos abs : candidates) {
+				BlockState target = byPos.get(abs.subtract(originPos));
+				if (target != null && isWaterSource(target) && pourWater(p, abs)) return 1;
+			}
+		}
 		return done;
+	}
+
+	// ---- breaking ----
+
+	/** A block in the way: wrong for the schematic, or (with Clear inside) where the schematic has air. */
+	private boolean needsBreaking(LocalPlayer p, BlockPos abs) {
+		BlockState world = MC.level.getBlockState(abs);
+		if (world.isAir() || world.is(Blocks.WATER) || world.is(Blocks.LAVA) || world.is(Blocks.BUBBLE_COLUMN)) return false;
+		BlockState target = byPos.get(abs.subtract(originPos));
+		if (target == null) {
+			if (!clearInside.isOn()) return false;
+		} else {
+			if (!breakWrong.isOn() || matches(world, target)) return false;
+			// Grass, flowers and the like are replaced by placing; dirt and grass under farmland are hoed.
+			if (world.canBeReplaced()) return false;
+			if (target.is(Blocks.FARMLAND) && tillsFarmland(p) && TILLABLE.contains(world.getBlock())) return false;
+		}
+		return canMine(p, abs, world);
+	}
+
+	private boolean canMine(LocalPlayer p, BlockPos abs, BlockState world) {
+		// Chests, shulker boxes, spawners, signs and anything else with contents stay.
+		if (world.hasBlockEntity() || world.getDestroySpeed(MC.level, abs) < 0) return false;
+		if (breakTries.getOrDefault(abs, 0) >= 3) return false;
+		// Not the block underfoot, and nothing that would let lava out.
+		if (p.getBoundingBox().expandTowards(0, -0.6, 0).intersects(new AABB(abs))) return false;
+		for (Direction d : Direction.values()) {
+			if (MC.level.getBlockState(abs.relative(d)).is(Blocks.LAVA)) return false;
+		}
+		return p.getEyePosition().distanceTo(Vec3.atCenterOf(abs)) <= reach.get() + 0.5;
+	}
+
+	private void startMining(LocalPlayer p, BlockPos abs) {
+		int tries = breakTries.merge(abs, 1, Integer::sum);
+		if (tries == 3 && !warnedProtected) {
+			warnedProtected = true;
+			Finds.chat("A block at " + abs.getX() + " " + abs.getY() + " " + abs.getZ()
+					+ " keeps coming back after mining (a protected area?), so the Printer leaves it.");
+		}
+		mining = abs;
+		miningTicks = 0;
+		miningFace = faceToward(abs, p.getEyePosition());
+		miningSlot = p.getInventory().getSelectedSlot();
+		int tool = bestTool(p, MC.level.getBlockState(abs));
+		if (tool >= 0) p.getInventory().setSelectedSlot(tool);
+		// Look at the block while mining it, as a player would.
+		float[] look = CombatModule.rotationsTo(Vec3.atCenterOf(abs));
+		MC.getConnection().send(new ServerboundMovePlayerPacket.Rot(look[0], look[1], p.onGround(), p.horizontalCollision));
+	}
+
+	private void mine(LocalPlayer p) {
+		BlockState state = MC.level.getBlockState(mining);
+		boolean gone = state.isAir() || state.is(Blocks.WATER) || state.is(Blocks.LAVA);
+		boolean outOfReach = p.getEyePosition().distanceTo(Vec3.atCenterOf(mining)) > reach.get() + 1.5;
+		if (gone || outOfReach || ++miningTicks > 400) {
+			stopMining(p);
+			return;
+		}
+		if (MC.gameMode.continueDestroyBlock(mining, miningFace)) {
+			p.swing(InteractionHand.MAIN_HAND, p.getMainHandItem().getAttackAnimation(), false);
+		}
+	}
+
+	private void stopMining(LocalPlayer p) {
+		if (MC.gameMode.isDestroying()) MC.gameMode.stopDestroyBlock();
+		if (miningSlot >= 0) p.getInventory().setSelectedSlot(miningSlot);
+		MC.getConnection().send(new ServerboundMovePlayerPacket.Rot(p.getYRot(), p.getXRot(), p.onGround(), p.horizontalCollision));
+		mining = null;
+		miningSlot = -1;
+	}
+
+	/** The fastest hotbar tool for the block, skipping tools about to break; -1 to keep what is held. */
+	private static int bestTool(LocalPlayer p, BlockState state) {
+		Inventory inv = p.getInventory();
+		int best = -1;
+		float bestSpeed = 1.0f;
+		for (int i = 0; i < 9; i++) {
+			ItemStack stack = inv.getItem(i);
+			if (stack.isEmpty()) continue;
+			if (stack.isDamageableItem() && stack.getMaxDamage() - stack.getDamageValue() <= 2) continue;
+			float speed = stack.getDestroySpeed(state);
+			if (speed > bestSpeed + 0.01f) {
+				best = i;
+				bestSpeed = speed;
+			}
+		}
+		return best;
+	}
+
+	/** The face of the block that points most toward the eye. */
+	private static Direction faceToward(BlockPos pos, Vec3 eye) {
+		Vec3 d = eye.subtract(Vec3.atCenterOf(pos));
+		double ax = Math.abs(d.x), ay = Math.abs(d.y), az = Math.abs(d.z);
+		if (ay >= ax && ay >= az) return d.y > 0 ? Direction.UP : Direction.DOWN;
+		if (ax >= az) return d.x > 0 ? Direction.EAST : Direction.WEST;
+		return d.z > 0 ? Direction.SOUTH : Direction.NORTH;
+	}
+
+	// ---- water ----
+
+	/**
+	 * Pours a water source from a bucket. A bucket places water next to whatever face the
+	 * player looks at, so a neighbour face the eye can see is found and looked at for the use.
+	 */
+	private boolean pourWater(LocalPlayer p, BlockPos abs) {
+		if (!MC.level.getBlockState(abs).canBeReplaced()) return false;
+		int slot = ensureInHotbar(p, Items.WATER_BUCKET);
+		if (slot < 0) {
+			if (canBuy(p) && !unbuyable.contains(Items.WATER_BUCKET)) wanted.add(Items.WATER_BUCKET);
+			else if (missingItems.add(Items.WATER_BUCKET)) Finds.chat("Printer needs water buckets in your inventory to place water.");
+			return false;
+		}
+		Vec3 eye = p.getEyePosition();
+		for (Direction dir : Direction.values()) {
+			BlockPos neighbour = abs.relative(dir);
+			if (!canClick(neighbour)) continue;
+			Direction face = dir.getOpposite();
+			Vec3 faceCenter = Vec3.atCenterOf(neighbour).add(face.getStepX() * 0.5, face.getStepY() * 0.5, face.getStepZ() * 0.5);
+			for (Vec3 point : facePoints(faceCenter, face)) {
+				if (eye.distanceTo(point) > reach.get()) continue;
+				Vec3 end = point.add(face.getStepX() * -0.05, face.getStepY() * -0.05, face.getStepZ() * -0.05);
+				BlockHitResult seen = MC.level.clip(new ClipContext(eye, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, p));
+				if (seen.getType() != HitResult.Type.BLOCK || !seen.getBlockPos().equals(neighbour) || seen.getDirection() != face) continue;
+				useAt(p, slot, CombatModule.rotationsTo(point));
+				placed++;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static List<Vec3> facePoints(Vec3 c, Direction face) {
+		List<Vec3> points = new ArrayList<>();
+		points.add(c);
+		for (double a : new double[] {-0.3, 0.3}) {
+			for (double b : new double[] {-0.3, 0.3}) {
+				points.add(switch (face.getAxis()) {
+					case X -> c.add(0, a, b);
+					case Y -> c.add(a, 0, b);
+					case Z -> c.add(a, b, 0);
+				});
+			}
+		}
+		return points;
+	}
+
+	/** Uses the item in a hotbar slot looking a given way, as vanilla does, then looks back. */
+	private static void useAt(LocalPlayer p, int slot, float[] look) {
+		Inventory inv = p.getInventory();
+		int previous = inv.getSelectedSlot();
+		float yaw = p.getYRot();
+		float pitch = p.getXRot();
+		float yawO = p.yRotO;
+		float pitchO = p.xRotO;
+		MC.getConnection().send(new ServerboundMovePlayerPacket.Rot(look[0], look[1], p.onGround(), p.horizontalCollision));
+		inv.setSelectedSlot(slot);
+		p.setYRot(look[0]);
+		p.setXRot(look[1]);
+		p.yRotO = look[0];
+		p.xRotO = look[1];
+		try {
+			var animation = p.getItemInHand(InteractionHand.MAIN_HAND).getInteractAnimation();
+			InteractionResult result = MC.gameMode.useItem(p, InteractionHand.MAIN_HAND);
+			if (result instanceof InteractionResult.Success success && success.swingSource() == InteractionResult.SwingSource.PREDICTED) {
+				p.swing(InteractionHand.MAIN_HAND, animation, false);
+			}
+		} finally {
+			p.setYRot(yaw);
+			p.setXRot(pitch);
+			p.yRotO = yawO;
+			p.xRotO = pitchO;
+			inv.setSelectedSlot(previous);
+			MC.getConnection().send(new ServerboundMovePlayerPacket.Rot(yaw, pitch, p.onGround(), p.horizontalCollision));
+		}
 	}
 
 	private boolean tryPlace(LocalPlayer p, BlockPos abs, BlockState target) {
@@ -588,6 +821,7 @@ public final class Printer extends Module implements WorldRenderable {
 	/** Same block, and the same value for every property that placement decides. */
 	public static boolean matches(BlockState world, BlockState target) {
 		if (world.getBlock() != target.getBlock()) return false;
+		if (target.is(Blocks.WATER) || target.is(Blocks.LAVA)) return world.getFluidState().isSource() == target.getFluidState().isSource();
 		for (Property<?> property : PLACED) {
 			if (target.hasProperty(property) && !sameValue(world, target, property)) return false;
 		}
@@ -603,11 +837,11 @@ public final class Printer extends Module implements WorldRenderable {
 		List<Ghost> list = new ArrayList<>();
 		double rangeSq = showRange.get() * showRange.get();
 		Vec3 here = p.position();
-		for (Schematic.Entry e : schematic.blocks()) {
-			BlockPos abs = originPos.offset(e.pos());
+		for (Map.Entry<BlockPos, BlockState> e : byPos.entrySet()) {
+			BlockPos abs = originPos.offset(e.getKey());
 			BlockState world = MC.level.getBlockState(abs);
-			if (matches(world, e.state())) {
-				if (placeable(e.state())) ok++;
+			if (matches(world, e.getValue())) {
+				if (placeable(e.getValue())) ok++;
 				continue;
 			}
 			if (list.size() < MAX_GHOSTS && here.distanceToSqr(Vec3.atCenterOf(abs)) <= rangeSq) {

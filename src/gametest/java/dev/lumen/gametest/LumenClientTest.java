@@ -317,6 +317,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testSchematicForms(context);
 		testPrinterBuying(context, sp);
 		testPrinterFarmland(context, sp);
+		testPrinterBreakWater(context, sp);
 		testFakeName(context);
 	}
 
@@ -607,6 +608,101 @@ public final class LumenClientTest implements FabricClientGameTest {
 		if (!built.isEmpty()) throw new AssertionError("The farm was not built:" + built);
 		if (!finished) throw new AssertionError("The Printer did not finish the farm");
 		if (!carried.equals("3 dirt, 5 carrots, 1 hoe")) throw new AssertionError("Left carrying " + carried);
+	}
+
+	private static java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> poolExpected() {
+		java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> m = new java.util.LinkedHashMap<>();
+		for (int x = 0; x < 3; x++) {
+			for (int z = 0; z < 3; z++) {
+				m.put(new BlockPos(x, 0, z), x == 1 && z == 1 ? net.minecraft.world.level.block.Blocks.WATER.defaultBlockState()
+						: net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+			}
+		}
+		return m;
+	}
+
+	/**
+	 * Survival: a ring of stone around a water source, 3 by 2 by 3 with air above. An oak
+	 * plank sits where a ring stone belongs and must be mined (with the axe, the fastest
+	 * tool for it) and replaced; with Clear inside on, two cobblestones in the air layer are
+	 * mined, one right above the water spot; a chest in the area must be left alone. The
+	 * water is poured from a bucket last, aimed at a ring stone's inner face.
+	 */
+	private void testPrinterBreakWater(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing the Printer breaking blocks and placing water");
+		command(server, "/fill 377 -60 -44 386 -54 -33 minecraft:air");
+		command(server, "/fill 377 -61 -44 386 -61 -33 minecraft:grass_block");
+		command(server, "/setblock 380 -60 -40 minecraft:oak_planks");
+		command(server, "/setblock 380 -59 -40 minecraft:cobblestone");
+		command(server, "/setblock 381 -59 -39 minecraft:cobblestone");
+		command(server, "/setblock 382 -59 -38 minecraft:chest");
+		command(server, "/setblock 381 -60 -37 minecraft:stone");
+		command(server, "/gamemode survival @a");
+		command(server, "/clear @a");
+		command(server, "/item replace entity @a hotbar.0 with minecraft:diamond_pickaxe");
+		command(server, "/item replace entity @a hotbar.1 with minecraft:diamond_axe");
+		command(server, "/item replace entity @a hotbar.2 with minecraft:stone 8");
+		command(server, "/item replace entity @a hotbar.3 with minecraft:water_bucket");
+		writeSchematic(FabricLoader.getInstance().getGameDir().resolve("schematics").resolve("lumen_pool.litematic"), "Lumen pool test",
+				new BlockPos(3, 2, 3), poolExpected());
+		command(server, "/tp @a 381.5 -59 -36.5 180 40");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		input.lookAt(180f, 40f);
+		context.waitTicks(2);
+
+		context.runOnClient(mc -> {
+			mc.player.getInventory().setSelectedSlot(2);
+			Module printer = Lumen.modules().printer;
+			((dev.lumen.client.setting.TextSetting) setting(printer, "File")).set("lumen_pool");
+			((dev.lumen.client.setting.TextSetting) setting(printer, "Origin")).set("380 -60 -40");
+			((BoolSetting) setting(printer, "Clear inside")).set(true);
+			printer.setEnabled(true);
+		});
+		boolean shot = false;
+		for (int i = 0; i < 150; i++) {
+			context.waitTicks(4);
+			if (!shot && context.computeOnClient(mc -> mc.gameMode.isDestroying())) {
+				context.takeScreenshot("lumen_38_printer_mining");
+				shot = true;
+			}
+			if (!context.computeOnClient(mc -> Lumen.modules().printer.isEnabled())) break;
+		}
+		context.waitTicks(5);
+		context.takeScreenshot("lumen_39_printer_pool");
+
+		String result = context.computeOnClient(mc -> {
+			StringBuilder wrong = new StringBuilder();
+			BlockPos o = new BlockPos(380, -60, -40);
+			for (var entry : poolExpected().entrySet()) {
+				var world = mc.level.getBlockState(o.offset(entry.getKey()));
+				boolean ok = entry.getValue().is(net.minecraft.world.level.block.Blocks.WATER)
+						? world.is(net.minecraft.world.level.block.Blocks.WATER) && world.getFluidState().isSource()
+						: world.is(entry.getValue().getBlock());
+				if (!ok) wrong.append(' ').append(entry.getKey().toShortString()).append(" is ").append(world).append(';');
+			}
+			if (!mc.level.getBlockState(o.offset(0, 1, 0)).isAir()) wrong.append(" the cobblestone at 0, 1, 0 is still there;");
+			if (!mc.level.getBlockState(o.offset(1, 1, 1)).isAir()) wrong.append(" the cobblestone at 1, 1, 1 is still there;");
+			if (!mc.level.getBlockState(o.offset(2, 1, 2)).is(net.minecraft.world.level.block.Blocks.CHEST)) wrong.append(" the chest was broken;");
+			return wrong.toString();
+		});
+		String carried = context.computeOnClient(mc -> count(mc.player, net.minecraft.world.item.Items.BUCKET) + " bucket, "
+				+ count(mc.player, net.minecraft.world.item.Items.WATER_BUCKET) + " water bucket, "
+				+ count(mc.player, net.minecraft.world.item.Items.STONE) + " stone");
+		boolean finished = context.computeOnClient(mc -> !Lumen.modules().printer.isEnabled());
+		LOG.info("Printer break and water: finished {}, mining seen {}, carrying {}, wrong:{}", finished, shot, carried,
+				result.isEmpty() ? " none" : result);
+		context.runOnClient(mc -> {
+			Lumen.modules().printer.setEnabled(false);
+			((BoolSetting) setting(Lumen.modules().printer, "Clear inside")).set(false);
+		});
+		command(server, "/gamemode creative @a");
+
+		if (!result.isEmpty()) throw new AssertionError("The pool was not built right:" + result);
+		if (!finished) throw new AssertionError("The Printer did not finish the pool");
+		if (!carried.startsWith("1 bucket, 0 water bucket")) throw new AssertionError("Left carrying " + carried);
 	}
 
 	/** A one-region schematic of the given blocks, keyed by position from its lowest corner. */
