@@ -319,6 +319,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testPrinterFarmland(context, sp);
 		testPrinterBreakWater(context, sp);
 		testPrinterWalking(context, sp);
+		testAutoUse(context, sp);
 		testFakeName(context);
 	}
 
@@ -786,6 +787,74 @@ public final class LumenClientTest implements FabricClientGameTest {
 		if (!finished) throw new AssertionError("The Printer did not finish after walking");
 		if (!throughGap) throw new AssertionError("The player never got past the wall");
 		if (health < startHealth) throw new AssertionError("The player was hurt while walking: health " + startHealth + " to " + health);
+	}
+
+	/** How often a note block's note changed over some ticks: one change per right click. */
+	private static int noteClicks(ClientGameTestContext context, BlockPos pos, int ticks) {
+		int changes = 0;
+		int last = context.computeOnClient(mc -> mc.level.getBlockState(pos)
+				.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.NOTE));
+		for (int i = 0; i < ticks; i++) {
+			context.waitTicks(1);
+			int now = context.computeOnClient(mc -> mc.level.getBlockState(pos)
+					.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.NOTE));
+			if (now != last) changes++;
+			last = now;
+		}
+		return changes;
+	}
+
+	/**
+	 * Auto Use holds right click on a note block, whose note goes up one per click. It must
+	 * keep clicking with the window unfocused and Pause on lost focus on, without the pause
+	 * menu opening; and once it is off, the same lost focus must pause the game, as vanilla
+	 * does, which shows the lost focus was real to the game.
+	 */
+	private void testAutoUse(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		TestInput input = context.getInput();
+		LOG.info("Testing Auto Use");
+		command(server, "/fill 427 -60 -44 434 -55 -34 minecraft:air");
+		command(server, "/fill 427 -61 -44 434 -61 -34 minecraft:grass_block");
+		command(server, "/setblock 430 -60 -40 minecraft:note_block");
+		command(server, "/gamemode survival @a");
+		command(server, "/clear @a");
+		command(server, "/tp @a 430.5 -60 -37.5 180 30");
+		sp.getConnection().waitForChunksRender();
+		context.waitTicks(10);
+		lookAt(context, input, new Vec3(430.5, -59.5, -39.5));
+		context.waitTicks(3);
+		BlockPos note = new BlockPos(430, -60, -40);
+
+		context.runOnClient(mc -> Lumen.modules().autoUse.setEnabled(true));
+		int focused = noteClicks(context, note, 40);
+		boolean pauseSetting = context.computeOnClient(mc -> mc.options.pauseOnLostFocus);
+		context.runOnClient(mc -> {
+			mc.options.pauseOnLostFocus = true;
+			FakeFocus.lost = true;
+		});
+		int background = noteClicks(context, note, 40);
+		boolean unpaused = context.computeOnClient(mc -> mc.gui.screen() == null);
+
+		context.runOnClient(mc -> Lumen.modules().autoUse.setEnabled(false));
+		context.waitTicks(30);
+		boolean pausedWithout = context.computeOnClient(mc -> mc.gui.screen() != null);
+		boolean released = context.computeOnClient(mc -> !mc.options.keyUse.isDown());
+		context.runOnClient(mc -> {
+			FakeFocus.lost = false;
+			mc.options.pauseOnLostFocus = pauseSetting;
+			mc.gui.setScreen(null);
+		});
+		context.waitTicks(5);
+		LOG.info("Auto Use: {} clicks in 40 ticks focused, {} in 40 ticks unfocused, no pause menu {}, paused once off {}, key let go {}",
+				focused, background, unpaused, pausedWithout, released);
+		command(server, "/gamemode creative @a");
+
+		if (focused < 7) throw new AssertionError("Auto Use clicked " + focused + " times in 40 ticks");
+		if (background < 7) throw new AssertionError("Auto Use clicked " + background + " times in 40 ticks with the window unfocused");
+		if (!unpaused) throw new AssertionError("The pause menu opened while Auto Use was on");
+		if (!pausedWithout) throw new AssertionError("Losing focus did not pause the game without Auto Use, so the test did not lose focus");
+		if (!released) throw new AssertionError("Auto Use left right click held after turning off");
 	}
 
 	/** A one-region schematic of the given blocks, keyed by position from its lowest corner. */

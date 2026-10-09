@@ -20,4 +20,10 @@ public abstract class MinecraftMixin {
 	private void lumen$keepPrinterMining(boolean attacking, CallbackInfo ci) {
 		if (!attacking && Lumen.modules() != null && Lumen.modules().printer.isMining()) ci.cancel();
 	}
+
+	/** Losing focus opens the pause menu after half a second; Auto Use keeps the game going instead. */
+	@Inject(method = "pauseIfInactive", at = @At("HEAD"), cancellable = true)
+	private void lumen$runInBackground(CallbackInfo ci) {
+		if (Lumen.modules() != null && Lumen.modules().autoUse.keepsRunning()) ci.cancel();
+	}
 }

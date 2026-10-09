@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "dev.lumen.gametest.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"WindowMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

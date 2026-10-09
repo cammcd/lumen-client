@@ -13,6 +13,9 @@
 			"dev.lumen.gametest.LumenClientTest"
 		]
 	},
+	"mixins": [
+		"lumen_test.mixins.json"
+	],
 	"depends": {
 		"lumen": "*"
 	}

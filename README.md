@@ -34,6 +34,7 @@ The Player panel sits under the Client panel.
 |---|---|
 | **Auto Tool** | Switches to the fastest tool in your hotbar while you mine, skips tools about to break, and switches back when you stop. |
 | **Chest Stealer** | Takes everything from chests, barrels and shulker boxes when you open them, then closes the menu. It only empties a container you are looking at, so server menus like /shop and /ah, which are chests too, are left alone. |
+| **Auto Use** | Holds right click for you, for farms you would otherwise have to keep right clicking. It carries on with the game in the background: switching to another window does not open the pause menu while it is on (In background). It lets go while one of your own menus is open. |
 | **Anti AFK** | Jumps, swings and looks around on a timer, with random jitter, so idle-kick plugins see you as active. |
 | **Scaffold** | Places full solid blocks from your hotbar under your feet as you walk, so you can bridge gaps. It bridges at the height you last stood at, so jumping does not build a tower. |
 | **Auto Walk** | Holds forward for you, and swims up in water. Pauses while a menu is open. |

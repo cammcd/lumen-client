@@ -15,6 +15,7 @@ import dev.lumen.client.modules.AutoSprint;
 import dev.lumen.client.modules.AutoTool;
 import dev.lumen.client.modules.AutoTotem;
 import dev.lumen.client.modules.AutoTrap;
+import dev.lumen.client.modules.AutoUse;
 import dev.lumen.client.modules.AutoWalk;
 import dev.lumen.client.modules.BaseFinder;
 import dev.lumen.client.modules.BowAimbot;
@@ -87,6 +88,7 @@ public final class ModuleManager {
 	public final AutoTool autoTool;
 	public final ChestStealer chestStealer;
 	public final AntiAfk antiAfk;
+	public final AutoUse autoUse;
 	public final Scaffold scaffold;
 	public final AutoWalk autoWalk;
 	public final AutoSprint autoSprint;
@@ -133,6 +135,7 @@ public final class ModuleManager {
 		autoTool = register(new AutoTool());
 		chestStealer = register(new ChestStealer());
 		antiAfk = register(new AntiAfk());
+		autoUse = register(new AutoUse());
 		scaffold = register(new Scaffold());
 		autoWalk = register(new AutoWalk());
 		autoSprint = register(new AutoSprint());
