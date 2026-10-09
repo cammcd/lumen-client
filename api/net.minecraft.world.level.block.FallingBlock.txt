@@ -1,0 +1,12 @@
+Compiled from "FallingBlock.java"
+public abstract class net.minecraft.world.level.block.FallingBlock extends net.minecraft.world.level.block.Block implements net.minecraft.world.level.block.Fallable {
+  public net.minecraft.world.level.block.FallingBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties);
+  protected void onPlace(net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, boolean);
+  protected net.minecraft.world.level.block.state.BlockState updateShape(net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.LevelReader, net.minecraft.world.level.ScheduledTickAccess, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.util.RandomSource);
+  protected void tick(net.minecraft.world.level.block.state.BlockState, net.minecraft.server.level.ServerLevel, net.minecraft.core.BlockPos, net.minecraft.util.RandomSource);
+  protected void falling(net.minecraft.world.entity.item.FallingBlockEntity);
+  protected int getDelayAfterPlace();
+  public static boolean isFree(net.minecraft.world.level.block.state.BlockState);
+  public void animateTick(net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.util.RandomSource);
+  public abstract int getDustColor(net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.BlockGetter, net.minecraft.core.BlockPos);
+}

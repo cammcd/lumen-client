@@ -1,0 +1,7 @@
+Compiled from "ShulkerBoxScreen.java"
+public class net.minecraft.client.gui.screens.inventory.ShulkerBoxScreen extends net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<net.minecraft.world.inventory.ShulkerBoxMenu> {
+  private static final net.minecraft.resources.Identifier CONTAINER_TEXTURE;
+  public net.minecraft.client.gui.screens.inventory.ShulkerBoxScreen(net.minecraft.world.inventory.ShulkerBoxMenu, net.minecraft.world.entity.player.Inventory, net.minecraft.network.chat.Component);
+  public void extractBackground(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  static {};
+}

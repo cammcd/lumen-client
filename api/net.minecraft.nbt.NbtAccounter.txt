@@ -1,0 +1,21 @@
+Compiled from "NbtAccounter.java"
+public class net.minecraft.nbt.NbtAccounter {
+  public static final int DEFAULT_NBT_QUOTA;
+  public static final int UNCOMPRESSED_NBT_QUOTA;
+  private static final int MAX_STACK_DEPTH;
+  private final long quota;
+  private long usage;
+  private final int maxDepth;
+  private int depth;
+  public net.minecraft.nbt.NbtAccounter(long, int);
+  public static net.minecraft.nbt.NbtAccounter create(long);
+  public static net.minecraft.nbt.NbtAccounter defaultQuota();
+  public static net.minecraft.nbt.NbtAccounter uncompressedQuota();
+  public static net.minecraft.nbt.NbtAccounter unlimitedHeap();
+  public void accountBytes(long, long);
+  public void accountBytes(long);
+  public void pushDepth();
+  public void popDepth();
+  public long getUsage();
+  public int getDepth();
+}

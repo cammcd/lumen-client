@@ -1,0 +1,13 @@
+Compiled from "TransferState.java"
+public final class net.minecraft.client.multiplayer.TransferState extends java.lang.Record {
+  private final java.util.Map<net.minecraft.resources.Identifier, byte[]> cookies;
+  private final java.util.Map<java.util.UUID, net.minecraft.client.multiplayer.PlayerInfo> seenPlayers;
+  private final boolean seenInsecureChatWarning;
+  public net.minecraft.client.multiplayer.TransferState(java.util.Map<net.minecraft.resources.Identifier, byte[]>, java.util.Map<java.util.UUID, net.minecraft.client.multiplayer.PlayerInfo>, boolean);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public java.util.Map<net.minecraft.resources.Identifier, byte[]> cookies();
+  public java.util.Map<java.util.UUID, net.minecraft.client.multiplayer.PlayerInfo> seenPlayers();
+  public boolean seenInsecureChatWarning();
+}

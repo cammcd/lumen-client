@@ -1,0 +1,11 @@
+Compiled from "InteractionResult.java"
+public interface net.minecraft.world.InteractionResult {
+  public static final net.minecraft.world.InteractionResult$Success SUCCESS;
+  public static final net.minecraft.world.InteractionResult$Success SUCCESS_SERVER;
+  public static final net.minecraft.world.InteractionResult$Success CONSUME;
+  public static final net.minecraft.world.InteractionResult$Fail FAIL;
+  public static final net.minecraft.world.InteractionResult$Pass PASS;
+  public static final net.minecraft.world.InteractionResult$TryEmptyHandInteraction TRY_WITH_EMPTY_HAND;
+  public default boolean consumesAction();
+  static {};
+}

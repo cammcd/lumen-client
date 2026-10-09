@@ -1,0 +1,11 @@
+Compiled from "CharacterEvent.java"
+public final class net.minecraft.client.input.CharacterEvent extends java.lang.Record {
+  private final int codepoint;
+  public net.minecraft.client.input.CharacterEvent(int);
+  public java.lang.String codepointAsString();
+  public boolean isAllowedChatCharacter();
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public int codepoint();
+}

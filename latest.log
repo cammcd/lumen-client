@@ -1,0 +1,828 @@
+[21:23:30] [main/INFO] (FabricLoader/GameProvider) Loading Minecraft 26.3 with Fabric Loader 0.19.5
+[21:23:30] [main/INFO] (FabricLoader/Mappings) Mappings not present!
+[21:23:30] [main/INFO] (FabricLoader) Loading 53 mods:
+	- fabric-advancement-api-v1 1.0.0+38c7a2d55d
+	- fabric-api 0.161.0+26.3
+	- fabric-api-base 2.0.6+fcdff87f5d
+	- fabric-api-lookup-api-v1 2.0.24+3434d6d95d
+	- fabric-biome-api-v1 20.0.9+74ed1ea55d
+	- fabric-block-api-v1 3.1.0+0ae6f9115d
+	- fabric-block-getter-api-v2 2.0.9+3434d6d95d
+	- fabric-client-gametest-api-v1 6.0.7+4be74c3f5d
+	- fabric-command-api-v2 3.1.2+fcdff87f5d
+	- fabric-content-registries-v0 15.0.4+74ed1ea55d
+	- fabric-convention-tags-v2 4.10.3+6b5b47fd5d
+	- fabric-crash-report-info-v1 1.0.7+fcdff87f5d
+	- fabric-creative-tab-api-v1 5.0.21+fcdff87f5d
+	- fabric-data-attachment-api-v1 2.2.30+3434d6d95d
+	- fabric-data-generation-api-v1 27.2.4+427eab975d
+	- fabric-debug-api-v1 1.0.4+3434d6d95d
+	- fabric-dimensions-v1 5.1.19+47f74c985d
+	- fabric-entity-events-v1 6.0.4+3434d6d95d
+	- fabric-events-interaction-v0 5.3.6+3434d6d95d
+	- fabric-game-rule-api-v1 4.0.10+3434d6d95d
+	- fabric-gametest-api-v1 4.0.32+3434d6d95d
+	- fabric-item-api-v1 14.7.0+cf6bc2db5d
+	- fabric-key-mapping-api-v1 2.0.8+3434d6d95d
+	- fabric-lifecycle-events-v1 4.1.9+ffef5f675d
+	- fabric-loot-api-v3 4.0.8+4068fd645d
+	- fabric-menu-api-v1 2.0.27+ed66f0a35d
+	- fabric-message-api-v1 7.0.10+3434d6d95d
+	- fabric-model-loading-api-v1 8.0.35+fcdff87f5d
+	- fabric-networking-api-v1 6.3.8+fcdff87f5d
+	- fabric-object-builder-api-v1 24.1.9+3434d6d95d
+	- fabric-particles-v1 5.0.24+3434d6d95d
+	- fabric-permission-api-v1 1.0.8+fcdff87f5d
+	- fabric-recipe-api-v1 10.0.8+fcdff87f5d
+	- fabric-registry-sync-v0 8.0.1+fcdff87f5d
+	- fabric-renderer-api-v1 17.0.15+79385d0b5d
+	- fabric-renderer-indigo 9.1.23+b9d63e335d
+	- fabric-rendering-fluids-v1 6.0.6+3434d6d95d
+	- fabric-rendering-v1 27.0.14+901a437c5d
+	- fabric-resource-conditions-api-v1 6.1.5+3434d6d95d
+	- fabric-resource-loader-v0 3.3.26+4fc5413f5d
+	- fabric-resource-loader-v1 3.0.4+fcdff87f5d
+	- fabric-screen-api-v1 5.2.4+48607d035d
+	- fabric-serialization-api-v1 2.0.7+74ed1ea55d
+	- fabric-sound-api-v1 2.0.7+3434d6d95d
+	- fabric-tag-api-v1 2.1.10+fcdff87f5d
+	- fabric-transfer-api-v1 8.0.25+fcdff87f5d
+	- fabric-transitive-access-wideners-v1 8.1.16+52268a0e5d
+	- fabricloader 0.19.5
+	- java 25
+	- lumen 0.16.0+mc26.3
+	- lumen_test 1.0.0
+	- minecraft 26.3
+	- mixinextras 0.5.5
+[21:23:30] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/5f66cc9f59b8efaa942155a3d5a30599bf6640dd/sponge-mixin-0.17.4+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[21:23:31] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[21:23:32] [Datafixer Bootstrap #0/INFO] (Minecraft) 307 Datafixer optimizations took 312 milliseconds
+[21:23:36] [Render thread/INFO] (Minecraft) Environment: Environment[discoveryUrl=https://discovery.minecraftservices.com/minecraft/client, name=PROD]
+[21:23:36] [Render thread/INFO] (Minecraft) Setting user: Lumen-Bot
+[21:23:37] [Render thread/INFO] (Indigo) [Indigo] Registering Indigo renderer!
+[21:23:37] [Render thread/INFO] (Lumen) Lumen loaded with 44 modules
+[21:23:37] [Download-2/ERROR] (Minecraft) Failed to fetch user properties
+com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:70)
+	at knot//com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:168)
+	at knot//net.minecraft.client.Minecraft.lambda$new$1(Minecraft.java:451)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+Caused by: MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/attributes, error=null, errorMessage=null, details=null]]
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65)
+	at knot//com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:118)
+	... 5 more
+[21:23:37] [Render thread/ERROR] (Minecraft) Illegal option value 0 for Anisotropic Filtering
+[21:23:37] [Render thread/INFO] (Minecraft) Backend library: LWJGL version 3.4.3-snapshot
+[21:23:37] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: App name: Minecraft
+[21:23:37] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: App version: 26.3
+[21:23:37] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: App ID: com.mojang.minecraft
+[21:23:37] [Render thread/INFO] (Minecraft) SDL [SYSTEM]: SDL revision: SDL-3.4.14--128-NOTFOUND
+[21:23:38] [Render thread/ERROR] (Minecraft) Failed to create backend OpenGL
+com.mojang.renderpearl.api.device.BackendCreationException: Failed to create window for OpenGL context: Couldn't find matching GLX visual
+	at knot//com.mojang.renderpearl.backend.opengl.GlDevice.<init>(GlDevice.java:83)
+	at knot//com.mojang.renderpearl.backend.opengl.GlBackend.createDevice(GlBackend.java:68)
+	at knot//net.minecraft.client.Minecraft.<init>(Minecraft.java:533)
+	at knot//net.minecraft.client.main.Main.main(Main.java:278)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+[21:23:38] [Render thread/INFO] (Minecraft) Optional FeatureSet [AMD Buffer Marker] not supported
+[21:23:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Calibrated Timestamps]
+[21:23:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [EXT MultiDraw]
+[21:23:38] [Render thread/INFO] (Minecraft) Enabling optional FeatureSet [Wireframe]
+[21:23:38] [Render thread/INFO] (Minecraft) Optional FeatureSet [NV Diagnostic Checkpoint] not supported
+[21:23:38] [Render thread/INFO] (Minecraft) Using graphics backend Vulkan, using drivers: 1.4.318 llvmpipe Mesa 25.2.8-0ubuntu0.24.04.4 (LLVM 20.1.2)
+[21:23:38] [Render thread/INFO] (Minecraft) Using graphics device: llvmpipe (LLVM 20.1.2, 256 bits) (0x10005)
+[21:23:38] [Render thread/INFO] (Minecraft) Using graphics device extensions: VK_EXT_calibrated_timestamps (D), VK_KHR_synchronization2 (D), VK_EXT_multi_draw (D), VK_EXT_vertex_attribute_divisor (D), VK_KHR_swapchain (D), VK_KHR_surface (I), VK_KHR_push_descriptor (D), VK_KHR_xlib_surface (I), VK_EXT_debug_utils (I), VK_KHR_dynamic_rendering (D)
+[21:23:38] [Render thread/INFO] (Minecraft) Created window using SDL video driver: x11
+[21:23:38] [Download-1/INFO] (Minecraft) Could not authorize you against Realms server: java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC
+[21:23:38] [Download-1/ERROR] (Minecraft) Failed to fetch Realms feature flags
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+	at knot//com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:204)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[21:23:38] [Render thread/ERROR] (Minecraft) Error while loading the narrator
+com.mojang.text2speech.Narrator$InitializeException: Failed to load library flite
+	at knot//com.mojang.text2speech.NarratorLinux$FliteLibrary.loadNative(NarratorLinux.java:82)
+	at knot//com.mojang.text2speech.NarratorLinux.<init>(NarratorLinux.java:19)
+	at knot//com.mojang.text2speech.Narrator.getNarrator(Narrator.java:41)
+	at knot//net.minecraft.client.GameNarrator.<init>(GameNarrator.java:20)
+	at knot//net.minecraft.client.Minecraft.<init>(Minecraft.java:740)
+	at knot//net.minecraft.client.main.Main.main(Main.java:278)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+Caused by: java.lang.UnsatisfiedLinkError: Unable to load library 'flite':
+libflite.so: cannot open shared object file: No such file or directory
+libflite.so: cannot open shared object file: No such file or directory
+Native library (linux-x86-64/libflite.so) not found in resource path (/home/runner/work/lumen-client/lumen-client/build/classes/java/gametest:/home/runner/work/lumen-client/lumen-client/build/resources/gametest:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/fabric-loader/0.19.5/ff9e65cffca4a67f31523e1807fe0855940fcbfa/fabric-loader-0.19.5.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api/0.161.0+26.3/53f9ee02c3702734d90520aa8c9719bf0e1c8d4f/fabric-api-0.161.0+26.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm/9.10.1/ada2141c0cc52ee8f5c48cd5fa4ce0e794f22236/asm-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-analysis/9.10.1/8d49f14d51f632cb1d87c88d1ceaf50db0d8af1b/asm-analysis-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-commons/9.10.1/4229e4c55fd8e01c23f9fe9884075cc628aacc50/asm-commons-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-tree/9.10.1/e244332a17564c1d1572449399a842de35881be2/asm-tree-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-util/9.10.1/7bb9d450e8d4cbf9f9e04096c44bbfe7fba80b15/asm-util-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/5f66cc9f59b8efaa942155a3d5a30599bf6640dd/sponge-mixin-0.17.4+mixin.0.8.7.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.github.llamalad7/mixinextras-fabric/0.5.5/d1055b99c0ab08a8403fe2da3d79ca28e6340a76/mixinextras-fabric-0.5.5.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/dev-launch-injector/0.2.1+build.8/da8bef7e6e2f952da707f282bdb46882a0fce5e3/dev-launch-injector-0.2.1+build.8.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/fabric-log4j-util/1.0.2/ef0b3fb613356feb75a67d54f2fad6f03a006648/fabric-log4j-util-1.0.2.jar:/home/runner/.gradle/caches/modules-2/files-2.1/at.yawk.lz4/lz4-java/1.10.1/f541d7f910fe3d76f38f799c507c48cc81b12ecb/lz4-java-1.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.azure/azure-json/1.4.0/fcc1d354dbc3e0300e5276b1bf124d0247799cd8/azure-json-1.4.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.github.oshi/oshi-core/6.9.0/3224870731860cfcd7744581a05b559e94291e7/oshi-core-6.9.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.14.0/efc0e34ede4e3204eaefb84a00e55e8c86634382/gson-2.14.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.3/aeaffd00d57023a2c947393ed251f0354f0985fc/failureaccess-1.0.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/33.6.0-jre/c376b13067cc99a5774403530953f7b05a91e218/guava-33.6.0-jre.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.ibm.icu/icu4j/78.3/6a851a53bb1f25689fc418dcc8935b0d93580adf/icu4j-78.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.microsoft.azure/msal4j/1.24.1/c233f2d047b9755f7041adf21a858c680e4c9242/msal4j-1.24.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/authlib/10.0.77/add8754cda96cf0cd840441632875648836f8a71/authlib-10.0.77.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/blocklist/1.0.10/5c685c5ffa94c4cd39496c7184c1d122e515ecef/blocklist-1.0.10.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/brigadier/1.3.11/3373d1e7bf00c8b99bed1ea4efb8c47344e4a887/brigadier-1.3.11.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/datafixerupper/10.0.21/b6b2ae770c02e0c1eb90f9985b151e9085a38d0b/datafixerupper-10.0.21.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/jtracy/1.14.38/cc2ad81342001b4281c305a298d7f50332354058/jtracy-1.14.38.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/jtracy/1.14.38/d2433300f8a4e99595d513546d19ecddc3eaa15e/jtracy-1.14.38-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/logging/1.7.12/351cea64a5233361327d8d54c44277041beed97f/logging-1.7.12.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/patchy/2.2.10/da05971b07cbb379d002cf7eaec6a2048211fefc/patchy-2.2.10.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/text2speech/1.19.12/2e517a75c79d34d32de2b5d68422150836c2133e/text2speech-1.19.12.jar:/home/runner/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.22.0/6b3eb4beb7058c2a638f5f17bcb388649fd339dd/commons-codec-1.22.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.20.0/36f3474daec2849c149e877614e7f979b2082cd2/commons-io-2.20.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-buffer/4.2.16.Final/5397ef65dcb60670e0e0dba4854522873af3070/netty-buffer-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-base/4.2.16.Final/1a01d45a9efc228c6d747525848b065e0656b5f/netty-codec-base-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-compression/4.2.16.Final/bdbbcfcdbe217b95c14a04df4fc5d31213d5c27c/netty-codec-compression-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-http/4.2.16.Final/b5e0715df90047ee5a0138c8f704f43c751009e4/netty-codec-http-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-common/4.2.16.Final/c2bc7fa5acfa2afc777e944d84f0aa65559cc81e/netty-common-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-handler/4.2.16.Final/cc82873ae4b6d14effe480740ad838de09add70d/netty-handler-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-resolver/4.2.16.Final/fcea6d64273b59ab9127b68c16ae98af34642139/netty-resolver-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-classes-epoll/4.2.16.Final/cf90c7b892e284ba9f1545dce170168369b3b9d6/netty-transport-classes-epoll-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-classes-kqueue/4.2.16.Final/fa2bcf8c71626510f6fae173f78182117b70f7a/netty-transport-classes-kqueue-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/eed34f3b37b4c46a0cbb49456ccc4e3bd7195e4c/netty-transport-native-epoll-4.2.16.Final-linux-aarch_64.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/439c24f5c27c220deb042b42e4048d606edeb78d/netty-transport-native-epoll-4.2.16.Final-linux-x86_64.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-unix-common/4.2.16.Final/3cf32390f1b80af890ac44aa0698c2ff58c2a4d7/netty-transport-native-unix-common-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport/4.2.16.Final/ae87a3bec51d503475a19fbd718bf777f2fc06c6/netty-transport-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/it.unimi.dsi/fastutil/8.5.18/a6cff377eecc19c2037bf31568a6d7106b50ba1f/fastutil-8.5.18.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna-platform/5.17.0/a4934c44d25a9d8c2ddf4203affd20330cb3426f/jna-platform-5.17.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/5.17.0/33d12735bef894440780fce64f9758d420c7bae2/jna-5.17.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.sf.jopt-simple/jopt-simple/5.0.4/4fdac2fbe92dfad86aa6e9301736f6b4342a3f5c/jopt-simple-5.0.4.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-compress/1.28.0/e482f2c7a88dac3c497e96aa420b6a769f59c8d7/commons-compress-1.28.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.20.0/65897b3e5731220962e659e001904af3c3cbeba9/commons-lang3-3.20.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.26.0/ad52af0ecf054a7e3f275a2e180ee06d9c490951/log4j-api-2.26.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-core/2.26.0/d267ca60b27ddb075e0b4e75e7875859717bf85f/log4j-core-2.26.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-slf4j2-impl/2.26.0/668c0f0e813d83f00a7182533aa658ec7e7a0a0d/log4j-slf4j2-impl-2.26.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.jcraft/jorbis/0.0.17/8872d22b293e8f5d7d56ff92be966e6dc28ebdc6/jorbis-0.0.17.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.joml/joml/1.10.9/438e036486bad66b189bff385dd07dea4f74a146/joml-1.10.9.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.jspecify/jspecify/1.0.0/7425a601c1c7ec76645a78d22b8c6a627edee507/jspecify-1.0.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-freetype/3.4.3/d2b12961d44f92860fb1ab501f9c69b7a2975236/lwjgl-freetype-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-freetype/3.4.3/38f27c9a0fbe000bfb38b295c32944d699e246e9/lwjgl-freetype-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-jemalloc/3.4.3/350f317eaf5295b1e53f6664ef5fdeeaaa7dcbf0/lwjgl-jemalloc-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-jemalloc/3.4.3/ca21b4b4c6d223907de645a18436ef6f677a5d4f/lwjgl-jemalloc-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-openal/3.4.3/32b52cda5af6937a4e4bd321bdb83082025cb332/lwjgl-openal-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-openal/3.4.3/7daa62f9f7b38b30e8a3d3bc7069e9b2e3cd52f0/lwjgl-openal-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-opengl/3.4.3/b81769ee48050f8c71e70839505f350bf9219d90/lwjgl-opengl-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-opengl/3.4.3/ec6fb42167943e94f7f0b14707c1737653c4044b/lwjgl-opengl-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-sdl/3.4.3/c02146735d6ff70d070c73532b435e5c893a346b/lwjgl-sdl-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-sdl/3.4.3/6ed1b80b7c211a491612c70e43f27ba1f42cccd0/lwjgl-sdl-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-shaderc/3.4.3/ba9fbc8fc4d50b3e4b436cc958ddb4abdb05867c/lwjgl-shaderc-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-shaderc/3.4.3/37faa5824f75901f4961e56805aedf68e13cf8b/lwjgl-shaderc-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-spvc/3.4.3/98e5b5ef5159100b26a169a9aed6c24e820e3eaa/lwjgl-spvc-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-spvc/3.4.3/709eb01deec4bdafb7634b125a63fd8de172fc50/lwjgl-spvc-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-stb/3.4.3/cdce54785bd3758e44a81f345d6260774d921c78/lwjgl-stb-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-stb/3.4.3/3878e44ce27c12791e570b5c8754ef3b68401dd3/lwjgl-stb-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-vma/3.4.3/816a6ac87f1e447e5346ca0e7a1078353f51fbd6/lwjgl-vma-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-vma/3.4.3/3a9a95d3e83f7fc49c6ed8d0e1c853b77662d90e/lwjgl-vma-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-vulkan/3.4.3/ffdaf1898192059f059d66f9fa37e3debcac10e0/lwjgl-vulkan-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl/3.4.3/7ab5265a73d8a959ed62332d546536ae6be2f0d5/lwjgl-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl/3.4.3/2800e134537db1a175eba41c430b1018eddc48f0/lwjgl-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.17/d9e58ac9c7779ba3bf8142aff6c830617a7fe60f/slf4j-api-2.0.17.jar:/home/runner/work/lumen-client/lumen-client/.gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-7e9a32a5b8/26.3/minecraft-merged-7e9a32a5b8-26.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-kqueue/4.2.16.Final/dd9d41b06355a6a1815d902ee087a693aab83755/netty-transport-native-kqueue-4.2.16.Final-osx-x86_64.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-kqueue/4.2.16.Final/ddb942cad6c0e978caa2215757512b36c5ffacec/netty-transport-native-kqueue-4.2.16.Final-osx-aarch_64.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-advancement-api-v1/1.0.0+38c7a2d55d/54c209419f01d579761838892772d4196436752b/fabric-advancement-api-v1-1.0.0+38c7a2d55d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-transfer-api-v1/8.0.25+fcdff87f5d/4680f760ffbd28c38f899488ded76fd7c26082c8/fabric-transfer-api-v1-8.0.25+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api-lookup-api-v1/2.0.24+3434d6d95d/29c412a6baf8e69bf71cab6b7a65b5096ff29a3/fabric-api-lookup-api-v1-2.0.24+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-block-api-v1/3.1.0+0ae6f9115d/78badf0c664259627830111f2ac0ad2f9f0ff2f7/fabric-block-api-v1-3.1.0+0ae6f9115d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-command-api-v2/3.1.2+fcdff87f5d/69de6c0f1f5926309dad2cd9569027a6d4d99493/fabric-command-api-v2-3.1.2+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-content-registries-v0/15.0.4+74ed1ea55d/c316198aeaa747228437e01f8c81efb134dca9f2/fabric-content-registries-v0-15.0.4+74ed1ea55d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-data-generation-api-v1/27.2.4+427eab975d/55b45df85af5f43366fc4a0943f9bf3d5950d2c/fabric-data-generation-api-v1-27.2.4+427eab975d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-convention-tags-v2/4.10.3+6b5b47fd5d/4e4591576deeb6317809bc11e50ecf32a0212c1f/fabric-convention-tags-v2-4.10.3+6b5b47fd5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-creative-tab-api-v1/5.0.21+fcdff87f5d/c0d1736c1f7b6166f1925eb0bd79f9c97cd1494/fabric-creative-tab-api-v1-5.0.21+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-data-attachment-api-v1/2.2.30+3434d6d95d/b31a17053b2113fde7011d5caa54871071f38fe/fabric-data-attachment-api-v1-2.2.30+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-debug-api-v1/1.0.4+3434d6d95d/e4812b5812a9d92b97604bdf2737780d3cc7612e/fabric-debug-api-v1-1.0.4+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-dimensions-v1/5.1.19+47f74c985d/2d10026da0876c1e887b512b26d2813a1646c132/fabric-dimensions-v1-5.1.19+47f74c985d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-entity-events-v1/6.0.4+3434d6d95d/731754a9bdfc6784a41d8fb17cd6c08f58fe31e0/fabric-entity-events-v1-6.0.4+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-events-interaction-v0/5.3.6+3434d6d95d/de80f4728f8559f8e126b857288af8a27da57b81/fabric-events-interaction-v0-5.3.6+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-game-rule-api-v1/4.0.10+3434d6d95d/3f73b9e94995f6f8a0d38955b98b67ac8d6bb089/fabric-game-rule-api-v1-4.0.10+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-gametest-api-v1/4.0.32+3434d6d95d/ced6a55e4623994919224b07750f05231dad8c22/fabric-gametest-api-v1-4.0.32+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-item-api-v1/14.7.0+cf6bc2db5d/9d9e319928f67f49029c86ae56d0414997a534ac/fabric-item-api-v1-14.7.0+cf6bc2db5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-recipe-api-v1/10.0.8+fcdff87f5d/16ab72f3b3cc37f758a1ac01817b3909b02ce736/fabric-recipe-api-v1-10.0.8+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-model-loading-api-v1/8.0.35+fcdff87f5d/51079fee66e5b86d8092981bb1cd19d40a97491e/fabric-model-loading-api-v1-8.0.35+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-renderer-indigo/9.1.23+b9d63e335d/d3277e5c11edc7f939ac3ed7f189de56905561c7/fabric-renderer-indigo-9.1.23+b9d63e335d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-renderer-api-v1/17.0.15+79385d0b5d/48172c900e57dbf125490cd132e04fdfdecac7e8/fabric-renderer-api-v1-17.0.15+79385d0b5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-rendering-v1/27.0.14+901a437c5d/b7b356249f2c16fa58410e8c7694c75f0468a403/fabric-rendering-v1-27.0.14+901a437c5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-lifecycle-events-v1/4.1.9+ffef5f675d/4184b98a6c1dbfcf6c63dab29cf7f5812d9eaf73/fabric-lifecycle-events-v1-4.1.9+ffef5f675d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-loot-api-v3/4.0.8+4068fd645d/3f74e49f671c5ef812512b9ff6ca35a531f06cf7/fabric-loot-api-v3-4.0.8+4068fd645d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-menu-api-v1/2.0.27+ed66f0a35d/5f52c5da57fbbdd96604ed12bcec0a0fba779dfe/fabric-menu-api-v1-2.0.27+ed66f0a35d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-message-api-v1/7.0.10+3434d6d95d/5b224f019d030f7bb70584866f4f6329fa9a21b3/fabric-message-api-v1-7.0.10+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-client-gametest-api-v1/6.0.7+4be74c3f5d/b5512c68896b9692f81db7ddc5f2f6d72b18615/fabric-client-gametest-api-v1-6.0.7+4be74c3f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-particles-v1/5.0.24+3434d6d95d/f737b753bad5f3b94d9d07985853539f4c6ee416/fabric-particles-v1-5.0.24+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-object-builder-api-v1/24.1.9+3434d6d95d/24f679e28b1c3a4fd44b339a03161774f880139/fabric-object-builder-api-v1-24.1.9+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-registry-sync-v0/8.0.1+fcdff87f5d/7c5c6642c01a0d37abccc8546b86833ca2c9e667/fabric-registry-sync-v0-8.0.1+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-networking-api-v1/6.3.8+fcdff87f5d/1487018aa4c0cc74d0e32b89c5b2da9b1c00ebb8/fabric-networking-api-v1-6.3.8+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-permission-api-v1/1.0.8+fcdff87f5d/b5ffb6d1e882755032aa6b79265e32699be57c88/fabric-permission-api-v1-1.0.8+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-rendering-fluids-v1/6.0.6+3434d6d95d/f346710e5fb0751998cb84d4772b1b2827e1ad57/fabric-rendering-fluids-v1-6.0.6+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-tag-api-v1/2.1.10+fcdff87f5d/6b70d67fcea94ef97a08cda0d7810fd89238a83/fabric-tag-api-v1-2.1.10+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-resource-loader-v0/3.3.26+4fc5413f5d/2fd2238d86a13d9f43244d030ae0a33ee8e4d092/fabric-resource-loader-v0-3.3.26+4fc5413f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-resource-loader-v1/3.0.4+fcdff87f5d/23991cd88d413af9c9bc9fdaa43e1a4f7156917a/fabric-resource-loader-v1-3.0.4+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-screen-api-v1/5.2.4+48607d035d/43207d0cbe1a0098cc0281b62a9a246f05771f9d/fabric-screen-api-v1-5.2.4+48607d035d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api-base/2.0.6+fcdff87f5d/449053de5093613bbdf6d439bedd431a7ad77da2/fabric-api-base-2.0.6+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-biome-api-v1/20.0.9+74ed1ea55d/587c148a61dd7b76db105d39f556dd741fbbbe2f/fabric-biome-api-v1-20.0.9+74ed1ea55d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-block-getter-api-v2/2.0.9+3434d6d95d/56fd2980cfdb2e557bd51dfa743d92bb7befcdb6/fabric-block-getter-api-v2-2.0.9+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-crash-report-info-v1/1.0.7+fcdff87f5d/a5531952f47841e359bc2ca8cb807add8c76c5c5/fabric-crash-report-info-v1-1.0.7+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-key-mapping-api-v1/2.0.8+3434d6d95d/89eb86ef13d05ebc9f725f0c55d9db69abc6fc06/fabric-key-mapping-api-v1-2.0.8+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-resource-conditions-api-v1/6.1.5+3434d6d95d/c009f3d1b43e3e26053d4809055b265bbbfa7044/fabric-resource-conditions-api-v1-6.1.5+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-serialization-api-v1/2.0.7+74ed1ea55d/6461e300b93b46986d74f092660dd9d39a1125c0/fabric-serialization-api-v1-2.0.7+74ed1ea55d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-sound-api-v1/2.0.7+3434d6d95d/59e460c1b9e943d662fd0827f0461ff60b7f23d1/fabric-sound-api-v1-2.0.7+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-transitive-access-wideners-v1/8.1.16+52268a0e5d/8322e1bc6d3e3993dce826a41f4a199944269bcb/fabric-transitive-access-wideners-v1-8.1.16+52268a0e5d.jar:/home/runner/work/lumen-client/lumen-client/build/classes/java/main:/home/runner/work/lumen-client/lumen-client/build/resources/main)
+	at knot//com.sun.jna.NativeLibrary.loadLibrary(NativeLibrary.java:325)
+	at knot//com.sun.jna.NativeLibrary.getInstance(NativeLibrary.java:481)
+	at knot//com.sun.jna.NativeLibrary.getInstance(NativeLibrary.java:423)
+	at knot//com.mojang.text2speech.NarratorLinux$FliteLibrary.loadNative(NarratorLinux.java:80)
+	... 9 more
+	Suppressed: java.lang.UnsatisfiedLinkError: libflite.so: cannot open shared object file: No such file or directory
+		at knot//com.sun.jna.Native.open(Native Method)
+		at knot//com.sun.jna.NativeLibrary.loadLibrary(NativeLibrary.java:213)
+		... 12 more
+	Suppressed: java.lang.UnsatisfiedLinkError: libflite.so: cannot open shared object file: No such file or directory
+		at knot//com.sun.jna.Native.open(Native Method)
+		at knot//com.sun.jna.NativeLibrary.loadLibrary(NativeLibrary.java:226)
+		... 12 more
+	Suppressed: java.io.IOException: Native library (linux-x86-64/libflite.so) not found in resource path (/home/runner/work/lumen-client/lumen-client/build/classes/java/gametest:/home/runner/work/lumen-client/lumen-client/build/resources/gametest:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/fabric-loader/0.19.5/ff9e65cffca4a67f31523e1807fe0855940fcbfa/fabric-loader-0.19.5.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api/0.161.0+26.3/53f9ee02c3702734d90520aa8c9719bf0e1c8d4f/fabric-api-0.161.0+26.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm/9.10.1/ada2141c0cc52ee8f5c48cd5fa4ce0e794f22236/asm-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-analysis/9.10.1/8d49f14d51f632cb1d87c88d1ceaf50db0d8af1b/asm-analysis-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-commons/9.10.1/4229e4c55fd8e01c23f9fe9884075cc628aacc50/asm-commons-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-tree/9.10.1/e244332a17564c1d1572449399a842de35881be2/asm-tree-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.ow2.asm/asm-util/9.10.1/7bb9d450e8d4cbf9f9e04096c44bbfe7fba80b15/asm-util-9.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/5f66cc9f59b8efaa942155a3d5a30599bf6640dd/sponge-mixin-0.17.4+mixin.0.8.7.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.github.llamalad7/mixinextras-fabric/0.5.5/d1055b99c0ab08a8403fe2da3d79ca28e6340a76/mixinextras-fabric-0.5.5.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/dev-launch-injector/0.2.1+build.8/da8bef7e6e2f952da707f282bdb46882a0fce5e3/dev-launch-injector-0.2.1+build.8.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/fabric-log4j-util/1.0.2/ef0b3fb613356feb75a67d54f2fad6f03a006648/fabric-log4j-util-1.0.2.jar:/home/runner/.gradle/caches/modules-2/files-2.1/at.yawk.lz4/lz4-java/1.10.1/f541d7f910fe3d76f38f799c507c48cc81b12ecb/lz4-java-1.10.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.azure/azure-json/1.4.0/fcc1d354dbc3e0300e5276b1bf124d0247799cd8/azure-json-1.4.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.github.oshi/oshi-core/6.9.0/3224870731860cfcd7744581a05b559e94291e7/oshi-core-6.9.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.14.0/efc0e34ede4e3204eaefb84a00e55e8c86634382/gson-2.14.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.3/aeaffd00d57023a2c947393ed251f0354f0985fc/failureaccess-1.0.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/33.6.0-jre/c376b13067cc99a5774403530953f7b05a91e218/guava-33.6.0-jre.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.ibm.icu/icu4j/78.3/6a851a53bb1f25689fc418dcc8935b0d93580adf/icu4j-78.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.microsoft.azure/msal4j/1.24.1/c233f2d047b9755f7041adf21a858c680e4c9242/msal4j-1.24.1.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/authlib/10.0.77/add8754cda96cf0cd840441632875648836f8a71/authlib-10.0.77.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/blocklist/1.0.10/5c685c5ffa94c4cd39496c7184c1d122e515ecef/blocklist-1.0.10.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/brigadier/1.3.11/3373d1e7bf00c8b99bed1ea4efb8c47344e4a887/brigadier-1.3.11.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/datafixerupper/10.0.21/b6b2ae770c02e0c1eb90f9985b151e9085a38d0b/datafixerupper-10.0.21.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/jtracy/1.14.38/cc2ad81342001b4281c305a298d7f50332354058/jtracy-1.14.38.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/jtracy/1.14.38/d2433300f8a4e99595d513546d19ecddc3eaa15e/jtracy-1.14.38-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/logging/1.7.12/351cea64a5233361327d8d54c44277041beed97f/logging-1.7.12.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/patchy/2.2.10/da05971b07cbb379d002cf7eaec6a2048211fefc/patchy-2.2.10.jar:/home/runner/.gradle/caches/modules-2/files-2.1/com.mojang/text2speech/1.19.12/2e517a75c79d34d32de2b5d68422150836c2133e/text2speech-1.19.12.jar:/home/runner/.gradle/caches/modules-2/files-2.1/commons-codec/commons-codec/1.22.0/6b3eb4beb7058c2a638f5f17bcb388649fd339dd/commons-codec-1.22.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/commons-io/commons-io/2.20.0/36f3474daec2849c149e877614e7f979b2082cd2/commons-io-2.20.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-buffer/4.2.16.Final/5397ef65dcb60670e0e0dba4854522873af3070/netty-buffer-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-base/4.2.16.Final/1a01d45a9efc228c6d747525848b065e0656b5f/netty-codec-base-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-compression/4.2.16.Final/bdbbcfcdbe217b95c14a04df4fc5d31213d5c27c/netty-codec-compression-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-codec-http/4.2.16.Final/b5e0715df90047ee5a0138c8f704f43c751009e4/netty-codec-http-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-common/4.2.16.Final/c2bc7fa5acfa2afc777e944d84f0aa65559cc81e/netty-common-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-handler/4.2.16.Final/cc82873ae4b6d14effe480740ad838de09add70d/netty-handler-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-resolver/4.2.16.Final/fcea6d64273b59ab9127b68c16ae98af34642139/netty-resolver-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-classes-epoll/4.2.16.Final/cf90c7b892e284ba9f1545dce170168369b3b9d6/netty-transport-classes-epoll-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-classes-kqueue/4.2.16.Final/fa2bcf8c71626510f6fae173f78182117b70f7a/netty-transport-classes-kqueue-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/eed34f3b37b4c46a0cbb49456ccc4e3bd7195e4c/netty-transport-native-epoll-4.2.16.Final-linux-aarch_64.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-epoll/4.2.16.Final/439c24f5c27c220deb042b42e4048d606edeb78d/netty-transport-native-epoll-4.2.16.Final-linux-x86_64.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-unix-common/4.2.16.Final/3cf32390f1b80af890ac44aa0698c2ff58c2a4d7/netty-transport-native-unix-common-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport/4.2.16.Final/ae87a3bec51d503475a19fbd718bf777f2fc06c6/netty-transport-4.2.16.Final.jar:/home/runner/.gradle/caches/modules-2/files-2.1/it.unimi.dsi/fastutil/8.5.18/a6cff377eecc19c2037bf31568a6d7106b50ba1f/fastutil-8.5.18.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna-platform/5.17.0/a4934c44d25a9d8c2ddf4203affd20330cb3426f/jna-platform-5.17.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/5.17.0/33d12735bef894440780fce64f9758d420c7bae2/jna-5.17.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.sf.jopt-simple/jopt-simple/5.0.4/4fdac2fbe92dfad86aa6e9301736f6b4342a3f5c/jopt-simple-5.0.4.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-compress/1.28.0/e482f2c7a88dac3c497e96aa420b6a769f59c8d7/commons-compress-1.28.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-lang3/3.20.0/65897b3e5731220962e659e001904af3c3cbeba9/commons-lang3-3.20.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.26.0/ad52af0ecf054a7e3f275a2e180ee06d9c490951/log4j-api-2.26.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-core/2.26.0/d267ca60b27ddb075e0b4e75e7875859717bf85f/log4j-core-2.26.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-slf4j2-impl/2.26.0/668c0f0e813d83f00a7182533aa658ec7e7a0a0d/log4j-slf4j2-impl-2.26.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.jcraft/jorbis/0.0.17/8872d22b293e8f5d7d56ff92be966e6dc28ebdc6/jorbis-0.0.17.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.joml/joml/1.10.9/438e036486bad66b189bff385dd07dea4f74a146/joml-1.10.9.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.jspecify/jspecify/1.0.0/7425a601c1c7ec76645a78d22b8c6a627edee507/jspecify-1.0.0.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-freetype/3.4.3/d2b12961d44f92860fb1ab501f9c69b7a2975236/lwjgl-freetype-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-freetype/3.4.3/38f27c9a0fbe000bfb38b295c32944d699e246e9/lwjgl-freetype-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-jemalloc/3.4.3/350f317eaf5295b1e53f6664ef5fdeeaaa7dcbf0/lwjgl-jemalloc-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-jemalloc/3.4.3/ca21b4b4c6d223907de645a18436ef6f677a5d4f/lwjgl-jemalloc-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-openal/3.4.3/32b52cda5af6937a4e4bd321bdb83082025cb332/lwjgl-openal-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-openal/3.4.3/7daa62f9f7b38b30e8a3d3bc7069e9b2e3cd52f0/lwjgl-openal-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-opengl/3.4.3/b81769ee48050f8c71e70839505f350bf9219d90/lwjgl-opengl-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-opengl/3.4.3/ec6fb42167943e94f7f0b14707c1737653c4044b/lwjgl-opengl-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-sdl/3.4.3/c02146735d6ff70d070c73532b435e5c893a346b/lwjgl-sdl-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-sdl/3.4.3/6ed1b80b7c211a491612c70e43f27ba1f42cccd0/lwjgl-sdl-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-shaderc/3.4.3/ba9fbc8fc4d50b3e4b436cc958ddb4abdb05867c/lwjgl-shaderc-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-shaderc/3.4.3/37faa5824f75901f4961e56805aedf68e13cf8b/lwjgl-shaderc-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-spvc/3.4.3/98e5b5ef5159100b26a169a9aed6c24e820e3eaa/lwjgl-spvc-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-spvc/3.4.3/709eb01deec4bdafb7634b125a63fd8de172fc50/lwjgl-spvc-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-stb/3.4.3/cdce54785bd3758e44a81f345d6260774d921c78/lwjgl-stb-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-stb/3.4.3/3878e44ce27c12791e570b5c8754ef3b68401dd3/lwjgl-stb-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-vma/3.4.3/816a6ac87f1e447e5346ca0e7a1078353f51fbd6/lwjgl-vma-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-vma/3.4.3/3a9a95d3e83f7fc49c6ed8d0e1c853b77662d90e/lwjgl-vma-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl-vulkan/3.4.3/ffdaf1898192059f059d66f9fa37e3debcac10e0/lwjgl-vulkan-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl/3.4.3/7ab5265a73d8a959ed62332d546536ae6be2f0d5/lwjgl-3.4.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.lwjgl/lwjgl/3.4.3/2800e134537db1a175eba41c430b1018eddc48f0/lwjgl-3.4.3-natives-linux.jar:/home/runner/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.17/d9e58ac9c7779ba3bf8142aff6c830617a7fe60f/slf4j-api-2.0.17.jar:/home/runner/work/lumen-client/lumen-client/.gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-7e9a32a5b8/26.3/minecraft-merged-7e9a32a5b8-26.3.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-kqueue/4.2.16.Final/dd9d41b06355a6a1815d902ee087a693aab83755/netty-transport-native-kqueue-4.2.16.Final-osx-x86_64.jar:/home/runner/.gradle/caches/modules-2/files-2.1/io.netty/netty-transport-native-kqueue/4.2.16.Final/ddb942cad6c0e978caa2215757512b36c5ffacec/netty-transport-native-kqueue-4.2.16.Final-osx-aarch_64.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-advancement-api-v1/1.0.0+38c7a2d55d/54c209419f01d579761838892772d4196436752b/fabric-advancement-api-v1-1.0.0+38c7a2d55d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-transfer-api-v1/8.0.25+fcdff87f5d/4680f760ffbd28c38f899488ded76fd7c26082c8/fabric-transfer-api-v1-8.0.25+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api-lookup-api-v1/2.0.24+3434d6d95d/29c412a6baf8e69bf71cab6b7a65b5096ff29a3/fabric-api-lookup-api-v1-2.0.24+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-block-api-v1/3.1.0+0ae6f9115d/78badf0c664259627830111f2ac0ad2f9f0ff2f7/fabric-block-api-v1-3.1.0+0ae6f9115d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-command-api-v2/3.1.2+fcdff87f5d/69de6c0f1f5926309dad2cd9569027a6d4d99493/fabric-command-api-v2-3.1.2+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-content-registries-v0/15.0.4+74ed1ea55d/c316198aeaa747228437e01f8c81efb134dca9f2/fabric-content-registries-v0-15.0.4+74ed1ea55d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-data-generation-api-v1/27.2.4+427eab975d/55b45df85af5f43366fc4a0943f9bf3d5950d2c/fabric-data-generation-api-v1-27.2.4+427eab975d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-convention-tags-v2/4.10.3+6b5b47fd5d/4e4591576deeb6317809bc11e50ecf32a0212c1f/fabric-convention-tags-v2-4.10.3+6b5b47fd5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-creative-tab-api-v1/5.0.21+fcdff87f5d/c0d1736c1f7b6166f1925eb0bd79f9c97cd1494/fabric-creative-tab-api-v1-5.0.21+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-data-attachment-api-v1/2.2.30+3434d6d95d/b31a17053b2113fde7011d5caa54871071f38fe/fabric-data-attachment-api-v1-2.2.30+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-debug-api-v1/1.0.4+3434d6d95d/e4812b5812a9d92b97604bdf2737780d3cc7612e/fabric-debug-api-v1-1.0.4+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-dimensions-v1/5.1.19+47f74c985d/2d10026da0876c1e887b512b26d2813a1646c132/fabric-dimensions-v1-5.1.19+47f74c985d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-entity-events-v1/6.0.4+3434d6d95d/731754a9bdfc6784a41d8fb17cd6c08f58fe31e0/fabric-entity-events-v1-6.0.4+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-events-interaction-v0/5.3.6+3434d6d95d/de80f4728f8559f8e126b857288af8a27da57b81/fabric-events-interaction-v0-5.3.6+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-game-rule-api-v1/4.0.10+3434d6d95d/3f73b9e94995f6f8a0d38955b98b67ac8d6bb089/fabric-game-rule-api-v1-4.0.10+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-gametest-api-v1/4.0.32+3434d6d95d/ced6a55e4623994919224b07750f05231dad8c22/fabric-gametest-api-v1-4.0.32+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-item-api-v1/14.7.0+cf6bc2db5d/9d9e319928f67f49029c86ae56d0414997a534ac/fabric-item-api-v1-14.7.0+cf6bc2db5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-recipe-api-v1/10.0.8+fcdff87f5d/16ab72f3b3cc37f758a1ac01817b3909b02ce736/fabric-recipe-api-v1-10.0.8+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-model-loading-api-v1/8.0.35+fcdff87f5d/51079fee66e5b86d8092981bb1cd19d40a97491e/fabric-model-loading-api-v1-8.0.35+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-renderer-indigo/9.1.23+b9d63e335d/d3277e5c11edc7f939ac3ed7f189de56905561c7/fabric-renderer-indigo-9.1.23+b9d63e335d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-renderer-api-v1/17.0.15+79385d0b5d/48172c900e57dbf125490cd132e04fdfdecac7e8/fabric-renderer-api-v1-17.0.15+79385d0b5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-rendering-v1/27.0.14+901a437c5d/b7b356249f2c16fa58410e8c7694c75f0468a403/fabric-rendering-v1-27.0.14+901a437c5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-lifecycle-events-v1/4.1.9+ffef5f675d/4184b98a6c1dbfcf6c63dab29cf7f5812d9eaf73/fabric-lifecycle-events-v1-4.1.9+ffef5f675d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-loot-api-v3/4.0.8+4068fd645d/3f74e49f671c5ef812512b9ff6ca35a531f06cf7/fabric-loot-api-v3-4.0.8+4068fd645d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-menu-api-v1/2.0.27+ed66f0a35d/5f52c5da57fbbdd96604ed12bcec0a0fba779dfe/fabric-menu-api-v1-2.0.27+ed66f0a35d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-message-api-v1/7.0.10+3434d6d95d/5b224f019d030f7bb70584866f4f6329fa9a21b3/fabric-message-api-v1-7.0.10+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-client-gametest-api-v1/6.0.7+4be74c3f5d/b5512c68896b9692f81db7ddc5f2f6d72b18615/fabric-client-gametest-api-v1-6.0.7+4be74c3f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-particles-v1/5.0.24+3434d6d95d/f737b753bad5f3b94d9d07985853539f4c6ee416/fabric-particles-v1-5.0.24+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-object-builder-api-v1/24.1.9+3434d6d95d/24f679e28b1c3a4fd44b339a03161774f880139/fabric-object-builder-api-v1-24.1.9+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-registry-sync-v0/8.0.1+fcdff87f5d/7c5c6642c01a0d37abccc8546b86833ca2c9e667/fabric-registry-sync-v0-8.0.1+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-networking-api-v1/6.3.8+fcdff87f5d/1487018aa4c0cc74d0e32b89c5b2da9b1c00ebb8/fabric-networking-api-v1-6.3.8+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-permission-api-v1/1.0.8+fcdff87f5d/b5ffb6d1e882755032aa6b79265e32699be57c88/fabric-permission-api-v1-1.0.8+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-rendering-fluids-v1/6.0.6+3434d6d95d/f346710e5fb0751998cb84d4772b1b2827e1ad57/fabric-rendering-fluids-v1-6.0.6+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-tag-api-v1/2.1.10+fcdff87f5d/6b70d67fcea94ef97a08cda0d7810fd89238a83/fabric-tag-api-v1-2.1.10+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-resource-loader-v0/3.3.26+4fc5413f5d/2fd2238d86a13d9f43244d030ae0a33ee8e4d092/fabric-resource-loader-v0-3.3.26+4fc5413f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-resource-loader-v1/3.0.4+fcdff87f5d/23991cd88d413af9c9bc9fdaa43e1a4f7156917a/fabric-resource-loader-v1-3.0.4+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-screen-api-v1/5.2.4+48607d035d/43207d0cbe1a0098cc0281b62a9a246f05771f9d/fabric-screen-api-v1-5.2.4+48607d035d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api-base/2.0.6+fcdff87f5d/449053de5093613bbdf6d439bedd431a7ad77da2/fabric-api-base-2.0.6+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-biome-api-v1/20.0.9+74ed1ea55d/587c148a61dd7b76db105d39f556dd741fbbbe2f/fabric-biome-api-v1-20.0.9+74ed1ea55d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-block-getter-api-v2/2.0.9+3434d6d95d/56fd2980cfdb2e557bd51dfa743d92bb7befcdb6/fabric-block-getter-api-v2-2.0.9+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-crash-report-info-v1/1.0.7+fcdff87f5d/a5531952f47841e359bc2ca8cb807add8c76c5c5/fabric-crash-report-info-v1-1.0.7+fcdff87f5d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-key-mapping-api-v1/2.0.8+3434d6d95d/89eb86ef13d05ebc9f725f0c55d9db69abc6fc06/fabric-key-mapping-api-v1-2.0.8+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-resource-conditions-api-v1/6.1.5+3434d6d95d/c009f3d1b43e3e26053d4809055b265bbbfa7044/fabric-resource-conditions-api-v1-6.1.5+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-serialization-api-v1/2.0.7+74ed1ea55d/6461e300b93b46986d74f092660dd9d39a1125c0/fabric-serialization-api-v1-2.0.7+74ed1ea55d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-sound-api-v1/2.0.7+3434d6d95d/59e460c1b9e943d662fd0827f0461ff60b7f23d1/fabric-sound-api-v1-2.0.7+3434d6d95d.jar:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-transitive-access-wideners-v1/8.1.16+52268a0e5d/8322e1bc6d3e3993dce826a41f4a199944269bcb/fabric-transitive-access-wideners-v1-8.1.16+52268a0e5d.jar:/home/runner/work/lumen-client/lumen-client/build/classes/java/main:/home/runner/work/lumen-client/lumen-client/build/resources/main)
+		at knot//com.sun.jna.Native.extractFromResourcePath(Native.java:1141)
+		at knot//com.sun.jna.NativeLibrary.loadLibrary(NativeLibrary.java:297)
+		... 12 more
+[21:23:38] [Render thread/INFO] (Minecraft) Reloading ResourceManager: vanilla, vanilla, fabric-advancement-api-v1, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-getter-api-v2, fabric-client-gametest-api-v1, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-creative-tab-api-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-debug-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-gametest-api-v1, fabric-item-api-v1, fabric-key-mapping-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v3, fabric-menu-api-v1, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-permission-api-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, lumen
+[21:23:39] [Worker-Main-1/INFO] (Minecraft) Found unifont_all_no_pua-17.0.01.hex, loading
+[21:23:39] [Worker-Main-2/INFO] (Minecraft) Found unifont_pua-17.0.01.hex, loading
+[21:23:39] [Worker-Main-1/INFO] (Minecraft) Found unifont_jp_patch-17.0.01.hex, loading
+[21:23:41] [Render thread/ERROR] (Minecraft) Error starting SoundSystem. Turning off sounds & music
+java.lang.IllegalStateException: Failed to open OpenAL device
+	at knot//com.mojang.blaze3d.audio.Library.openDeviceOrFallback(Library.java:274)
+	at knot//com.mojang.blaze3d.audio.Library.init(Library.java:149)
+	at knot//net.minecraft.client.sounds.SoundEngine.loadLibrary(SoundEngine.java:121)
+	at knot//net.minecraft.client.sounds.SoundEngine.reload(SoundEngine.java:110)
+	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:122)
+	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:41)
+	at knot//net.minecraft.server.packs.resources.SimplePreparableReloadListener.lambda$reload$1(SimplePreparableReloadListener.java:15)
+	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:739)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:503)
+	at knot//net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$prepareTasks$3(SimpleReloadInstance.java:59)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:127)
+	at knot//net.minecraft.client.Minecraft.runTick(Minecraft.java:1240)
+	at knot//net.minecraft.client.Minecraft.run$mixinextras$wrapped$275(Minecraft.java:967)
+	at knot//net.minecraft.client.Minecraft.mixinextras$bridge$run$mixinextras$wrapped$275$276(Minecraft.java)
+	at knot//net.minecraft.client.Minecraft.wrapMethod$bak000$fabric-client-gametest-api-v1$onRun(Minecraft.java:7228)
+	at knot//net.minecraft.client.Minecraft.run(Minecraft.java)
+	at knot//net.minecraft.client.main.Main.main(Main.java:292)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 1024x512x0 minecraft:textures/atlas/items.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[21:23:41] [Render thread/INFO] (Minecraft) Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[21:23:42] [Download-1/INFO] (Minecraft) Could not authorize you against Realms server: java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC
+[21:23:42] [Download-1/ERROR] (Minecraft) Couldn't connect to realms
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'java.lang.RuntimeException: Failed to parse into SignedJWT: FabricMC'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+	at knot//com.mojang.realmsclient.client.RealmsClient.clientCompatible(RealmsClient.java:354)
+	at knot//com.mojang.realmsclient.RealmsAvailability.lambda$check$0(RealmsAvailability.java:48)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[21:23:44] [Render thread/WARN] (Minecraft) Couldn't acquire next surface texture with config Optional[Configuration[width=854, height=480, presentMode=FIFO]]
+com.mojang.renderpearl.api.device.SurfaceException: Failed to acquire image, swapchain out of date
+	at knot//com.mojang.renderpearl.backend.vulkan.VulkanGpuSurface.acquireNextTexture(VulkanGpuSurface.java:277)
+	at knot//com.mojang.renderpearl.frontend.FrontendGpuSurface.acquireNextTexture(FrontendGpuSurface.java:71)
+	at knot//net.minecraft.client.Minecraft.renderFrame(Minecraft.java:1330)
+	at knot//net.minecraft.client.Minecraft.runTick(Minecraft.java:1274)
+	at knot//net.minecraft.client.Minecraft.run$mixinextras$wrapped$275(Minecraft.java:967)
+	at knot//net.minecraft.client.Minecraft.mixinextras$bridge$run$mixinextras$wrapped$275$276(Minecraft.java)
+	at knot//net.minecraft.client.Minecraft.wrapMethod$bak000$fabric-client-gametest-api-v1$onRun(Minecraft.java:7228)
+	at knot//net.minecraft.client.Minecraft.run(Minecraft.java)
+	at knot//net.minecraft.client.main.Main.main(Main.java:292)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+[21:23:47] [Test thread/INFO] (Lumen Test) Auditing mixins
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.SmithingTransformRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.item.enchantment.Enchantment$Builder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.ClientAdvancements
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.item.crafting.RecipeMap
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.core.MappedRegistry$3
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.network.config.SynchronizeRegistriesTask
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.RecipeProvider
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.chunk.RenderSectionRegion
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.chunk.LevelChunkSection$1BlockCounter
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.network.protocol.configuration.ServerboundSelectKnownPacks
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.players.PlayerList
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.core.MappedRegistry$2
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.tags.BlockItemTagAppender
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.BrewingRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.registries.RegistriesDatapackGenerator
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.data.models.ModelProvider
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.entity.ai.behavior.Swim
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.worldselection.WorldOpenFlows
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.MultiPlayerGameMode
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.state.level.BlockBreakingRenderState
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.RegistryDataCollector$ContentsCollector
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.storage.loot.LootPool
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.network.ServerLoginPacketListenerImpl
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.commands.execution.CommandQueueEntry
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.level.ServerLevel$EntityCallbacks
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.KnownPacksManager
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.storage.loot.LootTable$Builder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.RecipeProvider$1
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.resources.RegistryDataLoader
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.gametest.framework.GameTestServer
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.core.RegistrySynchronization
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.worldselection.AbstractGameRulesScreen$RuleList
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.ConnectScreen
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.CompoundContainer
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.tags.TagAppender$1
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.SubmitNodeCollection
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.components.toasts.AdvancementToast
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.network.PacketEncoder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.SimpleCookingRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.SpecialRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.commands.GameRuleCommand$1
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.player.FirstPersonHandsAndItems
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.ReloadableServerRegistries
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.ShapedRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.packs.TransferableSelectionList$PackEntry
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.level.ChunkHolder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.commands.CommandSourceStack
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.ClientSuggestionProvider
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.entity.state.EntityRenderState$LeashState
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.level.ChunkMap
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.core.component.DataComponentInitializers$1
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.network.PacketDecoder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.storage.TagValueOutput
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.storage.ValueInput
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.ShapelessRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.CustomCraftingRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.item.enchantment.EnchantmentHelper
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.entity.ai.behavior.GiveGiftToHero
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.loot.BlockLootSubProvider
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.tags.TagFile
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.inventory.HangingSignEditScreen
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.ClientRecipeContainer
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.fabricmc.fabric.impl.attachment.GlobalAttachmentsImpl
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.debug.DebugOptionsScreen$OptionList
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.advancements.AdvancementTabType
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.resources.ResourceManagerRegistryLoadTask
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.advancements.AdvancementTab
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.registries.RegistryPatchGenerator
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.ClientLevel$EntityCallbacks
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.level.ChunkMap$TrackedEntity
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.HashCache$ProviderCache
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.biome.Climate$Sampler
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.chunk.LevelChunkSection
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.pathfinder.PathfindingContext
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.entity.PersistentEntitySectionManager
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.ServerFunctionLibrary
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.commands.data.BlockDataAccessor
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.SmithingTrimRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.storage.TagValueInput
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.ClientChunkCache
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.ClientChunkCache$Storage
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.SingleItemRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.PlayerAdvancements
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.worldselection.AbstractGameRulesScreen
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.commands.GameRuleCommand
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.tags.TagLoader
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.commands.data.EntityDataAccessor
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.network.ServerHandshakePacketListenerImpl
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.advancements.Advancement$Builder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.block.BlockModelLighter
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.commands.DebugConfigCommand
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.storage.loot.LootPool$Builder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.pathfinder.WalkNodeEvaluator
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.TransmuteRecipeBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.chunk.RenderRegionCache
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.dedicated.DedicatedServer
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.tags.TagAppender
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.chunk.ImposterProtoChunk
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.block.ModelBlockRenderer
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.commands.Commands
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.item.crafting.RecipeAccess
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.commands.DataPackCommand
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.BackupConfirmScreen
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.debug.DebugOptionsScreen$OptionEntry
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.packs.PackSelectionModel
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.storage.SavedDataStorage
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.network.protocol.BundlePacket
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.state.level.PlayerRenderState$ItemActivationRenderState
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.commands.HelpCommand
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.util.ParticleUtils
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.RegistryDataCollector
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.item.crafting.RecipeManager
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.levelgen.RandomState
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.state.level.BlockOutlineRenderState
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.tags.TagEntry
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.inventory.SignEditScreen
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.worldselection.AbstractGameRulesScreen$RuleList$1
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.ReloadableServerResources
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.tags.TagsProvider
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.block.FluidRenderer
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.levelgen.WorldDimensions
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.level.ServerEntity
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.chunk.SectionCompiler
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.tags.TagBuilder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.data.models.ModelProvider$ItemInfoCollector
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.state.MapRenderState$MapDecorationRenderState
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.network.protocol.login.ServerboundCustomQueryAnswerPacket
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.Main
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.util.debug.ServerDebugSubscribers
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.chunk.storage.SerializableChunkData
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.RecipeOutput
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.multiplayer.ClientDebugSubscriber
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.dedicated.ServerWatchdog
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.data.models.ModelProvider$BlockStateGeneratorCollector
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.advancements.packs.VanillaAdventureAdvancements
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.renderer.block.MovingBlockRenderState
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.worldselection.CreateWorldScreen
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.gui.screens.advancements.AdvancementWidget
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.commands.execution.tasks.BuildContexts
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.client.DeltaTracker$DefaultValue
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.HashCache
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.entity.ai.behavior.WorkAtComposter
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.recipes.BrewingProvider
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.network.PlayerChunkSender
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.resources.RegistryLoadTask$PendingRegistration
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.commands.EnchantCommand
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.network.ServerGamePacketListenerImpl
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.dedicated.DedicatedServerProperties
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.level.ServerPlayerGameMode
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.server.WorldLoader
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class com.mojang.brigadier.context.ContextChain
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.world.level.chunk.status.ChunkStatusTasks
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.network.codec.IdDispatchCodec
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.DataProvider
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class com.mojang.renderpearl.backend.opengl.GlCommandEncoder
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.data.loot.EntityLootSubProvider
+[21:23:47] [Test thread/INFO] (FabricLoader/Mixin/audit) Force-loading class net.minecraft.network.protocol.login.ClientboundCustomQueryPacket
+[21:23:49] [Worker-Main-1/INFO] (Minecraft) Loaded 1866 advancements
+[21:23:49] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.GenericMessageScreen@42b946be
+[21:23:49] [Render thread/INFO] (BiomeModificationImpl) Applied 0 biome modifications to 0 of 67 new biomes in 990.7 μs
+[21:23:49] [Server thread/INFO] (Minecraft) Starting integrated minecraft server version 26.3
+[21:23:49] [Server thread/INFO] (Minecraft) Generating keypair
+[21:23:49] [Server thread/INFO] (Minecraft) Selecting global world spawn...
+[21:23:49] [Server thread/INFO] (Minecraft) Loading 0 persistent chunks...
+[21:23:49] [Server thread/INFO] (Minecraft) Preparing spawn area: 16%
+[21:23:49] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[21:23:49] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[21:23:49] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[21:23:50] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:50] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:50] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:50] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:50] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:50] [Server thread/INFO] (Minecraft) Loading 48 chunks for player spawn...
+[21:23:50] [Server thread/INFO] (Minecraft) Preparing spawn area: 16%
+[21:23:50] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:50] [Server thread/INFO] (Minecraft) Preparing spawn area: 16%
+[21:23:50] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:50] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:50] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:51] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:51] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:51] [Server thread/INFO] (Minecraft) Time elapsed: 1472 ms
+[21:23:51] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: null screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:51] [Server thread/INFO] (Minecraft) Lumen-Bot[local:E:cc4e5e87] logged in with entity id 1 at (0.5, -60.0, 0.5)
+[21:23:51] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot joined the game
+[21:23:51] [Server thread/INFO] (Minecraft) Changing view distance to 5, from 10
+[21:23:51] [Server thread/INFO] (Minecraft) Changing simulation distance to 12, from 0
+[21:23:51] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:51] [Render thread/WARN] (Minecraft) Requested post effect does not exist: minecraft:end_of_frame
+[21:23:51] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[21:23:51] [Render thread/INFO] (Minecraft) Loaded 2 advancements
+[21:23:51] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:51] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[21:23:51] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:51] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[21:23:52] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:52] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:52] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Command Buffer, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[21:23:52] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Instanced, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[21:23:52] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:52] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Command Buffer, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[21:23:52] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Instanced, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[21:23:52] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:52] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:52] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:52] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Command Buffer, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[21:23:52] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Instanced, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[21:23:52] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: net.minecraft.client.gui.screens.LevelLoadingScreen@3299fd09
+[21:23:52] [Render thread/INFO] (fabric-client-gametest-api-v1) World loading finished: ClientLevel screen: null
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Set minecraft:overworld to time marker minecraft:noon
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at -6, -60, 0
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at -4, -60, 0
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at -3, -60, 0
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at -1, -60, 0
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at 1, -60, 0
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at 3, -60, 0
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at 5, -60, 0
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at -6, -60, 3
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at -4, -60, 3
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at -2, -60, 3
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at 0, -60, 3
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at 2, -60, 3
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at 4, -60, 3
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Changed the block at 6, -60, 3
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: The difficulty has been set to Easy
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Summoned new Creeper
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Summoned new Pig
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Summoned new Villager
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Summoned new Diamond
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Summoned new Bob
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Summoned new Minecart with Chest
+[21:23:52] [Server thread/ERROR] (Minecraft) Block-attached entity at invalid position: null
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Summoned new Item Frame
+[21:23:52] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 0.500000, -60.000000, -8.500000
+[21:23:53] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Command Buffer, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[21:23:53] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Instanced, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[21:23:53] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Command Buffer, capacity limit of 32 reached during a single frame. New capacity will be 64.
+[21:23:53] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Instanced, capacity limit of 32 reached during a single frame. New capacity will be 64.
+[21:23:54] [Server thread/WARN] (Minecraft) Can't keep up! Is the server overloaded? Running 2108ms or 42 ticks behind
+[21:23:55] [Test thread/INFO] (Lumen Test) Screenshot: HUD only
+[21:23:55] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Command Buffer, capacity limit of 64 reached during a single frame. New capacity will be 128.
+[21:23:55] [Render thread/INFO] (Minecraft) Resizing Chunk Sections Instanced, capacity limit of 64 reached during a single frame. New capacity will be 128.
+[21:23:55] [Render thread/INFO] (Minecraft) Resizing Dynamic Transforms UBO, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[21:23:55] [Test thread/INFO] (Lumen Test) Enabling Storage ESP and Spawner ESP
+[21:23:56] [Test thread/INFO] (Lumen Test) Storage ESP targets: 9, Spawner ESP targets: 2
+[21:23:56] [Test thread/INFO] (Lumen Test) Screenshot: ESP through a wall
+[21:23:56] [Server thread/INFO] (Minecraft) System chat: Successfully filled 68 block(s)
+[21:23:56] [Server thread/INFO] (Minecraft) System chat: Successfully filled 68 block(s)
+[21:23:56] [Test thread/INFO] (Lumen Test) Screenshot: outline mode with tracers
+[21:23:57] [Test thread/INFO] (Lumen Test) Enabling Entity ESP
+[21:23:57] [Test thread/INFO] (Lumen Test) Entity ESP targets: 6
+[21:23:57] [Test thread/INFO] (Lumen Test) Opening the click GUI with its key
+[21:24:00] [Test thread/INFO] (Lumen Test) Binding Spawner ESP to G through the GUI
+[21:24:01] [Test thread/INFO] (Lumen Test) Spawner ESP key is now 'key.keyboard.g'
+[21:24:01] [Test thread/INFO] (Lumen Test) Expanding Storage ESP settings
+[21:24:03] [Test thread/INFO] (Lumen Test) Opening the Chests colour picker
+[21:24:06] [Test thread/INFO] (Lumen Test) Searching for 'spawner'
+[21:24:07] [Test thread/INFO] (Lumen Test) Visible modules while searching: [Spawner ESP]
+[21:24:07] [Test thread/INFO] (Lumen Test) Saving a profile through the Profiles screen
+[21:24:10] [Test thread/INFO] (Lumen Test) Closing the GUI
+[21:24:10] [Test thread/INFO] (Lumen Test) Loading the profile restores changed settings
+[21:24:10] [Test thread/INFO] (Lumen Test) Storage ESP fill opacity after loading the profile: 22.0
+[21:24:10] [Test thread/INFO] (Lumen Test) Toggling Spawner ESP with its new key
+[21:24:10] [Test thread/INFO] (Lumen Test) Testing Freecam
+[21:24:13] [Test thread/INFO] (Lumen Test) Freecam: body moved 0.0 blocks, camera is 28.46842000618135 blocks from the body
+[21:24:13] [Test thread/INFO] (Lumen Test) Scrolling to change Freecam speed
+[21:24:13] [Test thread/INFO] (Lumen Test) Freecam speed 1.0 -> 1.2000000000000002, hotbar slot 0 -> 0
+[21:24:13] [Test thread/INFO] (Lumen Test) After Freecam: camera is 1.1920928955078125E-7 blocks from the eyes
+[21:24:13] [Test thread/INFO] (Lumen Test) Testing New Chunks, Stash Finder and Base Finder
+[21:24:14] [Server thread/INFO] (Minecraft) System chat: Changed the block at 8, -60, 40
+[21:24:14] [Server thread/INFO] (Minecraft) System chat: Successfully filled 48 block(s)
+[21:24:14] [Server thread/INFO] (Minecraft) System chat: Changed the block at -24, -60, 20
+[21:24:14] [Server thread/INFO] (Minecraft) System chat: Changed the block at -22, -60, 20
+[21:24:14] [Server thread/INFO] (Minecraft) System chat: Changed the block at -20, -60, 20
+[21:24:14] [Server thread/INFO] (Minecraft) System chat: Changed the block at -24, -60, 22
+[21:24:14] [Server thread/INFO] (Minecraft) System chat: Changed the block at -20, -30, 22
+[21:24:16] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Possible base: Score 42 at 8, 8 (1 hopper, 1 red shulker box, 1 ender chest, 1 lime shulker box)
+[21:24:16] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Possible base: Score 41 at -24, 24 (2 ender chest, 1 respawn anchor, 1 beacon, 1 crafting table)
+[21:24:16] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Stash: 48 containers at 21, 22 (0 chests, 0 shulkers, 48 barrels, 0 hoppers)
+[21:24:16] [Server thread/WARN] (Minecraft) Can't keep up! Is the server overloaded? Running 6861ms or 137 ticks behind
+[21:24:17] [Test thread/INFO] (Lumen Test) New Chunks marked (0, 2) new: true. Stash in (1, 1): true (48 containers). Base in (-2, 1): true (score 41). Flagged chunks: [[-2, 1], [0, 0]]
+[21:24:17] [Test thread/INFO] (Lumen Test) Base Finder: blocks from y -60 to -30, box from y -60 to -60
+[21:24:17] [Test thread/INFO] (Lumen Test) Screenshot: world finders from above
+[21:24:17] [Server thread/INFO] (Minecraft) System chat: Changed the block at 0, -41, 6
+[21:24:17] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 0.500000, -40.000000, 6.500000
+[21:24:18] [Test thread/INFO] (Lumen Test) Testing Nametags, Logout Spots, Sound Locator, Waypoints and Radar
+[21:24:18] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 0.500000, -60.000000, -8.500000
+[21:24:19] [Test thread/INFO] (Lumen Test) Playing a loud sound about 90 blocks away
+[21:24:19] [Server thread/INFO] (Minecraft) System chat: Played sound minecraft:entity.generic.explode to Lumen-Bot
+[21:24:19] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Entity generic explode at 60, -60, 60
+[21:24:19] [Test thread/INFO] (Lumen Test) Sound Locator markers: [Marker[label=entity generic explode, pos=(60.5, -60.0, 60.5), timeMillis=1791581059137, global=false]]
+[21:24:19] [Test thread/INFO] (Lumen Test) Adding a waypoint with its key
+[21:24:19] [Test thread/INFO] (Lumen Test) Dying saves a death waypoint
+[21:24:19] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot was killed
+[21:24:19] [Server thread/INFO] (Minecraft) System chat: Killed Lumen-Bot
+[21:24:19] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot was killed
+[21:24:19] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Death waypoint saved at 0, -60, -9
+[21:24:21] [Test thread/INFO] (Lumen Test) Death waypoints: 0 -> 1
+[21:24:22] [Test thread/INFO] (Lumen Test) Opening the Waypoints screen from the click GUI
+[21:24:25] [Test thread/INFO] (Lumen Test) Testing X-Ray and Sign Reader
+[21:24:25] [Test thread/INFO] (Lumen Test) Coordinates in "Base at 1200 64 -3400": 1200 64 -3400
+[21:24:25] [Test thread/INFO] (Lumen Test) Coordinates in "X: 1200 Z: -3400": 1200 -3400
+[21:24:25] [Test thread/INFO] (Lumen Test) Coordinates in "x 100 y 70 z -200": 100 70 -200
+[21:24:25] [Test thread/INFO] (Lumen Test) Coordinates in "stash 5000, -7000": 5000 -7000
+[21:24:25] [Test thread/INFO] (Lumen Test) Coordinates in "Shop open 9 to 5": null
+[21:24:25] [Test thread/INFO] (Lumen Test) Coordinates in "Welcome to spawn": null
+[21:24:25] [Server thread/INFO] (Minecraft) System chat: Changed the block at -2, -63, -6
+[21:24:25] [Server thread/INFO] (Minecraft) System chat: Changed the block at 3, -60, -6
+[21:24:25] [Server thread/INFO] (Minecraft) System chat: Changed the block at -4, -60, -6
+[21:24:25] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 0.500000, -60.000000, -11.500000
+[21:24:25] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Sign at 3, -60, -6 reads coordinates 1200 64 -3400: "Base at / 1200 64 -3400"
+[21:24:26] [Server thread/INFO] (Minecraft) System chat: Changed the block at 2, -62, -6
+[21:24:28] [Test thread/INFO] (Lumen Test) X-Ray found 2 blocks. Sign Reader found [Sign[pos=BlockPos{x=-4, y=-60, z=-6}, box=AABB[-3.75, -60.0, -5.75] -> [-3.25, -59.0, -5.25], front=[Welcome, to spawn], back=[], coords=null], Sign[pos=BlockPos{x=3, y=-60, z=-6}, box=AABB[3.25, -60.0, -5.75] -> [3.75, -59.0, -5.25], front=[Base at, 1200 64 -3400], back=[], coords=1200 64 -3400]]
+[21:24:28] [Test thread/INFO] (Lumen Test) Screenshot: far markers on the scene from about 60 blocks away
+[21:24:28] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 0.500000, -56.000000, -60.500000
+[21:24:29] [Test thread/INFO] (Lumen Test) Testing combat modules
+[21:24:29] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Survival Mode
+[21:24:29] [Server thread/INFO] (Minecraft) System chat: No items were found on player Lumen-Bot
+[21:24:29] [Server thread/INFO] (Minecraft) System chat: Applied effect Resistance to Lumen-Bot
+[21:24:29] [Server thread/INFO] (Minecraft) System chat: No entity was found
+[21:24:29] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 40.500000, -60.000000, -40.500000
+[21:24:29] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Netherite Sword]
+[21:24:29] [Server thread/INFO] (Minecraft) System chat: Summoned new Zombie
+[21:24:29] [Server thread/INFO] (Minecraft) System chat: Successfully filled 12 block(s)
+[21:24:31] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot has made the advancement [Monster Hunter]
+[21:24:31] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot has made the advancement [Monster Hunter]
+[21:24:31] [Render thread/INFO] (Minecraft) Loaded 44 advancements
+[21:24:31] [Test thread/INFO] (Lumen Test) Kill Aura: zombie dead true, hits 2, crits 2
+[21:24:31] [Server thread/INFO] (Minecraft) System chat: Summoned new Zombie
+[21:24:31] [Server thread/INFO] (Minecraft) System chat: Successfully filled 12 block(s)
+[21:24:33] [Server thread/WARN] (Minecraft) Can't keep up! Is the server overloaded? Running 2104ms or 42 ticks behind
+[21:24:33] [Test thread/INFO] (Lumen Test) Trigger Bot: zombie dead true, hits 3
+[21:24:33] [Server thread/INFO] (Minecraft) System chat: Successfully filled 12 block(s)
+[21:24:33] [Server thread/INFO] (Minecraft) System chat: Summoned new Zombie
+[21:24:35] [Test thread/INFO] (Lumen Test) Aim Assist: yaw -26.565052 (target -26.565052, started at 0)
+[21:24:35] [Server thread/INFO] (Minecraft) System chat: Killed Zombie
+[21:24:35] [Server thread/INFO] (Minecraft) System chat: Summoned new Zombie
+[21:24:37] [Test thread/INFO] (Lumen Test) Auto Clicker: 20 clicks in 2 seconds at 10 CPS
+[21:24:37] [Server thread/INFO] (Minecraft) System chat: Killed Zombie
+[21:24:37] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Bow]
+[21:24:37] [Server thread/INFO] (Minecraft) System chat: Gave 16 [Arrow] to Lumen-Bot
+[21:24:37] [Server thread/INFO] (Minecraft) System chat: Summoned new Zombie
+[21:24:37] [Render thread/INFO] (Minecraft) Loaded 45 advancements
+[21:24:39] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot has made the advancement [Take Aim]
+[21:24:39] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot has made the advancement [Take Aim]
+[21:24:39] [Render thread/INFO] (Minecraft) Loaded 45 advancements
+[21:24:40] [Test thread/INFO] (Lumen Test) Bow Aimbot: zombie health after shot 1: 12.08
+[21:24:40] [Server thread/INFO] (Minecraft) System chat: Killed Zombie
+[21:24:40] [Server thread/INFO] (Minecraft) System chat: No entity was found
+[21:24:40] [Server thread/INFO] (Minecraft) System chat: Removed 16 item(s) from player Lumen-Bot
+[21:24:40] [Server thread/INFO] (Minecraft) System chat: Gave 2 [Totem of Undying] to Lumen-Bot
+[21:24:41] [Test thread/INFO] (Lumen Test) Auto Totem: totem in offhand true
+[21:24:41] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Leather Tunic]
+[21:24:41] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot has made the advancement [Cover Me with Diamonds]
+[21:24:41] [Server thread/INFO] (Minecraft) System chat: Gave 1 [Diamond Helmet] to Lumen-Bot
+[21:24:41] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot has made the advancement [Suit Up]
+[21:24:41] [Server thread/INFO] (Minecraft) System chat: Gave 1 [Iron Chestplate] to Lumen-Bot
+[21:24:41] [Server thread/INFO] (Minecraft) System chat: Gave 1 [Netherite Boots] to Lumen-Bot
+[21:24:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot has made the advancement [Cover Me with Diamonds]
+[21:24:41] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot has made the advancement [Suit Up]
+[21:24:41] [Render thread/INFO] (Minecraft) Loaded 57 advancements
+[21:24:42] [Test thread/INFO] (Lumen Test) Auto Armor: wearing diamond_helmet,iron_chestplate,,netherite_boots, old chestplate kept in inventory true
+[21:24:42] [Server thread/INFO] (Minecraft) System chat: Removed every effect from Lumen-Bot
+[21:24:42] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Golden Apple]
+[21:24:42] [Server thread/INFO] (Minecraft) System chat: Applied 13.0 damage to Lumen-Bot
+[21:24:43] [Test thread/INFO] (Lumen Test) Auto Gapple: health after the hit 7.0
+[21:24:44] [Render thread/INFO] (Minecraft) Loaded 79 advancements
+[21:24:46] [Test thread/INFO] (Lumen Test) Auto Gapple: apples eaten 1, absorption 4.0, selected slot 0
+[21:24:46] [Server thread/INFO] (Minecraft) System chat: Applied effect Resistance to Lumen-Bot
+[21:24:46] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 70.500000, -60.000000, -40.500000
+[21:24:46] [Server thread/INFO] (Minecraft) System chat: Summoned new Primed TNT
+[21:24:47] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 100.500000, -60.000000, -40.500000
+[21:24:48] [Server thread/INFO] (Minecraft) System chat: Summoned new Primed TNT
+[21:24:49] [Test thread/INFO] (Lumen Test) Velocity: blast moved the player 3.055495138241838 blocks without it and 0.0 with it
+[21:24:49] [Test thread/INFO] (Lumen Test) Screenshot: the Combat panel
+[21:24:50] [Test thread/INFO] (Lumen Test) Testing crystal PvP modules
+[21:24:50] [Server thread/INFO] (Minecraft) System chat: No entity was found
+[21:24:50] [Server thread/INFO] (Minecraft) System chat: Unable to apply this effect (target is either immune to effects, or has something stronger)
+[21:24:50] [Server thread/INFO] (Minecraft) System chat: Removed 24 item(s) from player Lumen-Bot
+[21:24:50] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 130.500000, -60.000000, -40.500000
+[21:24:51] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot has made the advancement [Ice Bucket Challenge]
+[21:24:51] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Obsidian]
+[21:24:51] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot has made the advancement [Ice Bucket Challenge]
+[21:24:51] [Render thread/INFO] (Minecraft) Loaded 86 advancements
+[21:24:52] [Test thread/INFO] (Lumen Test) Surround: 0 of 4 sides still open
+[21:24:52] [Server thread/INFO] (Minecraft) System chat: Successfully filled 4 block(s)
+[21:24:52] [Server thread/INFO] (Minecraft) System chat: Summoned new Zombie
+[21:24:53] [Test thread/INFO] (Lumen Test) Auto Trap: 10 of 10 trap blocks in place
+[21:24:53] [Test thread/INFO] (Lumen Test) Auto Trap blocks: zombie at 133, -60, -41: 133, -60, -42=obsidian 134, -60, -41=obsidian 133, -60, -40=obsidian 132, -60, -41=obsidian 133, -59, -42=obsidian 134, -59, -41=obsidian 133, -59, -40=obsidian 132, -59, -41=obsidian 133, -58, -42=obsidian 133, -58, -41=obsidian
+[21:24:53] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 130.500000, -55.000000, -40.500000
+[21:24:54] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 130.500000, -60.000000, -40.500000
+[21:24:54] [Server thread/INFO] (Minecraft) System chat: Killed Zombie
+[21:24:54] [Server thread/INFO] (Minecraft) System chat: Successfully filled 10 block(s)
+[21:24:54] [Server thread/INFO] (Minecraft) System chat: Successfully filled 36 block(s)
+[21:24:54] [Server thread/INFO] (Minecraft) System chat: Summoned new Zombie
+[21:24:54] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [End Crystal]
+[21:24:55] [Test thread/INFO] (Lumen Test) Crystal Aura: zombie dead true, crystals placed 2, broken 2
+[21:24:55] [Server thread/INFO] (Minecraft) System chat: No entity was found
+[21:24:55] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 160.500000, -60.000000, -40.500000
+[21:24:55] [Server thread/INFO] (Minecraft) System chat: Summoned new Zombie
+[21:24:55] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Respawn Anchor]
+[21:24:55] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Glowstone]
+[21:24:55] [Render thread/INFO] (Minecraft) Loaded 87 advancements
+[21:24:56] [Test thread/INFO] (Lumen Test) Anchor Aura: zombie dead true, anchors placed 1, detonated 1
+[21:24:56] [Test thread/INFO] (Lumen Test) Testing utility and movement modules
+[21:24:56] [Server thread/INFO] (Minecraft) System chat: Removed 87 item(s) from player Lumen-Bot
+[21:24:56] [Server thread/INFO] (Minecraft) System chat: No entity was found
+[21:24:56] [Server thread/INFO] (Minecraft) System chat: Unable to apply this effect (target is either immune to effects, or has something stronger)
+[21:24:56] [Server thread/INFO] (Minecraft) System chat: Applied effect Saturation to Lumen-Bot
+[21:24:56] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 200.500000, -60.000000, -40.500000
+[21:24:56] [Server thread/INFO] (Minecraft) System chat: Changed the block at 200, -59, -38
+[21:24:56] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Stick]
+[21:24:56] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Diamond Pickaxe]
+[21:24:56] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Diamond Shovel]
+[21:24:56] [Render thread/INFO] (Minecraft) Loaded 95 advancements
+[21:24:57] [Test thread/INFO] (Lumen Test) Auto Tool: slot 3 while mining stone, 0 after
+[21:24:57] [Server thread/INFO] (Minecraft) System chat: Changed the block at 202, -60, -38
+[21:24:58] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot has made the advancement [Diamonds!]
+[21:24:58] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot has made the advancement [Diamonds!]
+[21:24:58] [Render thread/INFO] (Minecraft) Loaded 108 advancements
+[21:24:58] [Render thread/INFO] (Minecraft) Loaded 109 advancements
+[21:24:58] [Render thread/INFO] (Minecraft) Loaded 123 advancements
+[21:25:00] [Test thread/INFO] (Lumen Test) Chest Stealer: took 5 diamonds, 3 emeralds, 7 gold, menu closed true
+[21:25:05] [Test thread/INFO] (Lumen Test) Anti AFK: 1 rounds in 5.5 seconds at a 5 second interval, yaw -33.690067 -> -67.88861
+[21:25:05] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 200.500000, -60.000000, -30.500000
+[21:25:07] [Test thread/INFO] (Lumen Test) Auto Walk and Auto Sprint: moved 7.73564769071168 blocks in 1.5 seconds, sprinting true
+[21:25:07] [Server thread/INFO] (Minecraft) System chat: Changed the block at 210, -50, -41
+[21:25:07] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 210.500000, -49.000000, -40.500000
+[21:25:11] [Test thread/INFO] (Lumen Test) Safe Walk: y -49.0 with it walking at the edge, y -60.0 after turning it off
+[21:25:11] [Server thread/INFO] (Minecraft) System chat: Changed the block at 220, -50, -41
+[21:25:11] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 220.500000, -49.000000, -40.500000
+[21:25:11] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot has made the advancement [Stone Age]
+[21:25:11] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Cobblestone]
+[21:25:11] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot has made the advancement [Stone Age]
+[21:25:11] [Render thread/INFO] (Minecraft) Loaded 138 advancements
+[21:25:13] [Test thread/INFO] (Lumen Test) Scaffold: 9 blocks of bridge, player at y -49.0
+[21:25:13] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot has reached the goal [Sky's the Limit]
+[21:25:13] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Elytra]
+[21:25:13] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Firework Rocket]
+[21:25:13] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 230.500000, 0.000000, -40.500000
+[21:25:13] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot has reached the goal [Sky's the Limit]
+[21:25:13] [Render thread/INFO] (Minecraft) Loaded 143 advancements
+[21:25:14] [Test thread/INFO] (Lumen Test) Elytra+: gliding after the jump true
+[21:25:15] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Air]
+[21:25:15] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 230.500000, -60.000000, -40.500000
+[21:25:15] [Test thread/INFO] (Lumen Test) Elytra+: gliding true, pitch 4.0 (target 4), rockets 1
+[21:25:15] [Test thread/INFO] (Lumen Test) Trail Follower: heading -40.0 for a trail at -40, NaN with no trail
+[21:25:15] [Test thread/INFO] (Lumen Test) Testing Freecam in survival with every movement key and the mouse
+[21:25:15] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 250.500000, -60.000000, -40.500000
+[21:25:19] [Test thread/INFO] (Lumen Test) Freecam survival: body moved 0.0 sideways and 0.0 up; body rotation 0.0/0.0 -> 0.0/0.0; camera yaw 90.00001, camera 74.54934996462742 blocks away
+[21:25:19] [Test thread/INFO] (Lumen Test) Testing Fullbright
+[21:25:19] [Server thread/INFO] (Minecraft) System chat: Set minecraft:overworld to time marker minecraft:midnight
+[21:25:19] [Server thread/INFO] (Minecraft) System chat: Successfully filled 266 block(s)
+[21:25:19] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 271.500000, -60.000000, -40.500000
+[21:25:21] [Server thread/INFO] (Minecraft) System chat: Set minecraft:overworld to time marker minecraft:noon
+[21:25:21] [Test thread/INFO] (Lumen Test) Fullbright: centre brightness 8.978414369158878 in the dark room, 70.88319669003116 with Fullbright; night vision true, removed after true
+[21:25:21] [Test thread/INFO] (Lumen Test) Testing the Printer
+[21:25:21] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Creative Mode
+[21:25:21] [Server thread/INFO] (Minecraft) System chat: Removed 88 item(s) from player Lumen-Bot
+[21:25:21] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 321.500000, -60.000000, -36.500000
+[21:25:21] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Printing lumen_test: 19 blocks, 3x3x6, from 320 -60 -40
+[21:25:22] [Render thread/INFO] (Minecraft) Loaded 165 advancements
+[21:25:22] [Test thread/INFO] (Lumen Test) Printer: schematic decoded ok
+[21:25:22] [Render thread/INFO] (Minecraft) Loaded 185 advancements
+[21:25:22] [Render thread/INFO] (Minecraft) Loaded 186 advancements
+[21:25:22] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Finished lumen_test: all 19 blocks in place.
+[21:25:22] [Test thread/INFO] (Lumen Test) Printer: 19 of 19 right (19 placements)
+[21:25:22] [Test thread/INFO] (Lumen Test) Testing schematic palette forms
+[21:25:22] [Test thread/INFO] (Lumen Test) Schematic forms: decoded ok
+[21:25:22] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r 2 block types in lumen_unknown are not in this version of the game and are skipped: examplemod:frame, examplemod:gear
+[21:25:22] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r lumen_unknown has no blocks the Printer can place; see chat for the block types it did not know.
+[21:25:22] [Test thread/INFO] (Lumen Test) Schematic forms: Printer stayed on for a schematic with no known blocks: false
+[21:25:22] [Test thread/INFO] (Lumen Test) Testing the Printer buying blocks
+[21:25:22] [Server thread/INFO] (Minecraft) System chat: No blocks were filled
+[21:25:22] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Survival Mode
+[21:25:22] [Server thread/INFO] (Minecraft) System chat: Removed 64 item(s) from player Lumen-Bot
+[21:25:22] [Server thread/INFO] (Minecraft) System chat: Removed every effect from Lumen-Bot
+[21:25:22] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 341.500000, -60.000000, -36.500000
+[21:25:23] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Printing lumen_buy: 11 blocks, 4x2x2, from 340 -60 -40
+[21:25:23] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Buying 6 Glass, at most $100 each, $5,000 left to spend.
+[21:25:29] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Bought 12 Glass for $520 ($520 spent so far).
+[21:25:29] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Buying 4 Obsidian, at most $100 each, $4,480 left to spend.
+[21:25:32] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Bought 4 Obsidian for $240 ($760 spent so far).
+[21:25:32] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Buying 1 Oak Log, at most $100 each, $4,240 left to spend.
+[21:25:32] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Could not buy Oak Log: the cheapest Oak Log on the auction house is $5,000 each, over your $100 limit.
+[21:25:33] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Printer needs Oak Log in your inventory.
+[21:25:34] [Test thread/INFO] (Lumen Test) Printer buying: purchases [ah 4 glass $40, ah 8 glass $480, shop 4 obsidian $240], spent 760.0, balance 9240.0, 14 menu clicks, carrying 6 glass, 0 glass panes, 0 obsidian, menu closed true, wrong: none
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Creative Mode
+[21:25:34] [Test thread/INFO] (Lumen Test) Testing the Printer making farmland
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: No blocks were filled
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: No blocks were filled
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: Changed the block at 362, -61, -40
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Survival Mode
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: Removed 6 item(s) from player Lumen-Bot
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Iron Hoe]
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Carrot]
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Dirt]
+[21:25:34] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 361.500000, -60.000000, -37.500000
+[21:25:34] [Render thread/INFO] (Minecraft) Loaded 187 advancements
+[21:25:34] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Printing lumen_farm: 6 blocks, 3x2x1, from 360 -61 -40
+[21:25:35] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Finished lumen_farm: all 6 blocks in place.
+[21:25:35] [Test thread/INFO] (Lumen Test) Printer farmland: finished true, carrying 3 dirt, 5 carrots, 1 hoe, wrong: none
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Creative Mode
+[21:25:35] [Test thread/INFO] (Lumen Test) Testing the Printer breaking blocks and placing water
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: No blocks were filled
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: No blocks were filled
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Changed the block at 380, -60, -40
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Changed the block at 380, -59, -40
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Changed the block at 381, -59, -39
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Changed the block at 382, -59, -38
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Changed the block at 381, -60, -37
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Survival Mode
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Removed 9 item(s) from player Lumen-Bot
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Target has no effects to remove
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Wooden Pickaxe]
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Diamond Axe]
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Stone]
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Water Bucket]
+[21:25:35] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 381.500000, -59.000000, -36.500000
+[21:25:35] [Render thread/INFO] (Minecraft) Loaded 188 advancements
+[21:25:36] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Printing lumen_pool: 9 blocks, 3x2x3, from 380 -60 -40
+[21:25:41] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Finished lumen_pool: all 9 blocks in place.
+[21:25:41] [Test thread/INFO] (Lumen Test) Printer break and water: finished true, mined 3, mining seen in progress true, carrying 1 bucket, 0 water bucket, 0 stone, wrong: none
+[21:25:41] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Creative Mode
+[21:25:41] [Test thread/INFO] (Lumen Test) Testing the Printer walking around a build
+[21:25:41] [Server thread/INFO] (Minecraft) System chat: No blocks were filled
+[21:25:41] [Server thread/INFO] (Minecraft) System chat: No blocks were filled
+[21:25:41] [Server thread/INFO] (Minecraft) System chat: Successfully filled 56 block(s)
+[21:25:41] [Server thread/INFO] (Minecraft) System chat: Successfully filled 2 block(s)
+[21:25:41] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Survival Mode
+[21:25:41] [Server thread/INFO] (Minecraft) System chat: Removed 3 item(s) from player Lumen-Bot
+[21:25:41] [Server thread/INFO] (Minecraft) System chat: Replaced 1 slot(s) on Lumen-Bot with [Stone]
+[21:25:41] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 402.500000, -60.000000, -30.500000
+[21:25:42] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Printing lumen_walk: 6 blocks, 14x1x1, from 400 -60 -45
+[21:25:50] [Render thread/INFO] (Minecraft) [System] [CHAT] §d[Lumen]§r Finished lumen_walk: all 6 blocks in place.
+[21:25:50] [Test thread/INFO] (Lumen Test) Printer walking: finished true, walked from (402.5, -60.0, -30.5) to (409.6821073901397, -60.0, -43.50000099968759), through the gap true, health 20.0, wrong: none
+[21:25:50] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Creative Mode
+[21:25:50] [Test thread/INFO] (Lumen Test) Testing Auto Use
+[21:25:50] [Server thread/INFO] (Minecraft) System chat: No blocks were filled
+[21:25:50] [Server thread/INFO] (Minecraft) System chat: No blocks were filled
+[21:25:50] [Server thread/INFO] (Minecraft) System chat: Changed the block at 430, -60, -40
+[21:25:50] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Survival Mode
+[21:25:50] [Server thread/INFO] (Minecraft) System chat: No items were found on player Lumen-Bot
+[21:25:50] [Server thread/INFO] (Minecraft) System chat: Teleported Lumen-Bot to 430.500000, -60.000000, -37.500000
+[21:25:55] [Server thread/INFO] (Minecraft) Saving and pausing game...
+[21:25:55] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[21:25:55] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[21:25:55] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[21:25:55] [Server thread/WARN] (Minecraft) Can't keep up! Is the server overloaded? Running 2002ms or 40 ticks behind
+[21:25:57] [Test thread/INFO] (Lumen Test) Auto Use: 10 clicks in 40 ticks focused, 10 in 40 ticks unfocused, no pause menu true, paused once off true, key let go true
+[21:25:57] [Server thread/INFO] (Minecraft) System chat: Set Lumen-Bot's game mode to Creative Mode
+[21:25:57] [Test thread/INFO] (Lumen Test) Testing Fake Name and the text field
+[21:26:01] [Test thread/INFO] (Lumen Test) Fake Name: the field saved 'Lumen-Fake'
+[21:26:02] [Test thread/INFO] (Lumen Test) Fake Name: '<Lumen-Bot> hello' draws as '<Lumen-Fake> hello'
+[21:26:02] [Render thread/INFO] (Minecraft) [System] [CHAT] Lumen-Bot joined the game
+[21:26:02] [Server thread/INFO] (Minecraft) Lumen-Bot lost connection: Disconnected
+[21:26:02] [Server thread/INFO] (Minecraft) System chat: Lumen-Bot left the game
+[21:26:02] [Server thread/INFO] (Minecraft) Stopping singleplayer server as player logged out
+[21:26:02] [Server thread/INFO] (Minecraft) Stopping server
+[21:26:02] [Server thread/INFO] (Minecraft) Saving players
+[21:26:02] [Server thread/INFO] (Minecraft) Saving worlds
+[21:26:02] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[21:26:03] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[21:26:03] [Server thread/INFO] (Minecraft) Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[21:26:03] [Test thread/INFO] (Lumen Test) Testing Auto Reconnect
+[21:26:03] [Test thread/INFO] (Lumen Test) Auto Reconnect button: Reconnecting in 1s (click to go now)
+[21:26:04] [Render thread/INFO] (Minecraft) Connecting to 127.0.0.1, 1
+[21:26:04] [Server Connector #1/ERROR] (Minecraft) Couldn't connect to server
+io.netty.channel.AbstractChannel$AnnotatedConnectException: finishConnect(..) failed with error(-111): Connection refused: localhost/127.0.0.1:1
+	Suppressed: java.util.concurrent.CompletionException: Rethrowing promise failure cause
+		at knot//io.netty.util.concurrent.DefaultPromise.rethrowIfFailed(DefaultPromise.java:686)
+		at knot//io.netty.util.concurrent.DefaultPromise.syncUninterruptibly(DefaultPromise.java:427)
+		at knot//io.netty.channel.DefaultChannelPromise.syncUninterruptibly(DefaultChannelPromise.java:125)
+		at knot//io.netty.channel.DefaultChannelPromise.syncUninterruptibly(DefaultChannelPromise.java:30)
+		at knot//net.minecraft.client.gui.screens.ConnectScreen$1.run(ConnectScreen.java:115)
+Caused by: java.net.ConnectException: finishConnect(..) failed with error(-111): Connection refused
+	at knot//io.netty.channel.unix.Errors.newConnectException0(Errors.java:166)
+	at knot//io.netty.channel.unix.Errors.handleConnectErrno(Errors.java:131)
+	at knot//io.netty.channel.unix.Socket.finishConnect(Socket.java:361)
+	at knot//io.netty.channel.epoll.AbstractEpollChannel$AbstractEpollUnsafe.doFinishConnect(AbstractEpollChannel.java:772)
+	at knot//io.netty.channel.epoll.AbstractEpollChannel$AbstractEpollUnsafe.finishConnect(AbstractEpollChannel.java:749)
+	at knot//io.netty.channel.epoll.AbstractEpollChannel$AbstractEpollUnsafe.epollOutReady(AbstractEpollChannel.java:616)
+	at knot//io.netty.channel.epoll.AbstractEpollChannel$AbstractEpollUnsafe.handle(AbstractEpollChannel.java:477)
+	at knot//io.netty.channel.epoll.EpollIoHandler$DefaultEpollIoRegistration.handle(EpollIoHandler.java:349)
+	at knot//io.netty.channel.epoll.EpollIoHandler.processReady(EpollIoHandler.java:548)
+	at knot//io.netty.channel.epoll.EpollIoHandler.run(EpollIoHandler.java:491)
+	at knot//io.netty.channel.SingleThreadIoEventLoop.runIo(SingleThreadIoEventLoop.java:225)
+	at knot//io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:196)
+	at knot//io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1204)
+	at knot//io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[21:26:04] [Test thread/INFO] (Lumen Test) Auto Reconnect: 1 connection attempts
+[21:26:05] [Test thread/INFO] (Lumen Test) Auto Reconnect: the attempt failed back to the disconnect screen true
+[21:26:05] [Test thread/INFO] (Lumen Test) Lumen client test complete
+[21:26:05] [Render thread/INFO] (Minecraft) Stopping!
+[21:26:05] [Render thread/WARN] (Minecraft) Couldn't acquire next surface texture with config Optional[Configuration[width=1280, height=720, presentMode=FIFO]]
+com.mojang.renderpearl.api.device.SurfaceException: Failed to acquire image, swapchain out of date
+	at knot//com.mojang.renderpearl.backend.vulkan.VulkanGpuSurface.acquireNextTexture(VulkanGpuSurface.java:277)
+	at knot//com.mojang.renderpearl.frontend.FrontendGpuSurface.acquireNextTexture(FrontendGpuSurface.java:71)
+	at knot//net.minecraft.client.Minecraft.renderFrame(Minecraft.java:1330)
+	at knot//net.minecraft.client.Minecraft.setScreenAndShow(Minecraft.java:2321)
+	at knot//net.minecraft.client.Minecraft.disconnect(Minecraft.java:2271)
+	at knot//net.minecraft.client.Minecraft.disconnectWithProgressScreen(Minecraft.java:2220)
+	at knot//net.minecraft.client.Minecraft.disconnectWithProgressScreen(Minecraft.java:2216)
+	at knot//net.minecraft.client.Minecraft.exitWorldAndClose(Minecraft.java:1169)
+	at knot//net.minecraft.client.main.Main.main(Main.java:296)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)

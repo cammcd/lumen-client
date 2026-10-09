@@ -1,0 +1,18 @@
+Compiled from "ScreenEvents.java"
+public final class net.fabricmc.fabric.api.client.screen.v1.ScreenEvents {
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeInit> BEFORE_INIT;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit> AFTER_INIT;
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$Remove> remove(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeExtract> beforeExtract(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterBackground> afterBackground(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterForeground> afterForeground(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterExtract> afterExtract(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeTick> beforeTick(net.minecraft.client.gui.screens.Screen);
+  public static net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterTick> afterTick(net.minecraft.client.gui.screens.Screen);
+  private net.fabricmc.fabric.api.client.screen.v1.ScreenEvents();
+  private static net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit lambda$static$2(net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit[]);
+  private static void lambda$static$3(net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$AfterInit[], net.minecraft.client.Minecraft, net.minecraft.client.gui.screens.Screen, int, int);
+  private static net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeInit lambda$static$0(net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeInit[]);
+  private static void lambda$static$1(net.fabricmc.fabric.api.client.screen.v1.ScreenEvents$BeforeInit[], net.minecraft.client.Minecraft, net.minecraft.client.gui.screens.Screen, int, int);
+  static {};
+}

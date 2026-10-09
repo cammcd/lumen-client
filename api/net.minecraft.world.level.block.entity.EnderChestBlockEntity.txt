@@ -1,0 +1,13 @@
+Compiled from "EnderChestBlockEntity.java"
+public class net.minecraft.world.level.block.entity.EnderChestBlockEntity extends net.minecraft.world.level.block.entity.BlockEntity implements net.minecraft.world.level.block.entity.LidBlockEntity {
+  private final net.minecraft.world.level.block.entity.ChestLidController chestLidController;
+  private final net.minecraft.world.level.block.entity.ContainerOpenersCounter openersCounter;
+  public net.minecraft.world.level.block.entity.EnderChestBlockEntity(net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState);
+  public static void lidAnimateTick(net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.block.entity.EnderChestBlockEntity);
+  public boolean triggerEvent(int, int);
+  public void startOpen(net.minecraft.world.entity.ContainerUser);
+  public void stopOpen(net.minecraft.world.entity.ContainerUser);
+  public boolean stillValid(net.minecraft.world.entity.player.Player);
+  public void recheckOpen();
+  public float getOpenNess(float);
+}

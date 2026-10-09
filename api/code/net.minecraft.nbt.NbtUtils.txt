@@ -1,0 +1,1090 @@
+Compiled from "NbtUtils.java"
+public final class net.minecraft.nbt.NbtUtils {
+  private static final java.util.Comparator<net.minecraft.nbt.ListTag> YXZ_LISTTAG_INT_COMPARATOR;
+
+  private static final java.util.Comparator<net.minecraft.nbt.ListTag> YXZ_LISTTAG_DOUBLE_COMPARATOR;
+
+  private static final com.mojang.serialization.Codec<net.minecraft.resources.ResourceKey<net.minecraft.world.level.block.Block>> BLOCK_NAME_CODEC;
+
+  public static final java.lang.String SNBT_DATA_TAG;
+
+  private static final char PROPERTIES_START;
+
+  private static final char PROPERTIES_END;
+
+  private static final java.lang.String ELEMENT_SEPARATOR;
+
+  private static final char KEY_VALUE_SEPARATOR;
+
+  private static final com.google.common.base.Splitter COMMA_SPLITTER;
+
+  private static final com.google.common.base.Splitter COLON_SPLITTER;
+
+  private static final org.slf4j.Logger LOGGER;
+
+  private static final int NOT_FOUND;
+
+  private static final int BLOCK_STATE_ID_PROPERTIES_RENAME_VERSION;
+
+  public static final java.lang.String LEGACY_BLOCK_STATE_ID_TAG;
+
+  public static final java.lang.String LEGACY_BLOCKSTATE_PROPERTY_TAG;
+
+  private net.minecraft.nbt.NbtUtils();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+
+  public static boolean compareNbt(net.minecraft.nbt.Tag, net.minecraft.nbt.Tag, boolean);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: if_acmpne     7
+         5: iconst_1
+         6: ireturn
+         7: aload_0
+         8: ifnonnull     13
+        11: iconst_1
+        12: ireturn
+        13: aload_1
+        14: ifnonnull     19
+        17: iconst_0
+        18: ireturn
+        19: aload_0
+        20: invokeinterface #7,  1            // InterfaceMethod net/minecraft/nbt/Tag.getClass:()Ljava/lang/Class;
+        25: aload_1
+        26: invokeinterface #13,  1           // InterfaceMethod net/minecraft/nbt/Tag.getClass:()Ljava/lang/Class;
+        31: invokevirtual #14                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+        34: ifne          39
+        37: iconst_0
+        38: ireturn
+        39: aload_0
+        40: instanceof    #18                 // class net/minecraft/nbt/CompoundTag
+        43: ifeq          147
+        46: aload_0
+        47: checkcast     #18                 // class net/minecraft/nbt/CompoundTag
+        50: astore_3
+        51: aload_1
+        52: checkcast     #18                 // class net/minecraft/nbt/CompoundTag
+        55: astore        5
+        57: aload         5
+        59: invokevirtual #20                 // Method net/minecraft/nbt/CompoundTag.size:()I
+        62: aload_3
+        63: invokevirtual #20                 // Method net/minecraft/nbt/CompoundTag.size:()I
+        66: if_icmpge     71
+        69: iconst_0
+        70: ireturn
+        71: aload_3
+        72: invokevirtual #24                 // Method net/minecraft/nbt/CompoundTag.entrySet:()Ljava/util/Set;
+        75: invokeinterface #28,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        80: astore        6
+        82: aload         6
+        84: invokeinterface #34,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        89: ifeq          145
+        92: aload         6
+        94: invokeinterface #40,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        99: checkcast     #44                 // class java/util/Map$Entry
+       102: astore        7
+       104: aload         7
+       106: invokeinterface #46,  1           // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+       111: checkcast     #8                  // class net/minecraft/nbt/Tag
+       114: astore        8
+       116: aload         8
+       118: aload         5
+       120: aload         7
+       122: invokeinterface #49,  1           // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+       127: checkcast     #52                 // class java/lang/String
+       130: invokevirtual #54                 // Method net/minecraft/nbt/CompoundTag.get:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+       133: iload_2
+       134: invokestatic  #58                 // Method compareNbt:(Lnet/minecraft/nbt/Tag;Lnet/minecraft/nbt/Tag;Z)Z
+       137: ifne          142
+       140: iconst_0
+       141: ireturn
+       142: goto          82
+       145: iconst_1
+       146: ireturn
+       147: aload_0
+       148: instanceof    #64                 // class net/minecraft/nbt/ListTag
+       151: ifeq          292
+       154: aload_0
+       155: checkcast     #64                 // class net/minecraft/nbt/ListTag
+       158: astore        4
+       160: iload_2
+       161: ifeq          292
+       164: aload_1
+       165: checkcast     #64                 // class net/minecraft/nbt/ListTag
+       168: astore        5
+       170: aload         4
+       172: invokevirtual #66                 // Method net/minecraft/nbt/ListTag.isEmpty:()Z
+       175: ifeq          184
+       178: aload         5
+       180: invokevirtual #66                 // Method net/minecraft/nbt/ListTag.isEmpty:()Z
+       183: ireturn
+       184: aload         5
+       186: invokevirtual #69                 // Method net/minecraft/nbt/ListTag.size:()I
+       189: aload         4
+       191: invokevirtual #69                 // Method net/minecraft/nbt/ListTag.size:()I
+       194: if_icmpge     199
+       197: iconst_0
+       198: ireturn
+       199: aload         4
+       201: invokevirtual #70                 // Method net/minecraft/nbt/ListTag.iterator:()Ljava/util/Iterator;
+       204: astore        6
+       206: aload         6
+       208: invokeinterface #34,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       213: ifeq          290
+       216: aload         6
+       218: invokeinterface #40,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       223: checkcast     #8                  // class net/minecraft/nbt/Tag
+       226: astore        7
+       228: iconst_0
+       229: istore        8
+       231: aload         5
+       233: invokevirtual #70                 // Method net/minecraft/nbt/ListTag.iterator:()Ljava/util/Iterator;
+       236: astore        9
+       238: aload         9
+       240: invokeinterface #34,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       245: ifeq          280
+       248: aload         9
+       250: invokeinterface #40,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       255: checkcast     #8                  // class net/minecraft/nbt/Tag
+       258: astore        10
+       260: aload         7
+       262: aload         10
+       264: iload_2
+       265: invokestatic  #58                 // Method compareNbt:(Lnet/minecraft/nbt/Tag;Lnet/minecraft/nbt/Tag;Z)Z
+       268: ifeq          277
+       271: iconst_1
+       272: istore        8
+       274: goto          280
+       277: goto          238
+       280: iload         8
+       282: ifne          287
+       285: iconst_0
+       286: ireturn
+       287: goto          206
+       290: iconst_1
+       291: ireturn
+       292: aload_0
+       293: aload_1
+       294: invokeinterface #71,  2           // InterfaceMethod net/minecraft/nbt/Tag.equals:(Ljava/lang/Object;)Z
+       299: ireturn
+
+  public static net.minecraft.world.level.block.state.BlockState readBlockState(net.minecraft.core.HolderGetter<net.minecraft.world.level.block.Block>, net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_1
+         1: ldc           #74                 // String id
+         3: getstatic     #76                 // Field BLOCK_NAME_CODEC:Lcom/mojang/serialization/Codec;
+         6: invokevirtual #80                 // Method net/minecraft/nbt/CompoundTag.read:(Ljava/lang/String;Lcom/mojang/serialization/Codec;)Ljava/util/Optional;
+         9: aload_0
+        10: dup
+        11: invokestatic  #84                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+        14: pop
+        15: invokedynamic #90,  0             // InvokeDynamic #0:apply:(Lnet/minecraft/core/HolderGetter;)Ljava/util/function/Function;
+        20: invokevirtual #94                 // Method java/util/Optional.flatMap:(Ljava/util/function/Function;)Ljava/util/Optional;
+        23: astore_2
+        24: aload_2
+        25: invokevirtual #100                // Method java/util/Optional.isEmpty:()Z
+        28: ifeq          38
+        31: getstatic     #101                // Field net/minecraft/world/level/block/Blocks.AIR:Lnet/minecraft/world/level/block/Block;
+        34: invokevirtual #107                // Method net/minecraft/world/level/block/Block.defaultBlockState:()Lnet/minecraft/world/level/block/state/BlockState;
+        37: areturn
+        38: aload_2
+        39: invokevirtual #113                // Method java/util/Optional.get:()Ljava/lang/Object;
+        42: checkcast     #115                // class net/minecraft/core/Holder
+        45: invokeinterface #117,  1          // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+        50: checkcast     #108                // class net/minecraft/world/level/block/Block
+        53: astore_3
+        54: aload_3
+        55: invokevirtual #107                // Method net/minecraft/world/level/block/Block.defaultBlockState:()Lnet/minecraft/world/level/block/state/BlockState;
+        58: astore        4
+        60: aload_1
+        61: ldc           #120                // String properties
+        63: invokevirtual #122                // Method net/minecraft/nbt/CompoundTag.getCompound:(Ljava/lang/String;)Ljava/util/Optional;
+        66: astore        5
+        68: aload         5
+        70: invokevirtual #126                // Method java/util/Optional.isPresent:()Z
+        73: ifeq          162
+        76: aload_3
+        77: invokevirtual #129                // Method net/minecraft/world/level/block/Block.getStateDefinition:()Lnet/minecraft/world/level/block/state/StateDefinition;
+        80: astore        6
+        82: aload         5
+        84: invokevirtual #113                // Method java/util/Optional.get:()Ljava/lang/Object;
+        87: checkcast     #18                 // class net/minecraft/nbt/CompoundTag
+        90: invokevirtual #133                // Method net/minecraft/nbt/CompoundTag.keySet:()Ljava/util/Set;
+        93: invokeinterface #28,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        98: astore        7
+       100: aload         7
+       102: invokeinterface #34,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       107: ifeq          162
+       110: aload         7
+       112: invokeinterface #40,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       117: checkcast     #52                 // class java/lang/String
+       120: astore        8
+       122: aload         6
+       124: aload         8
+       126: invokevirtual #136                // Method net/minecraft/world/level/block/state/StateDefinition.getProperty:(Ljava/lang/String;)Lnet/minecraft/world/level/block/state/properties/Property;
+       129: astore        9
+       131: aload         9
+       133: ifnull        159
+       136: aload         4
+       138: aload         9
+       140: aload         8
+       142: aload         5
+       144: invokevirtual #113                // Method java/util/Optional.get:()Ljava/lang/Object;
+       147: checkcast     #18                 // class net/minecraft/nbt/CompoundTag
+       150: aload_1
+       151: invokestatic  #142                // Method setValueHelper:(Lnet/minecraft/world/level/block/state/StateHolder;Lnet/minecraft/world/level/block/state/properties/Property;Ljava/lang/String;Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/level/block/state/StateHolder;
+       154: checkcast     #146                // class net/minecraft/world/level/block/state/BlockState
+       157: astore        4
+       159: goto          100
+       162: aload         4
+       164: areturn
+
+  private static <S extends net.minecraft.world.level.block.state.StateHolder<?, S>, T extends java.lang.Comparable<T>> S setValueHelper(S, net.minecraft.world.level.block.state.properties.Property<T>, java.lang.String, net.minecraft.nbt.CompoundTag, net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_3
+         1: aload_2
+         2: invokevirtual #148                // Method net/minecraft/nbt/CompoundTag.getString:(Ljava/lang/String;)Ljava/util/Optional;
+         5: aload_1
+         6: dup
+         7: invokestatic  #84                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: pop
+        11: invokedynamic #151,  0            // InvokeDynamic #1:apply:(Lnet/minecraft/world/level/block/state/properties/Property;)Ljava/util/function/Function;
+        16: invokevirtual #94                 // Method java/util/Optional.flatMap:(Ljava/util/function/Function;)Ljava/util/Optional;
+        19: astore        5
+        21: aload         5
+        23: invokevirtual #126                // Method java/util/Optional.isPresent:()Z
+        26: ifeq          46
+        29: aload_0
+        30: aload_1
+        31: aload         5
+        33: invokevirtual #113                // Method java/util/Optional.get:()Ljava/lang/Object;
+        36: checkcast     #154                // class java/lang/Comparable
+        39: invokevirtual #156                // Method net/minecraft/world/level/block/state/StateHolder.setValue:(Lnet/minecraft/world/level/block/state/properties/Property;Ljava/lang/Comparable;)Ljava/lang/Object;
+        42: checkcast     #72                 // class net/minecraft/world/level/block/state/StateHolder
+        45: areturn
+        46: getstatic     #160                // Field LOGGER:Lorg/slf4j/Logger;
+        49: ldc           #164                // String Unable to read property: {} with value: {} for blockstate: {}
+        51: iconst_3
+        52: anewarray     #2                  // class java/lang/Object
+        55: dup
+        56: iconst_0
+        57: aload_2
+        58: aastore
+        59: dup
+        60: iconst_1
+        61: aload_3
+        62: aload_2
+        63: invokevirtual #54                 // Method net/minecraft/nbt/CompoundTag.get:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+        66: aastore
+        67: dup
+        68: iconst_2
+        69: aload         4
+        71: aastore
+        72: invokeinterface #166,  3          // InterfaceMethod org/slf4j/Logger.warn:(Ljava/lang/String;[Ljava/lang/Object;)V
+        77: aload_0
+        78: areturn
+
+  private static void writeStateProperties(net.minecraft.world.level.block.state.StateHolder<?, ?>, net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_0
+         1: invokevirtual #172                // Method net/minecraft/world/level/block/state/StateHolder.isSingletonState:()Z
+         4: ifne          38
+         7: new           #18                 // class net/minecraft/nbt/CompoundTag
+        10: dup
+        11: invokespecial #175                // Method net/minecraft/nbt/CompoundTag."<init>":()V
+        14: astore_2
+        15: aload_0
+        16: invokevirtual #176                // Method net/minecraft/world/level/block/state/StateHolder.getValues:()Ljava/util/stream/Stream;
+        19: aload_2
+        20: invokedynamic #180,  0            // InvokeDynamic #2:accept:(Lnet/minecraft/nbt/CompoundTag;)Ljava/util/function/Consumer;
+        25: invokeinterface #184,  2          // InterfaceMethod java/util/stream/Stream.forEach:(Ljava/util/function/Consumer;)V
+        30: aload_1
+        31: ldc           #120                // String properties
+        33: aload_2
+        34: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+        37: pop
+        38: return
+
+  public static net.minecraft.nbt.CompoundTag writeBlockState(net.minecraft.world.level.block.state.BlockState);
+    Code:
+         0: new           #18                 // class net/minecraft/nbt/CompoundTag
+         3: dup
+         4: invokespecial #175                // Method net/minecraft/nbt/CompoundTag."<init>":()V
+         7: astore_1
+         8: aload_1
+         9: ldc           #74                 // String id
+        11: getstatic     #194                // Field net/minecraft/core/registries/BuiltInRegistries.BLOCK:Lnet/minecraft/core/DefaultedRegistry;
+        14: aload_0
+        15: invokevirtual #200                // Method net/minecraft/world/level/block/state/BlockState.getBlock:()Lnet/minecraft/world/level/block/Block;
+        18: invokeinterface #204,  2          // InterfaceMethod net/minecraft/core/DefaultedRegistry.getKey:(Ljava/lang/Object;)Lnet/minecraft/resources/Identifier;
+        23: invokevirtual #209                // Method net/minecraft/resources/Identifier.toString:()Ljava/lang/String;
+        26: invokevirtual #215                // Method net/minecraft/nbt/CompoundTag.putString:(Ljava/lang/String;Ljava/lang/String;)V
+        29: aload_0
+        30: aload_1
+        31: invokestatic  #219                // Method writeStateProperties:(Lnet/minecraft/world/level/block/state/StateHolder;Lnet/minecraft/nbt/CompoundTag;)V
+        34: aload_1
+        35: areturn
+
+  public static net.minecraft.network.chat.Component toPrettyComponent(net.minecraft.nbt.Tag);
+    Code:
+         0: new           #223                // class net/minecraft/nbt/TextComponentTagVisitor
+         3: dup
+         4: ldc           #225                // String
+         6: invokespecial #227                // Method net/minecraft/nbt/TextComponentTagVisitor."<init>":(Ljava/lang/String;)V
+         9: aload_0
+        10: invokevirtual #230                // Method net/minecraft/nbt/TextComponentTagVisitor.visit:(Lnet/minecraft/nbt/Tag;)Lnet/minecraft/network/chat/Component;
+        13: areturn
+
+  public static java.lang.String structureToSnbt(net.minecraft.nbt.CompoundTag);
+    Code:
+         0: new           #234                // class net/minecraft/nbt/SnbtPrinterTagVisitor
+         3: dup
+         4: invokespecial #236                // Method net/minecraft/nbt/SnbtPrinterTagVisitor."<init>":()V
+         7: aload_0
+         8: invokestatic  #237                // Method packStructureTemplate:(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;
+        11: invokevirtual #241                // Method net/minecraft/nbt/SnbtPrinterTagVisitor.visit:(Lnet/minecraft/nbt/Tag;)Ljava/lang/String;
+        14: areturn
+
+  public static net.minecraft.nbt.CompoundTag snbtToStructure(java.lang.String) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokestatic  #244                // Method net/minecraft/nbt/TagParser.parseCompoundFully:(Ljava/lang/String;)Lnet/minecraft/nbt/CompoundTag;
+         4: invokestatic  #250                // Method unpackStructureTemplate:(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;
+         7: areturn
+
+  static net.minecraft.nbt.CompoundTag packStructureTemplate(net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_0
+         1: invokestatic  #253                // Method getDataVersion:(Lnet/minecraft/nbt/CompoundTag;)I
+         4: istore_1
+         5: aload_0
+         6: ldc_w         #259                // String palettes
+         9: invokevirtual #261                // Method net/minecraft/nbt/CompoundTag.getList:(Ljava/lang/String;)Ljava/util/Optional;
+        12: astore_3
+        13: aload_3
+        14: invokevirtual #126                // Method java/util/Optional.isPresent:()Z
+        17: ifeq          35
+        20: aload_3
+        21: invokevirtual #113                // Method java/util/Optional.get:()Ljava/lang/Object;
+        24: checkcast     #64                 // class net/minecraft/nbt/ListTag
+        27: iconst_0
+        28: invokevirtual #264                // Method net/minecraft/nbt/ListTag.getListOrEmpty:(I)Lnet/minecraft/nbt/ListTag;
+        31: astore_2
+        32: goto          43
+        35: aload_0
+        36: ldc_w         #268                // String palette
+        39: invokevirtual #270                // Method net/minecraft/nbt/CompoundTag.getListOrEmpty:(Ljava/lang/String;)Lnet/minecraft/nbt/ListTag;
+        42: astore_2
+        43: aload_2
+        44: invokevirtual #273                // Method net/minecraft/nbt/ListTag.compoundStream:()Ljava/util/stream/Stream;
+        47: iload_1
+        48: invokedynamic #276,  0            // InvokeDynamic #3:apply:(I)Ljava/util/function/Function;
+        53: invokeinterface #279,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        58: invokedynamic #283,  0            // InvokeDynamic #4:apply:()Ljava/util/function/Function;
+        63: invokeinterface #279,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        68: invokedynamic #286,  0            // InvokeDynamic #5:get:()Ljava/util/function/Supplier;
+        73: invokestatic  #289                // Method java/util/stream/Collectors.toCollection:(Ljava/util/function/Supplier;)Ljava/util/stream/Collector;
+        76: invokeinterface #295,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+        81: checkcast     #64                 // class net/minecraft/nbt/ListTag
+        84: astore        4
+        86: aload_0
+        87: ldc_w         #268                // String palette
+        90: aload         4
+        92: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+        95: pop
+        96: aload_3
+        97: invokevirtual #126                // Method java/util/Optional.isPresent:()Z
+       100: ifeq          157
+       103: new           #64                 // class net/minecraft/nbt/ListTag
+       106: dup
+       107: invokespecial #299                // Method net/minecraft/nbt/ListTag."<init>":()V
+       110: astore        5
+       112: aload_3
+       113: invokevirtual #113                // Method java/util/Optional.get:()Ljava/lang/Object;
+       116: checkcast     #64                 // class net/minecraft/nbt/ListTag
+       119: invokevirtual #300                // Method net/minecraft/nbt/ListTag.stream:()Ljava/util/stream/Stream;
+       122: invokedynamic #303,  0            // InvokeDynamic #6:apply:()Ljava/util/function/Function;
+       127: invokeinterface #304,  2          // InterfaceMethod java/util/stream/Stream.flatMap:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+       132: aload         4
+       134: iload_1
+       135: aload         5
+       137: invokedynamic #306,  0            // InvokeDynamic #7:accept:(Lnet/minecraft/nbt/ListTag;ILnet/minecraft/nbt/ListTag;)Ljava/util/function/Consumer;
+       142: invokeinterface #184,  2          // InterfaceMethod java/util/stream/Stream.forEach:(Ljava/util/function/Consumer;)V
+       147: aload_0
+       148: ldc_w         #259                // String palettes
+       151: aload         5
+       153: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       156: pop
+       157: aload_0
+       158: ldc_w         #309                // String entities
+       161: invokevirtual #261                // Method net/minecraft/nbt/CompoundTag.getList:(Ljava/lang/String;)Ljava/util/Optional;
+       164: astore        5
+       166: aload         5
+       168: invokevirtual #126                // Method java/util/Optional.isPresent:()Z
+       171: ifeq          232
+       174: aload         5
+       176: invokevirtual #113                // Method java/util/Optional.get:()Ljava/lang/Object;
+       179: checkcast     #64                 // class net/minecraft/nbt/ListTag
+       182: invokevirtual #273                // Method net/minecraft/nbt/ListTag.compoundStream:()Ljava/util/stream/Stream;
+       185: invokedynamic #311,  0            // InvokeDynamic #8:apply:()Ljava/util/function/Function;
+       190: getstatic     #312                // Field YXZ_LISTTAG_DOUBLE_COMPARATOR:Ljava/util/Comparator;
+       193: invokestatic  #316                // Method com/google/common/collect/Comparators.emptiesLast:(Ljava/util/Comparator;)Ljava/util/Comparator;
+       196: invokestatic  #322                // InterfaceMethod java/util/Comparator.comparing:(Ljava/util/function/Function;Ljava/util/Comparator;)Ljava/util/Comparator;
+       199: invokeinterface #328,  2          // InterfaceMethod java/util/stream/Stream.sorted:(Ljava/util/Comparator;)Ljava/util/stream/Stream;
+       204: invokedynamic #286,  0            // InvokeDynamic #5:get:()Ljava/util/function/Supplier;
+       209: invokestatic  #289                // Method java/util/stream/Collectors.toCollection:(Ljava/util/function/Supplier;)Ljava/util/stream/Collector;
+       212: invokeinterface #295,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+       217: checkcast     #64                 // class net/minecraft/nbt/ListTag
+       220: astore        6
+       222: aload_0
+       223: ldc_w         #309                // String entities
+       226: aload         6
+       228: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       231: pop
+       232: aload_0
+       233: ldc_w         #332                // String blocks
+       236: invokevirtual #261                // Method net/minecraft/nbt/CompoundTag.getList:(Ljava/lang/String;)Ljava/util/Optional;
+       239: invokevirtual #334                // Method java/util/Optional.stream:()Ljava/util/stream/Stream;
+       242: invokedynamic #335,  0            // InvokeDynamic #9:apply:()Ljava/util/function/Function;
+       247: invokeinterface #304,  2          // InterfaceMethod java/util/stream/Stream.flatMap:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+       252: invokedynamic #336,  0            // InvokeDynamic #10:apply:()Ljava/util/function/Function;
+       257: getstatic     #337                // Field YXZ_LISTTAG_INT_COMPARATOR:Ljava/util/Comparator;
+       260: invokestatic  #316                // Method com/google/common/collect/Comparators.emptiesLast:(Ljava/util/Comparator;)Ljava/util/Comparator;
+       263: invokestatic  #322                // InterfaceMethod java/util/Comparator.comparing:(Ljava/util/function/Function;Ljava/util/Comparator;)Ljava/util/Comparator;
+       266: invokeinterface #328,  2          // InterfaceMethod java/util/stream/Stream.sorted:(Ljava/util/Comparator;)Ljava/util/stream/Stream;
+       271: aload         4
+       273: invokedynamic #340,  0            // InvokeDynamic #11:accept:(Lnet/minecraft/nbt/ListTag;)Ljava/util/function/Consumer;
+       278: invokeinterface #343,  2          // InterfaceMethod java/util/stream/Stream.peek:(Ljava/util/function/Consumer;)Ljava/util/stream/Stream;
+       283: invokedynamic #286,  0            // InvokeDynamic #5:get:()Ljava/util/function/Supplier;
+       288: invokestatic  #289                // Method java/util/stream/Collectors.toCollection:(Ljava/util/function/Supplier;)Ljava/util/stream/Collector;
+       291: invokeinterface #295,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+       296: checkcast     #64                 // class net/minecraft/nbt/ListTag
+       299: astore        6
+       301: aload_0
+       302: ldc_w         #347                // String data
+       305: aload         6
+       307: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       310: pop
+       311: aload_0
+       312: ldc_w         #332                // String blocks
+       315: invokevirtual #349                // Method net/minecraft/nbt/CompoundTag.remove:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+       318: pop
+       319: aload_0
+       320: areturn
+
+  static net.minecraft.nbt.CompoundTag unpackStructureTemplate(net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_0
+         1: invokestatic  #253                // Method getDataVersion:(Lnet/minecraft/nbt/CompoundTag;)I
+         4: istore_1
+         5: aload_0
+         6: ldc_w         #268                // String palette
+         9: invokevirtual #270                // Method net/minecraft/nbt/CompoundTag.getListOrEmpty:(Ljava/lang/String;)Lnet/minecraft/nbt/ListTag;
+        12: astore_2
+        13: aload_2
+        14: invokevirtual #300                // Method net/minecraft/nbt/ListTag.stream:()Ljava/util/stream/Stream;
+        17: invokedynamic #352,  0            // InvokeDynamic #12:apply:()Ljava/util/function/Function;
+        22: invokeinterface #304,  2          // InterfaceMethod java/util/stream/Stream.flatMap:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        27: invokestatic  #353                // InterfaceMethod java/util/function/Function.identity:()Ljava/util/function/Function;
+        30: iload_1
+        31: invokedynamic #358,  0            // InvokeDynamic #13:apply:(I)Ljava/util/function/Function;
+        36: invokestatic  #359                // Method com/google/common/collect/ImmutableMap.toImmutableMap:(Ljava/util/function/Function;Ljava/util/function/Function;)Ljava/util/stream/Collector;
+        39: invokeinterface #295,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+        44: checkcast     #365                // class java/util/Map
+        47: astore_3
+        48: aload_0
+        49: ldc_w         #259                // String palettes
+        52: invokevirtual #261                // Method net/minecraft/nbt/CompoundTag.getList:(Ljava/lang/String;)Ljava/util/Optional;
+        55: astore        4
+        57: aload         4
+        59: invokevirtual #126                // Method java/util/Optional.isPresent:()Z
+        62: ifeq          123
+        65: aload_0
+        66: ldc_w         #259                // String palettes
+        69: aload         4
+        71: invokevirtual #113                // Method java/util/Optional.get:()Ljava/lang/Object;
+        74: checkcast     #64                 // class net/minecraft/nbt/ListTag
+        77: invokevirtual #273                // Method net/minecraft/nbt/ListTag.compoundStream:()Ljava/util/stream/Stream;
+        80: aload_3
+        81: iload_1
+        82: invokedynamic #367,  0            // InvokeDynamic #14:apply:(Ljava/util/Map;I)Ljava/util/function/Function;
+        87: invokeinterface #279,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        92: invokedynamic #286,  0            // InvokeDynamic #5:get:()Ljava/util/function/Supplier;
+        97: invokestatic  #289                // Method java/util/stream/Collectors.toCollection:(Ljava/util/function/Supplier;)Ljava/util/stream/Collector;
+       100: invokeinterface #295,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+       105: checkcast     #8                  // class net/minecraft/nbt/Tag
+       108: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       111: pop
+       112: aload_0
+       113: ldc_w         #268                // String palette
+       116: invokevirtual #349                // Method net/minecraft/nbt/CompoundTag.remove:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+       119: pop
+       120: goto          158
+       123: aload_0
+       124: ldc_w         #268                // String palette
+       127: aload_3
+       128: invokeinterface #370,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+       133: invokeinterface #374,  1          // InterfaceMethod java/util/Collection.stream:()Ljava/util/stream/Stream;
+       138: invokedynamic #286,  0            // InvokeDynamic #5:get:()Ljava/util/function/Supplier;
+       143: invokestatic  #289                // Method java/util/stream/Collectors.toCollection:(Ljava/util/function/Supplier;)Ljava/util/stream/Collector;
+       146: invokeinterface #295,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+       151: checkcast     #8                  // class net/minecraft/nbt/Tag
+       154: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       157: pop
+       158: aload_0
+       159: ldc_w         #347                // String data
+       162: invokevirtual #261                // Method net/minecraft/nbt/CompoundTag.getList:(Ljava/lang/String;)Ljava/util/Optional;
+       165: astore        5
+       167: aload         5
+       169: invokevirtual #126                // Method java/util/Optional.isPresent:()Z
+       172: ifeq          352
+       175: new           #377                // class it/unimi/dsi/fastutil/objects/Object2IntOpenHashMap
+       178: dup
+       179: invokespecial #379                // Method it/unimi/dsi/fastutil/objects/Object2IntOpenHashMap."<init>":()V
+       182: astore        6
+       184: aload         6
+       186: iconst_m1
+       187: invokeinterface #380,  2          // InterfaceMethod it/unimi/dsi/fastutil/objects/Object2IntMap.defaultReturnValue:(I)V
+       192: iconst_0
+       193: istore        7
+       195: iload         7
+       197: aload_2
+       198: invokevirtual #69                 // Method net/minecraft/nbt/ListTag.size:()I
+       201: if_icmpge     232
+       204: aload         6
+       206: aload_2
+       207: iload         7
+       209: invokevirtual #386                // Method net/minecraft/nbt/ListTag.getString:(I)Ljava/util/Optional;
+       212: invokevirtual #389                // Method java/util/Optional.orElseThrow:()Ljava/lang/Object;
+       215: checkcast     #52                 // class java/lang/String
+       218: iload         7
+       220: invokeinterface #392,  3          // InterfaceMethod it/unimi/dsi/fastutil/objects/Object2IntMap.put:(Ljava/lang/Object;I)I
+       225: pop
+       226: iinc          7, 1
+       229: goto          195
+       232: aload         5
+       234: invokevirtual #113                // Method java/util/Optional.get:()Ljava/lang/Object;
+       237: checkcast     #64                 // class net/minecraft/nbt/ListTag
+       240: astore        7
+       242: iconst_0
+       243: istore        8
+       245: iload         8
+       247: aload         7
+       249: invokevirtual #69                 // Method net/minecraft/nbt/ListTag.size:()I
+       252: if_icmpge     334
+       255: aload         7
+       257: iload         8
+       259: invokevirtual #395                // Method net/minecraft/nbt/ListTag.getCompound:(I)Ljava/util/Optional;
+       262: invokevirtual #389                // Method java/util/Optional.orElseThrow:()Ljava/lang/Object;
+       265: checkcast     #18                 // class net/minecraft/nbt/CompoundTag
+       268: astore        9
+       270: aload         9
+       272: ldc_w         #397                // String state
+       275: invokevirtual #148                // Method net/minecraft/nbt/CompoundTag.getString:(Ljava/lang/String;)Ljava/util/Optional;
+       278: invokevirtual #389                // Method java/util/Optional.orElseThrow:()Ljava/lang/Object;
+       281: checkcast     #52                 // class java/lang/String
+       284: astore        10
+       286: aload         6
+       288: aload         10
+       290: invokeinterface #399,  2          // InterfaceMethod it/unimi/dsi/fastutil/objects/Object2IntMap.getInt:(Ljava/lang/Object;)I
+       295: istore        11
+       297: iload         11
+       299: iconst_m1
+       300: if_icmpne     318
+       303: new           #403                // class java/lang/IllegalStateException
+       306: dup
+       307: aload         10
+       309: invokedynamic #405,  0            // InvokeDynamic #15:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       314: invokespecial #409                // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+       317: athrow
+       318: aload         9
+       320: ldc_w         #397                // String state
+       323: iload         11
+       325: invokevirtual #410                // Method net/minecraft/nbt/CompoundTag.putInt:(Ljava/lang/String;I)V
+       328: iinc          8, 1
+       331: goto          245
+       334: aload_0
+       335: ldc_w         #332                // String blocks
+       338: aload         7
+       340: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       343: pop
+       344: aload_0
+       345: ldc_w         #347                // String data
+       348: invokevirtual #349                // Method net/minecraft/nbt/CompoundTag.remove:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+       351: pop
+       352: aload_0
+       353: areturn
+
+  static java.lang.String packBlockState(net.minecraft.nbt.CompoundTag, int);
+    Code:
+         0: iload_1
+         1: sipush        5006
+         4: if_icmplt     16
+         7: ldc           #74                 // String id
+         9: astore_2
+        10: ldc           #120                // String properties
+        12: astore_3
+        13: goto          24
+        16: ldc_w         #414                // String Name
+        19: astore_2
+        20: ldc_w         #416                // String Properties
+        23: astore_3
+        24: new           #418                // class java/lang/StringBuilder
+        27: dup
+        28: aload_0
+        29: aload_2
+        30: invokevirtual #148                // Method net/minecraft/nbt/CompoundTag.getString:(Ljava/lang/String;)Ljava/util/Optional;
+        33: invokevirtual #389                // Method java/util/Optional.orElseThrow:()Ljava/lang/Object;
+        36: checkcast     #52                 // class java/lang/String
+        39: invokespecial #420                // Method java/lang/StringBuilder."<init>":(Ljava/lang/String;)V
+        42: astore        4
+        44: aload_0
+        45: aload_3
+        46: invokevirtual #122                // Method net/minecraft/nbt/CompoundTag.getCompound:(Ljava/lang/String;)Ljava/util/Optional;
+        49: aload         4
+        51: invokedynamic #421,  0            // InvokeDynamic #16:accept:(Ljava/lang/StringBuilder;)Ljava/util/function/Consumer;
+        56: invokevirtual #424                // Method java/util/Optional.ifPresent:(Ljava/util/function/Consumer;)V
+        59: aload         4
+        61: invokevirtual #427                // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+        64: areturn
+
+  static net.minecraft.nbt.CompoundTag unpackBlockState(java.lang.String, int);
+    Code:
+         0: new           #18                 // class net/minecraft/nbt/CompoundTag
+         3: dup
+         4: invokespecial #175                // Method net/minecraft/nbt/CompoundTag."<init>":()V
+         7: astore_2
+         8: aload_0
+         9: bipush        123
+        11: invokevirtual #428                // Method java/lang/String.indexOf:(I)I
+        14: istore_3
+        15: new           #18                 // class net/minecraft/nbt/CompoundTag
+        18: dup
+        19: invokespecial #175                // Method net/minecraft/nbt/CompoundTag."<init>":()V
+        22: astore        5
+        24: iload_3
+        25: iflt          86
+        28: aload_0
+        29: iconst_0
+        30: iload_3
+        31: invokevirtual #432                // Method java/lang/String.substring:(II)Ljava/lang/String;
+        34: astore        4
+        36: iload_3
+        37: iconst_2
+        38: iadd
+        39: aload_0
+        40: invokevirtual #436                // Method java/lang/String.length:()I
+        43: if_icmpgt     89
+        46: aload_0
+        47: iload_3
+        48: iconst_1
+        49: iadd
+        50: aload_0
+        51: bipush        125
+        53: iload_3
+        54: invokevirtual #439                // Method java/lang/String.indexOf:(II)I
+        57: invokevirtual #432                // Method java/lang/String.substring:(II)Ljava/lang/String;
+        60: astore        6
+        62: getstatic     #442                // Field COMMA_SPLITTER:Lcom/google/common/base/Splitter;
+        65: aload         6
+        67: invokevirtual #446                // Method com/google/common/base/Splitter.split:(Ljava/lang/CharSequence;)Ljava/lang/Iterable;
+        70: aload         5
+        72: aload_0
+        73: invokedynamic #452,  0            // InvokeDynamic #17:accept:(Lnet/minecraft/nbt/CompoundTag;Ljava/lang/String;)Ljava/util/function/Consumer;
+        78: invokeinterface #455,  2          // InterfaceMethod java/lang/Iterable.forEach:(Ljava/util/function/Consumer;)V
+        83: goto          89
+        86: aload_0
+        87: astore        4
+        89: iload_1
+        90: sipush        5006
+        93: if_icmplt     124
+        96: aload_2
+        97: ldc           #74                 // String id
+        99: aload         4
+       101: invokevirtual #215                // Method net/minecraft/nbt/CompoundTag.putString:(Ljava/lang/String;Ljava/lang/String;)V
+       104: aload         5
+       106: invokevirtual #458                // Method net/minecraft/nbt/CompoundTag.isEmpty:()Z
+       109: ifne          151
+       112: aload_2
+       113: ldc           #120                // String properties
+       115: aload         5
+       117: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       120: pop
+       121: goto          151
+       124: aload_2
+       125: ldc_w         #414                // String Name
+       128: aload         4
+       130: invokevirtual #215                // Method net/minecraft/nbt/CompoundTag.putString:(Ljava/lang/String;Ljava/lang/String;)V
+       133: aload         5
+       135: invokevirtual #458                // Method net/minecraft/nbt/CompoundTag.isEmpty:()Z
+       138: ifne          151
+       141: aload_2
+       142: ldc_w         #416                // String Properties
+       145: aload         5
+       147: invokevirtual #190                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       150: pop
+       151: aload_2
+       152: areturn
+
+  public static net.minecraft.nbt.CompoundTag addCurrentDataVersion(net.minecraft.nbt.CompoundTag);
+    Code:
+         0: invokestatic  #459                // Method net/minecraft/SharedConstants.getCurrentVersion:()Lnet/minecraft/WorldVersion;
+         3: invokeinterface #465,  1          // InterfaceMethod net/minecraft/WorldVersion.dataVersion:()Lnet/minecraft/world/level/storage/DataVersion;
+         8: invokevirtual #471                // Method net/minecraft/world/level/storage/DataVersion.version:()I
+        11: istore_1
+        12: aload_0
+        13: iload_1
+        14: invokestatic  #476                // Method addDataVersion:(Lnet/minecraft/nbt/CompoundTag;I)Lnet/minecraft/nbt/CompoundTag;
+        17: areturn
+
+  public static net.minecraft.nbt.CompoundTag addDataVersion(net.minecraft.nbt.CompoundTag, int);
+    Code:
+         0: aload_0
+         1: ldc_w         #480                // String DataVersion
+         4: iload_1
+         5: invokevirtual #410                // Method net/minecraft/nbt/CompoundTag.putInt:(Ljava/lang/String;I)V
+         8: aload_0
+         9: areturn
+
+  public static <T> com.mojang.serialization.Dynamic<T> addDataVersion(com.mojang.serialization.Dynamic<T>, int);
+    Code:
+         0: aload_0
+         1: ldc_w         #480                // String DataVersion
+         4: aload_0
+         5: iload_1
+         6: invokevirtual #482                // Method com/mojang/serialization/Dynamic.createInt:(I)Lcom/mojang/serialization/Dynamic;
+         9: invokevirtual #488                // Method com/mojang/serialization/Dynamic.set:(Ljava/lang/String;Lcom/mojang/serialization/Dynamic;)Lcom/mojang/serialization/Dynamic;
+        12: areturn
+
+  public static void addCurrentDataVersion(net.minecraft.world.level.storage.ValueOutput);
+    Code:
+         0: invokestatic  #459                // Method net/minecraft/SharedConstants.getCurrentVersion:()Lnet/minecraft/WorldVersion;
+         3: invokeinterface #465,  1          // InterfaceMethod net/minecraft/WorldVersion.dataVersion:()Lnet/minecraft/world/level/storage/DataVersion;
+         8: invokevirtual #471                // Method net/minecraft/world/level/storage/DataVersion.version:()I
+        11: istore_1
+        12: aload_0
+        13: iload_1
+        14: invokestatic  #492                // Method addDataVersion:(Lnet/minecraft/world/level/storage/ValueOutput;I)V
+        17: return
+
+  public static void addDataVersion(net.minecraft.world.level.storage.ValueOutput, int);
+    Code:
+         0: aload_0
+         1: ldc_w         #480                // String DataVersion
+         4: iload_1
+         5: invokeinterface #495,  3          // InterfaceMethod net/minecraft/world/level/storage/ValueOutput.putInt:(Ljava/lang/String;I)V
+        10: return
+
+  public static int getDataVersion(net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_0
+         1: iconst_m1
+         2: invokestatic  #498                // Method getDataVersion:(Lnet/minecraft/nbt/CompoundTag;I)I
+         5: ireturn
+
+  public static int getDataVersion(net.minecraft.nbt.CompoundTag, int);
+    Code:
+         0: aload_0
+         1: ldc_w         #480                // String DataVersion
+         4: iload_1
+         5: invokevirtual #501                // Method net/minecraft/nbt/CompoundTag.getIntOr:(Ljava/lang/String;I)I
+         8: ireturn
+
+  public static int getDataVersion(com.mojang.serialization.Dynamic<?>);
+    Code:
+         0: aload_0
+         1: iconst_m1
+         2: invokestatic  #505                // Method getDataVersion:(Lcom/mojang/serialization/Dynamic;I)I
+         5: ireturn
+
+  public static int getDataVersion(com.mojang.serialization.Dynamic<?>, int);
+    Code:
+         0: aload_0
+         1: ldc_w         #480                // String DataVersion
+         4: invokevirtual #508                // Method com/mojang/serialization/Dynamic.get:(Ljava/lang/String;)Lcom/mojang/serialization/OptionalDynamic;
+         7: iload_1
+         8: invokevirtual #511                // Method com/mojang/serialization/OptionalDynamic.asInt:(I)I
+        11: ireturn
+
+  private static void lambda$unpackBlockState$0(net.minecraft.nbt.CompoundTag, java.lang.String, java.lang.String);
+    Code:
+         0: getstatic     #516                // Field COLON_SPLITTER:Lcom/google/common/base/Splitter;
+         3: aload_2
+         4: invokevirtual #519                // Method com/google/common/base/Splitter.splitToList:(Ljava/lang/CharSequence;)Ljava/util/List;
+         7: astore_3
+         8: aload_3
+         9: invokeinterface #523,  1          // InterfaceMethod java/util/List.size:()I
+        14: iconst_2
+        15: if_icmpne     45
+        18: aload_0
+        19: aload_3
+        20: iconst_0
+        21: invokeinterface #526,  2          // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        26: checkcast     #52                 // class java/lang/String
+        29: aload_3
+        30: iconst_1
+        31: invokeinterface #526,  2          // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        36: checkcast     #52                 // class java/lang/String
+        39: invokevirtual #215                // Method net/minecraft/nbt/CompoundTag.putString:(Ljava/lang/String;Ljava/lang/String;)V
+        42: goto          57
+        45: getstatic     #160                // Field LOGGER:Lorg/slf4j/Logger;
+        48: ldc_w         #529                // String Something went wrong parsing: \'{}\' -- incorrect gamedata!
+        51: aload_1
+        52: invokeinterface #531,  3          // InterfaceMethod org/slf4j/Logger.error:(Ljava/lang/String;Ljava/lang/Object;)V
+        57: return
+
+  private static void lambda$packBlockState$0(java.lang.StringBuilder, net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_1
+         1: invokevirtual #24                 // Method net/minecraft/nbt/CompoundTag.entrySet:()Ljava/util/Set;
+         4: invokeinterface #535,  1          // InterfaceMethod java/util/Set.stream:()Ljava/util/stream/Stream;
+         9: invokestatic  #536                // InterfaceMethod java/util/Map$Entry.comparingByKey:()Ljava/util/Comparator;
+        12: invokeinterface #328,  2          // InterfaceMethod java/util/stream/Stream.sorted:(Ljava/util/Comparator;)Ljava/util/stream/Stream;
+        17: invokedynamic #540,  0            // InvokeDynamic #18:apply:()Ljava/util/function/Function;
+        22: invokeinterface #279,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        27: ldc_w         #541                // String ,
+        30: invokestatic  #543                // Method java/util/stream/Collectors.joining:(Ljava/lang/CharSequence;)Ljava/util/stream/Collector;
+        33: invokeinterface #295,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+        38: checkcast     #52                 // class java/lang/String
+        41: astore_2
+        42: aload_0
+        43: bipush        123
+        45: invokevirtual #547                // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+        48: aload_2
+        49: invokevirtual #551                // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+        52: bipush        125
+        54: invokevirtual #547                // Method java/lang/StringBuilder.append:(C)Ljava/lang/StringBuilder;
+        57: pop
+        58: return
+
+  private static java.lang.String lambda$packBlockState$1(java.util.Map$Entry);
+    Code:
+         0: aload_0
+         1: invokeinterface #49,  1           // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+         6: checkcast     #52                 // class java/lang/String
+         9: aload_0
+        10: invokeinterface #46,  1           // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        15: checkcast     #8                  // class net/minecraft/nbt/Tag
+        18: invokeinterface #554,  1          // InterfaceMethod net/minecraft/nbt/Tag.asString:()Ljava/util/Optional;
+        23: invokevirtual #389                // Method java/util/Optional.orElseThrow:()Ljava/lang/Object;
+        26: checkcast     #52                 // class java/lang/String
+        29: invokedynamic #558,  0            // InvokeDynamic #19:makeConcatWithConstants:(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+        34: areturn
+
+  private static net.minecraft.nbt.ListTag lambda$unpackStructureTemplate$2(java.util.Map, int, net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_0
+         1: invokeinterface #561,  1          // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+         6: invokeinterface #535,  1          // InterfaceMethod java/util/Set.stream:()Ljava/util/stream/Stream;
+        11: aload_2
+        12: invokedynamic #562,  0            // InvokeDynamic #20:apply:(Lnet/minecraft/nbt/CompoundTag;)Ljava/util/function/Function;
+        17: invokeinterface #279,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        22: iload_1
+        23: invokedynamic #565,  0            // InvokeDynamic #21:apply:(I)Ljava/util/function/Function;
+        28: invokeinterface #279,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        33: invokedynamic #286,  0            // InvokeDynamic #5:get:()Ljava/util/function/Supplier;
+        38: invokestatic  #289                // Method java/util/stream/Collectors.toCollection:(Ljava/util/function/Supplier;)Ljava/util/stream/Collector;
+        41: invokeinterface #295,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+        46: checkcast     #64                 // class net/minecraft/nbt/ListTag
+        49: areturn
+
+  private static net.minecraft.nbt.CompoundTag lambda$unpackStructureTemplate$4(int, java.lang.String);
+    Code:
+         0: aload_1
+         1: iload_0
+         2: invokestatic  #566                // Method unpackBlockState:(Ljava/lang/String;I)Lnet/minecraft/nbt/CompoundTag;
+         5: areturn
+
+  private static java.lang.String lambda$unpackStructureTemplate$3(net.minecraft.nbt.CompoundTag, java.lang.String);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #148                // Method net/minecraft/nbt/CompoundTag.getString:(Ljava/lang/String;)Ljava/util/Optional;
+         5: invokevirtual #389                // Method java/util/Optional.orElseThrow:()Ljava/lang/Object;
+         8: checkcast     #52                 // class java/lang/String
+        11: areturn
+
+  private static net.minecraft.nbt.Tag lambda$unpackStructureTemplate$1(int, java.lang.String);
+    Code:
+         0: aload_1
+         1: iload_0
+         2: invokestatic  #566                // Method unpackBlockState:(Ljava/lang/String;I)Lnet/minecraft/nbt/CompoundTag;
+         5: areturn
+
+  private static java.util.stream.Stream lambda$unpackStructureTemplate$0(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokeinterface #554,  1          // InterfaceMethod net/minecraft/nbt/Tag.asString:()Ljava/util/Optional;
+         6: invokevirtual #334                // Method java/util/Optional.stream:()Ljava/util/stream/Stream;
+         9: areturn
+
+  private static void lambda$packStructureTemplate$5(net.minecraft.nbt.ListTag, net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_1
+         1: ldc_w         #397                // String state
+         4: aload_0
+         5: aload_1
+         6: ldc_w         #397                // String state
+         9: iconst_0
+        10: invokevirtual #501                // Method net/minecraft/nbt/CompoundTag.getIntOr:(Ljava/lang/String;I)I
+        13: invokevirtual #386                // Method net/minecraft/nbt/ListTag.getString:(I)Ljava/util/Optional;
+        16: invokevirtual #389                // Method java/util/Optional.orElseThrow:()Ljava/lang/Object;
+        19: checkcast     #52                 // class java/lang/String
+        22: invokevirtual #215                // Method net/minecraft/nbt/CompoundTag.putString:(Ljava/lang/String;Ljava/lang/String;)V
+        25: return
+
+  private static java.util.Optional lambda$packStructureTemplate$4(net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_0
+         1: ldc_w         #570                // String pos
+         4: invokevirtual #261                // Method net/minecraft/nbt/CompoundTag.getList:(Ljava/lang/String;)Ljava/util/Optional;
+         7: areturn
+
+  private static java.util.Optional lambda$packStructureTemplate$3(net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_0
+         1: ldc_w         #570                // String pos
+         4: invokevirtual #261                // Method net/minecraft/nbt/CompoundTag.getList:(Ljava/lang/String;)Ljava/util/Optional;
+         7: areturn
+
+  private static void lambda$packStructureTemplate$2(net.minecraft.nbt.ListTag, int, net.minecraft.nbt.ListTag, net.minecraft.nbt.ListTag);
+    Code:
+         0: new           #18                 // class net/minecraft/nbt/CompoundTag
+         3: dup
+         4: invokespecial #175                // Method net/minecraft/nbt/CompoundTag."<init>":()V
+         7: astore        4
+         9: iconst_0
+        10: istore        5
+        12: iload         5
+        14: aload_3
+        15: invokevirtual #69                 // Method net/minecraft/nbt/ListTag.size:()I
+        18: if_icmpge     60
+        21: aload         4
+        23: aload_0
+        24: iload         5
+        26: invokevirtual #386                // Method net/minecraft/nbt/ListTag.getString:(I)Ljava/util/Optional;
+        29: invokevirtual #389                // Method java/util/Optional.orElseThrow:()Ljava/lang/Object;
+        32: checkcast     #52                 // class java/lang/String
+        35: aload_3
+        36: iload         5
+        38: invokevirtual #395                // Method net/minecraft/nbt/ListTag.getCompound:(I)Ljava/util/Optional;
+        41: invokevirtual #389                // Method java/util/Optional.orElseThrow:()Ljava/lang/Object;
+        44: checkcast     #18                 // class net/minecraft/nbt/CompoundTag
+        47: iload_1
+        48: invokestatic  #572                // Method packBlockState:(Lnet/minecraft/nbt/CompoundTag;I)Ljava/lang/String;
+        51: invokevirtual #215                // Method net/minecraft/nbt/CompoundTag.putString:(Ljava/lang/String;Ljava/lang/String;)V
+        54: iinc          5, 1
+        57: goto          12
+        60: aload_2
+        61: aload         4
+        63: invokevirtual #576                // Method net/minecraft/nbt/ListTag.add:(Ljava/lang/Object;)Z
+        66: pop
+        67: return
+
+  private static java.util.stream.Stream lambda$packStructureTemplate$1(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokeinterface #579,  1          // InterfaceMethod net/minecraft/nbt/Tag.asList:()Ljava/util/Optional;
+         6: invokevirtual #334                // Method java/util/Optional.stream:()Ljava/util/stream/Stream;
+         9: areturn
+
+  private static java.lang.String lambda$packStructureTemplate$0(int, net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_1
+         1: iload_0
+         2: invokestatic  #572                // Method packBlockState:(Lnet/minecraft/nbt/CompoundTag;I)Ljava/lang/String;
+         5: areturn
+
+  private static void lambda$writeStateProperties$0(net.minecraft.nbt.CompoundTag, net.minecraft.world.level.block.state.properties.Property$Value);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #582                // Method net/minecraft/world/level/block/state/properties/Property$Value.property:()Lnet/minecraft/world/level/block/state/properties/Property;
+         5: invokevirtual #588                // Method net/minecraft/world/level/block/state/properties/Property.getName:()Ljava/lang/String;
+         8: aload_1
+         9: invokevirtual #593                // Method net/minecraft/world/level/block/state/properties/Property$Value.valueName:()Ljava/lang/String;
+        12: invokevirtual #215                // Method net/minecraft/nbt/CompoundTag.putString:(Ljava/lang/String;Ljava/lang/String;)V
+        15: return
+
+  private static double lambda$static$5(net.minecraft.nbt.ListTag);
+    Code:
+         0: aload_0
+         1: iconst_2
+         2: dconst_0
+         3: invokevirtual #596                // Method net/minecraft/nbt/ListTag.getDoubleOr:(ID)D
+         6: dreturn
+
+  private static double lambda$static$4(net.minecraft.nbt.ListTag);
+    Code:
+         0: aload_0
+         1: iconst_0
+         2: dconst_0
+         3: invokevirtual #596                // Method net/minecraft/nbt/ListTag.getDoubleOr:(ID)D
+         6: dreturn
+
+  private static double lambda$static$3(net.minecraft.nbt.ListTag);
+    Code:
+         0: aload_0
+         1: iconst_1
+         2: dconst_0
+         3: invokevirtual #596                // Method net/minecraft/nbt/ListTag.getDoubleOr:(ID)D
+         6: dreturn
+
+  private static int lambda$static$2(net.minecraft.nbt.ListTag);
+    Code:
+         0: aload_0
+         1: iconst_2
+         2: iconst_0
+         3: invokevirtual #600                // Method net/minecraft/nbt/ListTag.getIntOr:(II)I
+         6: ireturn
+
+  private static int lambda$static$1(net.minecraft.nbt.ListTag);
+    Code:
+         0: aload_0
+         1: iconst_0
+         2: iconst_0
+         3: invokevirtual #600                // Method net/minecraft/nbt/ListTag.getIntOr:(II)I
+         6: ireturn
+
+  private static int lambda$static$0(net.minecraft.nbt.ListTag);
+    Code:
+         0: aload_0
+         1: iconst_1
+         2: iconst_0
+         3: invokevirtual #600                // Method net/minecraft/nbt/ListTag.getIntOr:(II)I
+         6: ireturn
+
+  static {};
+    Code:
+         0: invokedynamic #602,  0            // InvokeDynamic #22:applyAsInt:()Ljava/util/function/ToIntFunction;
+         5: invokestatic  #606                // InterfaceMethod java/util/Comparator.comparingInt:(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;
+         8: invokedynamic #610,  0            // InvokeDynamic #23:applyAsInt:()Ljava/util/function/ToIntFunction;
+        13: invokeinterface #611,  2          // InterfaceMethod java/util/Comparator.thenComparingInt:(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;
+        18: invokedynamic #614,  0            // InvokeDynamic #24:applyAsInt:()Ljava/util/function/ToIntFunction;
+        23: invokeinterface #611,  2          // InterfaceMethod java/util/Comparator.thenComparingInt:(Ljava/util/function/ToIntFunction;)Ljava/util/Comparator;
+        28: putstatic     #337                // Field YXZ_LISTTAG_INT_COMPARATOR:Ljava/util/Comparator;
+        31: invokedynamic #615,  0            // InvokeDynamic #25:applyAsDouble:()Ljava/util/function/ToDoubleFunction;
+        36: invokestatic  #619                // InterfaceMethod java/util/Comparator.comparingDouble:(Ljava/util/function/ToDoubleFunction;)Ljava/util/Comparator;
+        39: invokedynamic #623,  0            // InvokeDynamic #26:applyAsDouble:()Ljava/util/function/ToDoubleFunction;
+        44: invokeinterface #624,  2          // InterfaceMethod java/util/Comparator.thenComparingDouble:(Ljava/util/function/ToDoubleFunction;)Ljava/util/Comparator;
+        49: invokedynamic #627,  0            // InvokeDynamic #27:applyAsDouble:()Ljava/util/function/ToDoubleFunction;
+        54: invokeinterface #624,  2          // InterfaceMethod java/util/Comparator.thenComparingDouble:(Ljava/util/function/ToDoubleFunction;)Ljava/util/Comparator;
+        59: putstatic     #312                // Field YXZ_LISTTAG_DOUBLE_COMPARATOR:Ljava/util/Comparator;
+        62: getstatic     #628                // Field net/minecraft/core/registries/Registries.BLOCK:Lnet/minecraft/resources/ResourceKey;
+        65: invokestatic  #633                // Method net/minecraft/resources/ResourceKey.codec:(Lnet/minecraft/resources/ResourceKey;)Lcom/mojang/serialization/Codec;
+        68: putstatic     #76                 // Field BLOCK_NAME_CODEC:Lcom/mojang/serialization/Codec;
+        71: ldc_w         #541                // String ,
+        74: invokestatic  #639                // Method com/google/common/base/Splitter.on:(Ljava/lang/String;)Lcom/google/common/base/Splitter;
+        77: putstatic     #442                // Field COMMA_SPLITTER:Lcom/google/common/base/Splitter;
+        80: bipush        58
+        82: invokestatic  #643                // Method com/google/common/base/Splitter.on:(C)Lcom/google/common/base/Splitter;
+        85: iconst_2
+        86: invokevirtual #646                // Method com/google/common/base/Splitter.limit:(I)Lcom/google/common/base/Splitter;
+        89: putstatic     #516                // Field COLON_SPLITTER:Lcom/google/common/base/Splitter;
+        92: invokestatic  #650                // Method com/mojang/logging/LogUtils.getLogger:()Lorg/slf4j/Logger;
+        95: putstatic     #160                // Field LOGGER:Lorg/slf4j/Logger;
+        98: return
+}

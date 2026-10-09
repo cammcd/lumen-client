@@ -1,0 +1,27 @@
+Compiled from "RespawnAnchorBlock.java"
+public class net.minecraft.world.level.block.RespawnAnchorBlock extends net.minecraft.world.level.block.Block {
+  public static final int MIN_CHARGES;
+  public static final int MAX_CHARGES;
+  public static final net.minecraft.world.level.block.state.properties.IntegerProperty CHARGE;
+  private static final com.google.common.collect.ImmutableList<net.minecraft.core.Vec3i> RESPAWN_HORIZONTAL_OFFSETS;
+  private static final com.google.common.collect.ImmutableList<net.minecraft.core.Vec3i> RESPAWN_OFFSETS;
+  public net.minecraft.world.level.block.RespawnAnchorBlock(net.minecraft.world.level.block.state.BlockBehaviour$Properties);
+  protected net.minecraft.world.InteractionResult useItemOn(net.minecraft.world.item.ItemStack, net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand, net.minecraft.world.phys.BlockHitResult);
+  protected net.minecraft.world.InteractionResult useWithoutItem(net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.world.entity.player.Player, net.minecraft.world.phys.BlockHitResult);
+  private static boolean isRespawnFuel(net.minecraft.world.item.ItemStack);
+  private static boolean canBeCharged(net.minecraft.world.level.block.state.BlockState);
+  private static boolean isWaterThatWouldFlow(net.minecraft.core.BlockPos, net.minecraft.world.level.Level);
+  private void explode(net.minecraft.world.level.block.state.BlockState, net.minecraft.server.level.ServerLevel, net.minecraft.core.BlockPos);
+  public static boolean canSetSpawn(net.minecraft.server.level.ServerLevel, net.minecraft.core.BlockPos);
+  public static void charge(net.minecraft.world.entity.Entity, net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.world.level.block.state.BlockState);
+  public void animateTick(net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.util.RandomSource);
+  protected void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition$Builder<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState>);
+  protected boolean hasAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState);
+  public static int getScaledChargeLevel(net.minecraft.world.level.block.state.BlockState, int);
+  protected int getAnalogOutputSignal(net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.core.Direction);
+  public static java.util.Optional<net.minecraft.world.phys.Vec3> findStandUpPosition(net.minecraft.world.entity.EntityType<?>, net.minecraft.world.level.CollisionGetter, net.minecraft.core.BlockPos);
+  private static java.util.Optional<net.minecraft.world.phys.Vec3> findStandUpPosition(net.minecraft.world.entity.EntityType<?>, net.minecraft.world.level.CollisionGetter, net.minecraft.core.BlockPos, boolean);
+  protected boolean isPathfindable(net.minecraft.world.level.block.state.BlockState, net.minecraft.world.level.pathfinder.PathComputationType);
+  private static boolean lambda$explode$0(net.minecraft.server.level.ServerLevel, net.minecraft.core.BlockPos);
+  static {};
+}

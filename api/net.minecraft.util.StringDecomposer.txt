@@ -1,0 +1,19 @@
+Compiled from "StringDecomposer.java"
+public class net.minecraft.util.StringDecomposer {
+  private static final char REPLACEMENT_CHAR;
+  private static final java.util.Optional<java.lang.Object> STOP_ITERATION;
+  public net.minecraft.util.StringDecomposer();
+  private static boolean feedChar(net.minecraft.network.chat.Style, net.minecraft.util.FormattedCharSink, int, char);
+  public static boolean iterate(java.lang.String, net.minecraft.network.chat.Style, net.minecraft.util.FormattedCharSink);
+  public static boolean iterateBackwards(java.lang.String, net.minecraft.network.chat.Style, net.minecraft.util.FormattedCharSink);
+  public static boolean iterateFormatted(java.lang.String, net.minecraft.network.chat.Style, net.minecraft.util.FormattedCharSink);
+  public static boolean iterateFormatted(java.lang.String, int, net.minecraft.network.chat.Style, net.minecraft.util.FormattedCharSink);
+  public static boolean iterateFormatted(java.lang.String, int, net.minecraft.network.chat.Style, net.minecraft.network.chat.Style, net.minecraft.util.FormattedCharSink);
+  public static boolean iterateFormatted(net.minecraft.network.chat.FormattedText, net.minecraft.network.chat.Style, net.minecraft.util.FormattedCharSink);
+  public static java.lang.String filterBrokenSurrogates(java.lang.String);
+  public static java.lang.String getPlainText(net.minecraft.network.chat.FormattedText);
+  private static boolean lambda$getPlainText$0(java.lang.StringBuilder, int, net.minecraft.network.chat.Style, int);
+  private static boolean lambda$filterBrokenSurrogates$0(java.lang.StringBuilder, int, net.minecraft.network.chat.Style, int);
+  private static java.util.Optional lambda$iterateFormatted$0(net.minecraft.util.FormattedCharSink, net.minecraft.network.chat.Style, java.lang.String);
+  static {};
+}

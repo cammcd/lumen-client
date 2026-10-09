@@ -1,0 +1,4 @@
+Compiled from "MenuConstructor.java"
+public interface net.minecraft.world.inventory.MenuConstructor {
+  public abstract net.minecraft.world.inventory.AbstractContainerMenu createMenu(int, net.minecraft.world.entity.player.Inventory, net.minecraft.world.entity.player.Player);
+}

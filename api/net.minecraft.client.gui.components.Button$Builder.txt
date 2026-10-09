@@ -1,0 +1,19 @@
+Compiled from "Button.java"
+public class net.minecraft.client.gui.components.Button$Builder {
+  private final net.minecraft.network.chat.Component message;
+  private final net.minecraft.client.gui.components.Button$OnPress onPress;
+  private net.minecraft.client.gui.components.Tooltip tooltip;
+  private int x;
+  private int y;
+  private int width;
+  private int height;
+  private net.minecraft.client.gui.components.Button$CreateNarration createNarration;
+  public net.minecraft.client.gui.components.Button$Builder(net.minecraft.network.chat.Component, net.minecraft.client.gui.components.Button$OnPress);
+  public net.minecraft.client.gui.components.Button$Builder pos(int, int);
+  public net.minecraft.client.gui.components.Button$Builder width(int);
+  public net.minecraft.client.gui.components.Button$Builder size(int, int);
+  public net.minecraft.client.gui.components.Button$Builder bounds(int, int, int, int);
+  public net.minecraft.client.gui.components.Button$Builder tooltip(net.minecraft.client.gui.components.Tooltip);
+  public net.minecraft.client.gui.components.Button$Builder createNarration(net.minecraft.client.gui.components.Button$CreateNarration);
+  public net.minecraft.client.gui.components.Button build();
+}

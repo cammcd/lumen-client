@@ -1,0 +1,29 @@
+Compiled from "LongArrayTag.java"
+public final class net.minecraft.nbt.LongArrayTag implements net.minecraft.nbt.CollectionTag {
+  private static final int SELF_SIZE_IN_BYTES;
+  public static final net.minecraft.nbt.TagType<net.minecraft.nbt.LongArrayTag> TYPE;
+  private long[] data;
+  public net.minecraft.nbt.LongArrayTag(long[]);
+  public void write(java.io.DataOutput) throws java.io.IOException;
+  public int sizeInBytes();
+  public byte getId();
+  public net.minecraft.nbt.TagType<net.minecraft.nbt.LongArrayTag> getType();
+  public java.lang.String toString();
+  public net.minecraft.nbt.LongArrayTag copy();
+  public boolean equals(java.lang.Object);
+  public int hashCode();
+  public void accept(net.minecraft.nbt.TagVisitor);
+  public long[] getAsLongArray();
+  public int size();
+  public net.minecraft.nbt.LongTag get(int);
+  public boolean setTag(int, net.minecraft.nbt.Tag);
+  public boolean addTag(int, net.minecraft.nbt.Tag);
+  public net.minecraft.nbt.LongTag remove(int);
+  public void clear();
+  public java.util.Optional<long[]> asLongArray();
+  public net.minecraft.nbt.StreamTagVisitor$ValueResult accept(net.minecraft.nbt.StreamTagVisitor);
+  public net.minecraft.nbt.Tag get(int);
+  public net.minecraft.nbt.Tag remove(int);
+  public net.minecraft.nbt.Tag copy();
+  static {};
+}

@@ -1,0 +1,8 @@
+Compiled from "ContainerScreen.java"
+public class net.minecraft.client.gui.screens.inventory.ContainerScreen extends net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<net.minecraft.world.inventory.ChestMenu> {
+  private static final net.minecraft.resources.Identifier CONTAINER_BACKGROUND;
+  private final int containerRows;
+  public net.minecraft.client.gui.screens.inventory.ContainerScreen(net.minecraft.world.inventory.ChestMenu, net.minecraft.world.entity.player.Inventory, net.minecraft.network.chat.Component);
+  public void extractBackground(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  static {};
+}

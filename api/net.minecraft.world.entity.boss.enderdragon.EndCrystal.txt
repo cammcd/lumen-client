@@ -1,0 +1,26 @@
+Compiled from "EndCrystal.java"
+public class net.minecraft.world.entity.boss.enderdragon.EndCrystal extends net.minecraft.world.entity.Entity {
+  private static final net.minecraft.network.syncher.EntityDataAccessor<java.util.Optional<net.minecraft.core.BlockPos>> DATA_BEAM_TARGET;
+  private static final net.minecraft.network.syncher.EntityDataAccessor<java.lang.Boolean> DATA_SHOW_BOTTOM;
+  private static final boolean DEFAULT_SHOW_BOTTOM;
+  public int time;
+  public net.minecraft.world.entity.boss.enderdragon.EndCrystal(net.minecraft.world.entity.EntityType<? extends net.minecraft.world.entity.boss.enderdragon.EndCrystal>, net.minecraft.world.level.Level);
+  public net.minecraft.world.entity.boss.enderdragon.EndCrystal(net.minecraft.world.level.Level, double, double, double);
+  protected net.minecraft.world.entity.Entity$MovementEmission getMovementEmission();
+  protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData$Builder);
+  public void tick();
+  protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput);
+  protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput);
+  public boolean isPickable();
+  public final boolean hurtClient(net.minecraft.world.damagesource.DamageSource);
+  public final boolean hurtServer(net.minecraft.server.level.ServerLevel, net.minecraft.world.damagesource.DamageSource, float);
+  public void kill(net.minecraft.server.level.ServerLevel);
+  private void onDestroyedBy(net.minecraft.server.level.ServerLevel, net.minecraft.world.damagesource.DamageSource);
+  public void setBeamTarget(net.minecraft.core.BlockPos);
+  public net.minecraft.core.BlockPos getBeamTarget();
+  public void setShowBottom(boolean);
+  public boolean showsBottom();
+  public boolean shouldRenderAtSqrDistance(double);
+  public net.minecraft.world.item.ItemStack getPickResult();
+  static {};
+}
