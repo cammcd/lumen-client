@@ -1,0 +1,13 @@
+Compiled from "ToggleKeyMapping.java"
+public class net.minecraft.client.ToggleKeyMapping extends net.minecraft.client.KeyMapping {
+  private final java.util.function.BooleanSupplier needsToggle;
+  private boolean releasedByScreenWhenDown;
+  private final boolean shouldRestore;
+  public net.minecraft.client.ToggleKeyMapping(java.lang.String, int, net.minecraft.client.KeyMapping$Category, java.util.function.BooleanSupplier, boolean);
+  public net.minecraft.client.ToggleKeyMapping(java.lang.String, com.mojang.blaze3d.platform.InputConstants$Type, int, net.minecraft.client.KeyMapping$Category, java.util.function.BooleanSupplier, boolean);
+  protected boolean shouldSetOnIngameFocus();
+  public void setDown(boolean);
+  protected void release();
+  public boolean shouldRestoreStateOnScreenClosed();
+  protected void reset();
+}

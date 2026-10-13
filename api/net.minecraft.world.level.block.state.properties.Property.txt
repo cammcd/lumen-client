@@ -1,0 +1,29 @@
+Compiled from "Property.java"
+public abstract class net.minecraft.world.level.block.state.properties.Property<T extends java.lang.Comparable<T>> {
+  private final java.lang.Class<T> clazz;
+  private final java.lang.String name;
+  private java.lang.Integer hashCode;
+  private final com.mojang.serialization.Codec<T> codec;
+  private final com.mojang.serialization.Codec<net.minecraft.world.level.block.state.properties.Property$Value<T>> valueCodec;
+  protected net.minecraft.world.level.block.state.properties.Property(java.lang.String, java.lang.Class<T>);
+  public net.minecraft.world.level.block.state.properties.Property$Value<T> value(T);
+  public net.minecraft.world.level.block.state.properties.Property$Value<T> value(net.minecraft.world.level.block.state.StateHolder<?, ?>);
+  public java.util.stream.Stream<net.minecraft.world.level.block.state.properties.Property$Value<T>> getAllValues();
+  public com.mojang.serialization.Codec<T> codec();
+  public com.mojang.serialization.Codec<net.minecraft.world.level.block.state.properties.Property$Value<T>> valueCodec();
+  public java.lang.String getName();
+  public java.lang.Class<T> getValueClass();
+  public abstract java.util.List<T> getPossibleValues();
+  public abstract java.lang.String getName(T);
+  public abstract java.util.Optional<T> getValue(java.lang.String);
+  public abstract int getInternalIndex(T);
+  public java.lang.String toString();
+  public boolean equals(java.lang.Object);
+  public final int hashCode();
+  public int generateHashCode();
+  public <U, S extends net.minecraft.world.level.block.state.StateHolder<?, S>> com.mojang.serialization.DataResult<S> parseValue(com.mojang.serialization.DynamicOps<U>, S, U);
+  private net.minecraft.world.level.block.state.StateHolder lambda$parseValue$0(net.minecraft.world.level.block.state.StateHolder, java.lang.Comparable);
+  private com.mojang.serialization.DataResult lambda$new$0(java.lang.String);
+  private com.mojang.serialization.DataResult lambda$new$1(java.lang.String);
+  private java.lang.String lambda$new$2(java.lang.String);
+}

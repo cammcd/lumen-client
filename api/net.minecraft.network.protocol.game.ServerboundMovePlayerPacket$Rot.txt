@@ -1,0 +1,10 @@
+Compiled from "ServerboundMovePlayerPacket.java"
+public class net.minecraft.network.protocol.game.ServerboundMovePlayerPacket$Rot extends net.minecraft.network.protocol.game.ServerboundMovePlayerPacket {
+  public static final net.minecraft.network.codec.StreamCodec<net.minecraft.network.FriendlyByteBuf, net.minecraft.network.protocol.game.ServerboundMovePlayerPacket$Rot> STREAM_CODEC;
+  public net.minecraft.network.protocol.game.ServerboundMovePlayerPacket$Rot(float, float, boolean, boolean);
+  private static net.minecraft.network.protocol.game.ServerboundMovePlayerPacket$Rot read(net.minecraft.network.FriendlyByteBuf);
+  private void write(net.minecraft.network.FriendlyByteBuf);
+  public net.minecraft.network.protocol.PacketType<net.minecraft.network.protocol.game.ServerboundMovePlayerPacket$Rot> type();
+  public void handle(net.minecraft.network.PacketListener);
+  static {};
+}

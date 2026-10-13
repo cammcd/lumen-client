@@ -1,0 +1,15 @@
+Compiled from "User.java"
+public class net.minecraft.client.User {
+  private final java.lang.String name;
+  private final java.util.UUID uuid;
+  private final java.lang.String accessToken;
+  private final java.util.Optional<java.lang.String> xuid;
+  private final java.util.Optional<java.lang.String> clientId;
+  public net.minecraft.client.User(java.lang.String, java.util.UUID, java.lang.String, java.util.Optional<java.lang.String>, java.util.Optional<java.lang.String>);
+  public java.lang.String getSessionId();
+  public java.util.UUID getProfileId();
+  public java.lang.String getName();
+  public java.lang.String getAccessToken();
+  public java.util.Optional<java.lang.String> getClientId();
+  public java.util.Optional<java.lang.String> getXuid();
+}

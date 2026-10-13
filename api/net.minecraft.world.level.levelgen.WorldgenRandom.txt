@@ -1,0 +1,16 @@
+Compiled from "WorldgenRandom.java"
+public class net.minecraft.world.level.levelgen.WorldgenRandom extends net.minecraft.world.level.levelgen.LegacyRandomSource {
+  private final net.minecraft.util.RandomSource randomSource;
+  private int count;
+  public net.minecraft.world.level.levelgen.WorldgenRandom(net.minecraft.util.RandomSource);
+  public int getCount();
+  public net.minecraft.util.RandomSource fork();
+  public net.minecraft.world.level.levelgen.PositionalRandomFactory forkPositional();
+  public int next(int);
+  public synchronized void setSeed(long);
+  public long setDecorationSeed(long, int, int);
+  public void setFeatureSeed(long, int, int);
+  public void setLargeFeatureSeed(long, int, int);
+  public void setLargeFeatureWithSalt(long, int, int, int);
+  public static net.minecraft.util.RandomSource seedSlimeChunk(int, int, long, long);
+}

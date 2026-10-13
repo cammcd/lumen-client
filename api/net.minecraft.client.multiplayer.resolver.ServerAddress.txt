@@ -1,0 +1,17 @@
+Compiled from "ServerAddress.java"
+public final class net.minecraft.client.multiplayer.resolver.ServerAddress {
+  private static final org.slf4j.Logger LOGGER;
+  private final com.google.common.net.HostAndPort hostAndPort;
+  private static final net.minecraft.client.multiplayer.resolver.ServerAddress INVALID;
+  public net.minecraft.client.multiplayer.resolver.ServerAddress(java.lang.String, int);
+  private net.minecraft.client.multiplayer.resolver.ServerAddress(com.google.common.net.HostAndPort);
+  public java.lang.String getHost();
+  public int getPort();
+  public static net.minecraft.client.multiplayer.resolver.ServerAddress parseString(java.lang.String);
+  public static boolean isValidAddress(java.lang.String);
+  public static int parsePort(java.lang.String);
+  public java.lang.String toString();
+  public boolean equals(java.lang.Object);
+  public int hashCode();
+  static {};
+}

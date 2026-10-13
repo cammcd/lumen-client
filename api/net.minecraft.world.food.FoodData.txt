@@ -1,0 +1,23 @@
+Compiled from "FoodData.java"
+public class net.minecraft.world.food.FoodData {
+  private static final int DEFAULT_TICK_TIMER;
+  private static final float DEFAULT_EXHAUSTION_LEVEL;
+  private int foodLevel;
+  private float saturationLevel;
+  private float exhaustionLevel;
+  private int tickTimer;
+  public net.minecraft.world.food.FoodData();
+  private void add(int, float);
+  public void eat(int, float);
+  public void eat(net.minecraft.world.food.FoodProperties);
+  public void tick(net.minecraft.server.level.ServerPlayer);
+  public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput);
+  public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput);
+  public int getFoodLevel();
+  public boolean hasEnoughFood();
+  public boolean needsFood();
+  public void addExhaustion(float);
+  public float getSaturationLevel();
+  public void setFoodLevel(int);
+  public void setSaturation(float);
+}

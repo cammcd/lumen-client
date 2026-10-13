@@ -1,0 +1,12 @@
+Compiled from "ServerData.java"
+public final class net.minecraft.client.multiplayer.ServerData$Type extends java.lang.Enum<net.minecraft.client.multiplayer.ServerData$Type> {
+  public static final net.minecraft.client.multiplayer.ServerData$Type LAN;
+  public static final net.minecraft.client.multiplayer.ServerData$Type REALM;
+  public static final net.minecraft.client.multiplayer.ServerData$Type OTHER;
+  private static final net.minecraft.client.multiplayer.ServerData$Type[] $VALUES;
+  public static net.minecraft.client.multiplayer.ServerData$Type[] values();
+  public static net.minecraft.client.multiplayer.ServerData$Type valueOf(java.lang.String);
+  private net.minecraft.client.multiplayer.ServerData$Type();
+  private static net.minecraft.client.multiplayer.ServerData$Type[] $values();
+  static {};
+}

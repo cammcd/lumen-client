@@ -1,0 +1,10 @@
+Compiled from "ShulkerBoxMenu.java"
+public class net.minecraft.world.inventory.ShulkerBoxMenu extends net.minecraft.world.inventory.AbstractContainerMenu {
+  private static final int CONTAINER_SIZE;
+  private final net.minecraft.world.Container container;
+  public net.minecraft.world.inventory.ShulkerBoxMenu(int, net.minecraft.world.entity.player.Inventory);
+  public net.minecraft.world.inventory.ShulkerBoxMenu(int, net.minecraft.world.entity.player.Inventory, net.minecraft.world.Container);
+  public boolean stillValid(net.minecraft.world.entity.player.Player);
+  public net.minecraft.world.item.ItemStack quickMoveStack(net.minecraft.world.entity.player.Player, int);
+  public void removed(net.minecraft.world.entity.player.Player);
+}

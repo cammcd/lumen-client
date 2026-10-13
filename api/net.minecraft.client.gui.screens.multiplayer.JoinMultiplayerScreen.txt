@@ -1,0 +1,42 @@
+Compiled from "JoinMultiplayerScreen.java"
+public class net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen extends net.minecraft.client.gui.screens.Screen {
+  private static final org.slf4j.Logger LOGGER;
+  private static final int TOP_ROW_BUTTON_WIDTH;
+  private static final int LOWER_ROW_BUTTON_WIDTH;
+  private final net.minecraft.client.gui.layouts.HeaderAndFooterLayout layout;
+  private final net.minecraft.client.multiplayer.ServerStatusPinger pinger;
+  private final net.minecraft.client.gui.screens.Screen lastScreen;
+  protected net.minecraft.client.gui.screens.multiplayer.ServerSelectionList serverSelectionList;
+  private net.minecraft.client.multiplayer.ServerList servers;
+  private net.minecraft.client.gui.components.Button editButton;
+  private net.minecraft.client.gui.components.Button joinButton;
+  private net.minecraft.client.gui.components.Button deleteButton;
+  private net.minecraft.client.multiplayer.ServerData editingServer;
+  private net.minecraft.client.server.LanServerDetection$LanServerList lanServerList;
+  private net.minecraft.client.server.LanServerDetection$LanServerDetector lanServerDetector;
+  public net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen(net.minecraft.client.gui.screens.Screen);
+  protected void init();
+  protected void repositionElements();
+  public void onClose();
+  public void tick();
+  public void removed();
+  private void refreshServerList();
+  private void deleteCallback(boolean);
+  private void editServerCallback(boolean);
+  private void addServerCallback(boolean);
+  private void directJoinCallback(boolean);
+  public boolean keyPressed(net.minecraft.client.input.KeyEvent);
+  public void join(net.minecraft.client.multiplayer.ServerData);
+  protected void onSelectedChange();
+  public net.minecraft.client.multiplayer.ServerStatusPinger getPinger();
+  public net.minecraft.client.multiplayer.ServerList getServers();
+  private static void lambda$init$7(net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen, net.minecraft.client.gui.components.AbstractWidget);
+  private void lambda$init$6(net.minecraft.client.gui.components.Button);
+  private void lambda$init$5(net.minecraft.client.gui.components.Button);
+  private void lambda$init$4(net.minecraft.client.gui.components.Button);
+  private void lambda$init$3(net.minecraft.client.gui.components.Button);
+  private void lambda$init$2(net.minecraft.client.gui.components.Button);
+  private void lambda$init$1(net.minecraft.client.gui.components.Button);
+  private void lambda$init$0(net.minecraft.client.gui.components.Button);
+  static {};
+}

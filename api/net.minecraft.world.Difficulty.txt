@@ -1,0 +1,24 @@
+Compiled from "Difficulty.java"
+public final class net.minecraft.world.Difficulty extends java.lang.Enum<net.minecraft.world.Difficulty> implements net.minecraft.util.StringRepresentable {
+  public static final net.minecraft.world.Difficulty PEACEFUL;
+  public static final net.minecraft.world.Difficulty EASY;
+  public static final net.minecraft.world.Difficulty NORMAL;
+  public static final net.minecraft.world.Difficulty HARD;
+  public static final net.minecraft.util.StringRepresentable$EnumCodec<net.minecraft.world.Difficulty> CODEC;
+  private static final java.util.function.IntFunction<net.minecraft.world.Difficulty> BY_ID;
+  public static final net.minecraft.network.codec.StreamCodec<io.netty.buffer.ByteBuf, net.minecraft.world.Difficulty> STREAM_CODEC;
+  private final int id;
+  private final java.lang.String key;
+  private static final net.minecraft.world.Difficulty[] $VALUES;
+  public static net.minecraft.world.Difficulty[] values();
+  public static net.minecraft.world.Difficulty valueOf(java.lang.String);
+  private net.minecraft.world.Difficulty(int, java.lang.String);
+  public int getId();
+  public net.minecraft.network.chat.Component getDisplayName();
+  public net.minecraft.network.chat.Component getInfo();
+  public static net.minecraft.world.Difficulty byId(int);
+  public static net.minecraft.world.Difficulty byName(java.lang.String);
+  public java.lang.String getSerializedName();
+  private static net.minecraft.world.Difficulty[] $values();
+  static {};
+}

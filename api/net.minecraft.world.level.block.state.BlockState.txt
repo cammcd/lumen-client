@@ -1,0 +1,12 @@
+Compiled from "BlockState.java"
+public class net.minecraft.world.level.block.state.BlockState extends net.minecraft.world.level.block.state.BlockBehaviour$BlockStateBase {
+  public static final com.mojang.serialization.Codec<net.minecraft.world.level.block.state.BlockState> FULL_CODEC;
+  private static final com.mojang.serialization.Codec<com.mojang.datafixers.util.Either<net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.BlockState>> CONSTANT_OR_DISPATCH_CODEC;
+  public static final com.mojang.serialization.Codec<net.minecraft.world.level.block.state.BlockState> CODEC;
+  public net.minecraft.world.level.block.state.BlockState(net.minecraft.world.level.block.Block, net.minecraft.world.level.block.state.properties.Property<?>[], java.lang.Comparable<?>[]);
+  protected net.minecraft.world.level.block.state.BlockState asState();
+  private static com.mojang.datafixers.util.Either lambda$static$2(net.minecraft.world.level.block.state.BlockState);
+  private static net.minecraft.world.level.block.state.BlockState lambda$static$0(com.mojang.datafixers.util.Either);
+  private static net.minecraft.world.level.block.state.BlockState lambda$static$1(net.minecraft.world.level.block.state.BlockState);
+  static {};
+}

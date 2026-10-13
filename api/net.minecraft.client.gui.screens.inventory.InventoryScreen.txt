@@ -1,0 +1,20 @@
+Compiled from "InventoryScreen.java"
+public class net.minecraft.client.gui.screens.inventory.InventoryScreen extends net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen<net.minecraft.world.inventory.InventoryMenu> {
+  private float xMouse;
+  private float yMouse;
+  private boolean buttonClicked;
+  private final net.minecraft.client.gui.screens.inventory.EffectsInInventory effects;
+  public net.minecraft.client.gui.screens.inventory.InventoryScreen(net.minecraft.world.entity.player.Player);
+  public void containerTick();
+  protected void init();
+  protected net.minecraft.client.gui.navigation.ScreenPosition getRecipeBookButtonPosition();
+  protected void onRecipeBookButtonClick();
+  protected void extractLabels(net.minecraft.client.gui.GuiGraphicsExtractor, int, int);
+  public void extractRenderState(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  public boolean showsActiveEffects();
+  protected boolean isBiggerResultSlot();
+  public void extractBackground(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, float);
+  public static void extractEntityInInventoryFollowsMouse(net.minecraft.client.gui.GuiGraphicsExtractor, int, int, int, int, int, float, float, float, net.minecraft.world.entity.LivingEntity);
+  private static net.minecraft.client.renderer.entity.state.EntityRenderState extractRenderState(net.minecraft.world.entity.LivingEntity);
+  public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent);
+}

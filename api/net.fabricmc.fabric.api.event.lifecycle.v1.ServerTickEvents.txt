@@ -1,0 +1,17 @@
+Compiled from "ServerTickEvents.java"
+public final class net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents {
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$StartTick> START_SERVER_TICK;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$EndTick> END_SERVER_TICK;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$StartLevelTick> START_LEVEL_TICK;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$EndLevelTick> END_LEVEL_TICK;
+  private net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents();
+  private static net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$EndLevelTick lambda$static$6(net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$EndLevelTick[]);
+  private static void lambda$static$7(net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$EndLevelTick[], net.minecraft.server.level.ServerLevel);
+  private static net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$StartLevelTick lambda$static$4(net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$StartLevelTick[]);
+  private static void lambda$static$5(net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$StartLevelTick[], net.minecraft.server.level.ServerLevel);
+  private static net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$EndTick lambda$static$2(net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$EndTick[]);
+  private static void lambda$static$3(net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$EndTick[], net.minecraft.server.MinecraftServer);
+  private static net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$StartTick lambda$static$0(net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$StartTick[]);
+  private static void lambda$static$1(net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents$StartTick[], net.minecraft.server.MinecraftServer);
+  static {};
+}

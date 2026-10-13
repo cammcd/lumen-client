@@ -1,0 +1,37 @@
+Compiled from "Slot.java"
+public class net.minecraft.world.inventory.Slot {
+  private final int slot;
+  public final net.minecraft.world.Container container;
+  public int index;
+  public final int x;
+  public final int y;
+  public net.minecraft.world.inventory.Slot(net.minecraft.world.Container, int, int, int);
+  public void onQuickCraft(net.minecraft.world.item.ItemStack, net.minecraft.world.item.ItemStack);
+  protected void onQuickCraft(net.minecraft.world.item.ItemStack, int);
+  protected void onSwapCraft(int);
+  protected void checkTakeAchievements(net.minecraft.world.item.ItemStack);
+  public void onTake(net.minecraft.world.entity.player.Player, net.minecraft.world.item.ItemStack);
+  public boolean mayPlace(net.minecraft.world.item.ItemStack);
+  public net.minecraft.world.item.ItemStack getItem();
+  public boolean hasItem();
+  public void setByPlayer(net.minecraft.world.item.ItemStack);
+  public void setByPlayer(net.minecraft.world.item.ItemStack, net.minecraft.world.item.ItemStack);
+  public void set(net.minecraft.world.item.ItemStack);
+  public void setChanged();
+  public int getMaxStackSize();
+  public int getMaxStackSize(net.minecraft.world.item.ItemStack);
+  public net.minecraft.resources.Identifier getNoItemIcon();
+  public net.minecraft.world.item.ItemStack remove(int);
+  public boolean mayPickup(net.minecraft.world.entity.player.Player);
+  public boolean isActive();
+  public java.util.Optional<net.minecraft.world.item.ItemStack> tryRemove(int, int, net.minecraft.world.entity.player.Player);
+  public net.minecraft.world.item.ItemStack safeTake(int, int, net.minecraft.world.entity.player.Player);
+  public net.minecraft.world.item.ItemStack safeClone(net.minecraft.world.entity.player.Player);
+  public net.minecraft.world.item.ItemStack safeInsert(net.minecraft.world.item.ItemStack);
+  public net.minecraft.world.item.ItemStack safeInsert(net.minecraft.world.item.ItemStack, int);
+  public boolean allowModification(net.minecraft.world.entity.player.Player);
+  public int getContainerSlot();
+  public boolean isHighlightable();
+  public boolean isFake();
+  private void lambda$safeTake$0(net.minecraft.world.entity.player.Player, net.minecraft.world.item.ItemStack);
+}
