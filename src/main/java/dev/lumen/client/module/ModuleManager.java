@@ -38,6 +38,7 @@ import dev.lumen.client.modules.Radar;
 import dev.lumen.client.modules.SafeWalk;
 import dev.lumen.client.modules.Scaffold;
 import dev.lumen.client.modules.SignReader;
+import dev.lumen.client.modules.SlimeChunks;
 import dev.lumen.client.modules.SoundLocator;
 import dev.lumen.client.modules.SpawnerEsp;
 import dev.lumen.client.modules.StashFinder;
@@ -62,6 +63,7 @@ public final class ModuleManager {
 	public final NewChunks newChunks;
 	public final StashFinder stashFinder;
 	public final BaseFinder baseFinder;
+	public final SlimeChunks slimeChunks;
 	public final SignReader signReader;
 	public final LogoutSpots logoutSpots;
 	public final SoundLocator soundLocator;
@@ -108,6 +110,7 @@ public final class ModuleManager {
 		newChunks = register(new NewChunks());
 		stashFinder = register(new StashFinder());
 		baseFinder = register(new BaseFinder());
+		slimeChunks = register(new SlimeChunks());
 		signReader = register(new SignReader());
 		logoutSpots = register(new LogoutSpots());
 		soundLocator = register(new SoundLocator());

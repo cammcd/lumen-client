@@ -320,6 +320,7 @@ public final class LumenClientTest implements FabricClientGameTest {
 		testPrinterBreakWater(context, sp);
 		testPrinterWalking(context, sp);
 		testAutoUse(context, sp);
+		testSlimeChunks(context, sp);
 		testFakeName(context);
 	}
 
@@ -855,6 +856,96 @@ public final class LumenClientTest implements FabricClientGameTest {
 		if (!unpaused) throw new AssertionError("The pause menu opened while Auto Use was on");
 		if (!pausedWithout) throw new AssertionError("Losing focus did not pause the game without Auto Use, so the test did not lose focus");
 		if (!released) throw new AssertionError("Auto Use left right click held after turning off");
+	}
+
+	/**
+	 * Slime Chunks: the sum must agree with the game's own WorldgenRandom.seedSlimeChunk for
+	 * every chunk tried, over several seeds; in singleplayer the seed must be picked up by
+	 * itself and the verdict for the chunk you stand in must match; and with you standing
+	 * still, a slime appearing 32 blocks away in a slime chunk is marked, while one in a chunk
+	 * the seed rules out is marked and flagged as contradicting the seed.
+	 */
+	private void testSlimeChunks(ClientGameTestContext context, TestSingleplayerContext sp) {
+		TestServerContext server = sp.getServer();
+		LOG.info("Testing Slime Chunks");
+		String formula = server.computeOnServer(s -> {
+			long[] seeds = {s.overworld().getSeed(), 0L, -4172144997902289642L, 123456789L};
+			int wrong = 0;
+			int slime = 0;
+			int total = 0;
+			for (long seed : seeds) {
+				for (int x = -30; x <= 30; x++) {
+					for (int z = -30; z <= 30; z++) {
+						boolean game = net.minecraft.world.level.levelgen.WorldgenRandom.seedSlimeChunk(x, z, seed, 987234911L).nextInt(10) == 0;
+						boolean ours = dev.lumen.client.modules.SlimeChunks.isSlimeChunk(seed, x, z, 987234911L);
+						if (game != ours) wrong++;
+						if (game) slime++;
+						total++;
+					}
+				}
+			}
+			return wrong + " wrong of " + total + ", " + slime + " slime chunks";
+		});
+		LOG.info("Slime Chunks: formula {}", formula);
+		if (!formula.startsWith("0 wrong")) throw new AssertionError("The slime chunk sum disagrees with the game: " + formula);
+
+		long worldSeed = server.computeOnServer(s -> s.overworld().getSeed());
+		// A slime chunk near x 470, with the player standing two chunks east of its middle.
+		ChunkPos slime = null;
+		for (int r = 0; r < 20 && slime == null; r++) {
+			for (int dz = -r; dz <= r && slime == null; dz++) {
+				ChunkPos c = new ChunkPos((470 >> 4) + r, (-40 >> 4) + dz);
+				if (dev.lumen.client.modules.SlimeChunks.isSlimeChunk(worldSeed, c.x(), c.z(), 987234911L)) slime = c;
+			}
+		}
+		if (slime == null) throw new AssertionError("No slime chunk found near x 470");
+		double px = slime.x() * 16 + 8 + 32.5;
+		double pz = slime.z() * 16 + 8.5;
+		ChunkPos plain = null;
+		for (int dx = -3; dx <= 3 && plain == null; dx++) {
+			for (int dz = -3; dz <= 3 && plain == null; dz++) {
+				ChunkPos c = new ChunkPos(ChunkPos.containing(BlockPos.containing(px, 0, pz)).x() + dx, ChunkPos.containing(BlockPos.containing(px, 0, pz)).z() + dz);
+				double d = Math.hypot(c.x() * 16 + 8 - px, c.z() * 16 + 8 - pz);
+				if (d >= 28 && d <= 44 && !dev.lumen.client.modules.SlimeChunks.isSlimeChunk(worldSeed, c.x(), c.z(), 987234911L)) plain = c;
+			}
+		}
+		if (plain == null) throw new AssertionError("No plain chunk found at the right distance");
+
+		command(server, "/kill @e[type=minecraft:slime]");
+		command(server, "/tp @a " + px + " -60 " + pz + " 90 40");
+		sp.getConnection().waitForChunksRender();
+		context.runOnClient(mc -> Lumen.modules().slimeChunks.setEnabled(true));
+		context.waitTicks(5);
+		String seedSeen = context.computeOnClient(mc -> Long.toString(Lumen.modules().slimeChunks.seed().orElse(Long.MIN_VALUE)));
+		String status = context.computeOnClient(mc -> Lumen.modules().slimeChunks.status());
+		boolean hereSlime = context.computeOnClient(mc -> dev.lumen.client.modules.SlimeChunks.isSlimeChunk(worldSeed,
+				ChunkPos.containing(mc.player.blockPosition()).x(), ChunkPos.containing(mc.player.blockPosition()).z(), 987234911L));
+		LOG.info("Slime Chunks: seed read {} (world {}), here {} (expected {})", seedSeen, worldSeed, status, hereSlime ? "yes" : "no");
+		if (!seedSeen.equals(Long.toString(worldSeed))) throw new AssertionError("Slime Chunks read the seed as " + seedSeen + ", the world's is " + worldSeed);
+		if (!status.startsWith(hereSlime ? "yes" : "no")) throw new AssertionError("Slime Chunks says '" + status + "' for this chunk");
+
+		// Stand still, then slimes appear: one in the slime chunk, one where the seed says none can spawn.
+		context.waitTicks(110);
+		ChunkPos slimeChunk = slime;
+		ChunkPos plainChunk = plain;
+		command(server, "/summon minecraft:slime " + (slime.x() * 16 + 8) + " -60 " + (slime.z() * 16 + 8) + " {NoAI:1b,Size:0}");
+		command(server, "/summon minecraft:slime " + (plain.x() * 16 + 8) + " -60 " + (plain.z() * 16 + 8) + " {NoAI:1b,Size:0}");
+		context.waitTicks(10);
+		context.takeScreenshot("lumen_42_slime_chunks");
+		int inSlime = context.computeOnClient(mc -> Lumen.modules().slimeChunks.seen(slimeChunk));
+		int inPlain = context.computeOnClient(mc -> Lumen.modules().slimeChunks.seen(plainChunk));
+		boolean plainFlagged = context.computeOnClient(mc -> Lumen.modules().slimeChunks.contradicted(plainChunk));
+		boolean slimeFlagged = context.computeOnClient(mc -> Lumen.modules().slimeChunks.contradicted(slimeChunk));
+		LOG.info("Slime Chunks: {} seen in slime chunk {}, {} in plain chunk {}, plain flagged {}, slime chunk flagged {}", inSlime, slimeChunk,
+				inPlain, plainChunk, plainFlagged, slimeFlagged);
+		command(server, "/kill @e[type=minecraft:slime]");
+		context.runOnClient(mc -> Lumen.modules().slimeChunks.setEnabled(false));
+
+		// Natural slimes may also spawn in the slime chunk meanwhile; in the plain chunk none can.
+		if (inSlime < 1) throw new AssertionError("The slime in the slime chunk was not marked");
+		if (inPlain != 1) throw new AssertionError("The plain chunk was marked " + inPlain + " times, expected 1");
+		if (!plainFlagged) throw new AssertionError("A slime in a chunk the seed rules out was not flagged");
+		if (slimeFlagged) throw new AssertionError("The slime chunk was flagged as contradicting the seed");
 	}
 
 	/** A one-region schematic of the given blocks, keyed by position from its lowest corner. */

@@ -102,3 +102,6 @@ net.minecraft.core.Registry
 net.minecraft.world.level.block.ColorCollection
 net.minecraft.world.level.block.state.properties.Property
 net.minecraft.world.level.block.state.StateDefinition
+net.minecraft.world.level.levelgen.WorldgenRandom
+net.minecraft.server.level.ServerLevel
+net.minecraft.world.level.ChunkPos
